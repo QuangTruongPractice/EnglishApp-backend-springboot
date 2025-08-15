@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Quản trị viên</title>
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Colors */
+        :root {
+            --green-seaweed: rgba(2, 128, 144, 1);
+            --blue-queen: rgba(69, 105, 144, 1);
+            --red-fire: rgba(244, 91, 105, 1);
+        }
+
+        body {
+            background-color: var(--red-fire);
+            font-family: 'Asap', sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .login {
+            overflow: hidden;
+            background-color: white;
+            padding: 40px 30px 30px 30px;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            transform: translate(-50%, -50%);
+            transition: transform 300ms, box-shadow 300ms;
+            box-shadow: 5px 10px 10px rgba(2, 128, 144, 0.2);
+        }
+
+        .login::before,
+        .login::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-top-left-radius: 40%;
+            border-top-right-radius: 45%;
+            border-bottom-left-radius: 35%;
+            border-bottom-right-radius: 40%;
+            z-index: -1;
+        }
+
+        .login::before {
+            left: 40%;
+            bottom: -130%;
+            background-color: rgba(69, 105, 144, 0.15);
+            animation: wawes 6s infinite linear;
+        }
+
+        .login::after {
+            left: 35%;
+            bottom: -125%;
+            background-color: rgba(2, 128, 144, 0.2);
+            animation: wawes 7s infinite;
+        }
+
+        .login-title {
+            text-align: center;
+            color: var(--blue-queen);
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .login input {
+            font-family: 'Asap', sans-serif;
+            display: block;
+            border-radius: 5px;
+            font-size: 16px;
+            background: white;
+            width: 100%;
+            border: 2px solid #f0f0f0;
+            padding: 15px;
+            margin: 15px 0;
+            box-sizing: border-box;
+            transition: border-color 300ms;
+        }
+
+        .login input:focus {
+            outline: none;
+            border-color: var(--blue-queen);
+        }
+
+        .login input::placeholder {
+            color: #999;
+        }
+
+        .login button {
+            font-family: 'Asap', sans-serif;
+            cursor: pointer;
+            color: #fff;
+            font-size: 16px;
+            text-transform: uppercase;
+            width: 100%;
+            border: 0;
+            padding: 15px 0;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: var(--red-fire);
+            transition: background-color 300ms;
+            font-weight: 600;
+        }
+
+        .login button:hover {
+            background-color: rgba(244, 91, 105, 0.8);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        @keyframes wawes {
+            from {
+                transform: rotate(0);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login {
+                width: 90%;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<form class="login" method="post" th:action="@{/login}">
+    <h2 class="login-title">Đăng nhập</h2>
+
+    <div th:if="${param.denied}" class="alert alert-danger">
+        <strong>Truy cập bị từ chối!</strong><br>
+        Bạn cần quyền Admin để truy cập.
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger">
+        <strong>Đăng nhập thất bại!</strong><br>
+        Username hoặc mật khẩu không đúng.
+    </div>
+
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Mật khẩu" required>
+    <button type="submit">Đăng nhập</button>
+</form>
+</body>
+</html>

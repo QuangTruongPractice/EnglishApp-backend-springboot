@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Topics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table img {
+            max-width: 80px;
+            height: auto;
+        }
+        :root {
+            --green-seaweed: rgba(2, 128, 144, 1);
+            --blue-queen: rgba(69, 105, 144, 1);
+            --red-fire: rgba(244, 91, 105, 1);
+            --orange-sun: rgba(255, 165, 0, 1);
+        }
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: var(--red-fire);
+            color: white;
+        }
+
+        .sidebar a {
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(244, 91, 105, 0.8);
+        }
+
+        /* CSS cho header bảng */
+        .table-red-fire {
+            background-color: var(--red-fire) !important;
+            color: white !important;
+        }
+
+        .table-red-fire th {
+            background-color: var(--red-fire) !important;
+            color: white !important;
+            border-color: rgba(244, 91, 105, 0.5) !important;
+        }
+
+        /* CSS cho các dòng striped */
+        .table-red-fire-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(244, 91, 105, 0.1) !important;
+            color: var(--red-fire);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="admin/home :: sidebar"></div>
+        <div class="col-md-10 p-4">
+            <h2 class="mb-4" th:text="${subTopics.id == null ? 'Create Sub Topic' : 'Update Sub Topic'}"></h2>
+
+            <form th:action="@{/admin/subTopics/add}" th:object="${subTopics}" method="post" class="row g-3" novalidate>
+                <input type="hidden" th:field="*{id}"/>
+
+                <!-- Name -->
+                <div class="col-md-6">
+                    <label class="form-label">Name</label>
+                    <input type="text" th:field="*{name}" class="form-control" required/>
+                    <div class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <!-- Main Topic -->
+                <div class="col-md-6">
+                    <label class="form-label">Main Topic</label>
+                    <select th:field="*{mainTopicId}" class="form-select" required>
+                        <option th:each="mt : ${mainTopics}" th:value="${mt.id}" th:text="${mt.name}"></option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('mainTopicId')}" th:errors="*{mainTopicId}"></div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success">Lưu</button>
+                    <a th:href="@{/admin/subTopics}" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

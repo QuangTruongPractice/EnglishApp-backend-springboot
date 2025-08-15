@@ -1,0 +1,25 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /english
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/englishdb"
+    username: root
+    password: Admin@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
+
+cloudinary:
+  cloud-name: dabb0yavq
+  api-key: 629417998313995
+  api-secret: Pz7QaOBFl3nGzZVfWWmb2Vvx3DQ
+
