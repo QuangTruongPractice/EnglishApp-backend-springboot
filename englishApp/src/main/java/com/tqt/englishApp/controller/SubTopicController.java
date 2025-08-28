@@ -30,11 +30,9 @@ public class SubTopicController {
         if (name != null && !name.isEmpty()) {
             params.put("name", name);
         }
-        params.put("page", String.valueOf(page - 1));
+        params.put("page", String.valueOf(page));
 
         Page<?> topicsPage = subTopicService.getSubTopics(params);
-        System.out.println("Topics Page: " + topicsPage.getContent());
-        topicsPage.getContent().forEach(System.out::println);
         model.addAttribute("subTopics", topicsPage.getContent());
         model.addAttribute("totalPages", topicsPage.getTotalPages());
         model.addAttribute("currentPage", page);

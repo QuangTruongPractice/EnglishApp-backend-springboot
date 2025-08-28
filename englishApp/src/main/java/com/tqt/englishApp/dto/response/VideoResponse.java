@@ -1,21 +1,22 @@
 package com.tqt.englishApp.dto.response;
 
-import com.tqt.englishApp.entity.WordType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VocabularySimpleResponse {
+public class VideoResponse {
     Integer id;
-    String word;
-    String definition;
-    List<WordType> wordTypes;
+    String videoId;
+    String title;
+    String youtubeUrl;
+    Integer duration;
+    String language;
+    String status;
+    Integer segmentsCount;
 }

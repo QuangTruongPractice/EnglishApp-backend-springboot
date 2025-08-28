@@ -24,7 +24,6 @@ public class UserCreationRequest {
     String lastName;
     LocalDate dob;
     MultipartFile avatar;
-    LocalDate createdAt;
     Boolean isActive = true;
     Role role = Role.USER;
 }

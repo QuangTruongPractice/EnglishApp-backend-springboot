@@ -89,14 +89,14 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Sub Topics</label>
-                    <select class="form-select" multiple th:field="*{subTopicIds}">
+                    <select class="form-select" multiple th:field="*{subTopics}">
                         <option th:each="sub : ${subTopics}" th:value="${sub.id}" th:text="${sub.name}"></option>
                     </select>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Word Types</label>
-                    <select class="form-select" multiple th:field="*{wordTypeIds}">
+                    <select class="form-select" multiple th:field="*{wordTypes}">
                         <option th:each="wt : ${wordTypes}" th:value="${wt.id}" th:text="${wt.type.name}"></option>
                     </select>
                 </div>

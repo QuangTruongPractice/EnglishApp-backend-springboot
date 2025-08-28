@@ -29,7 +29,7 @@ public class MainTopicService {
 
     @Autowired
     private Cloudinary cloudinary;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 8;
 
     public MainTopicResponse createMainTopic(MainTopicRequest request){
         MultipartFile image = request.getImage();

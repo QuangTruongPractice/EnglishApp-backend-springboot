@@ -2,13 +2,19 @@ package com.tqt.englishApp.controller;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.AuthenticationRequest;
+import com.tqt.englishApp.dto.request.UserUpdateRequest;
 import com.tqt.englishApp.dto.response.AuthenticationResponse;
 import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.service.AuthenticateService;
 import com.tqt.englishApp.service.UserService;
 import com.tqt.englishApp.utils.JwtUtils;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -77,5 +83,12 @@ public class ApiAuthController {
     public ResponseEntity<?> getProfile(Principal principal) {
         String username = principal.getName();
         return ResponseEntity.ok(userService.findUserByUsername(username));
+    }
+
+    @PutMapping(path= "/secure/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProfile(Principal principal, @ModelAttribute @Valid UserUpdateRequest request) {
+        String username = principal.getName();
+        UserResponse user = userService.findUserByUsername(username);
+        return ResponseEntity.ok(userService.updateUser(user.getId(), request));
     }
 }

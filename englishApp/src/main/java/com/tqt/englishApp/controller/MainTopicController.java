@@ -26,11 +26,9 @@ public class MainTopicController {
         if (name != null && !name.isEmpty()) {
             params.put("name", name);
         }
-        params.put("page", String.valueOf(page - 1));
+        params.put("page", String.valueOf(page));
 
         Page<?> topicsPage = mainTopicService.getMainTopics(params);
-        System.out.println("Topics Page: " + topicsPage.getContent());
-        topicsPage.getContent().forEach(System.out::println);
         model.addAttribute("topics", topicsPage.getContent());
         model.addAttribute("totalPages", topicsPage.getTotalPages());
         model.addAttribute("currentPage", page);

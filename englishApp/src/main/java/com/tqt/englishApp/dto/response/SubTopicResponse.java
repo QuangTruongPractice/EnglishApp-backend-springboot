@@ -16,6 +16,7 @@ import java.util.List;
 public class SubTopicResponse {
     Integer id;
     String name;
+    Long vocabularyCount;
     MainTopicSimpleResponse mainTopic;
     List<VocabularySimpleResponse> vocabularies;
     LocalDate createdAt;

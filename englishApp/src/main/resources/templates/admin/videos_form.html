@@ -64,53 +64,23 @@
     <div class="row">
         <div th:replace="admin/home :: sidebar"></div>
         <div class="col-md-10 p-4">
-            <h2 class="mb-4" th:text="${'Update Main Topics'}"></h2>
+            <h2 class="mb-4" th:text="${videos.id == null ? 'Create Videos' : 'Update Videos'}"></h2>
 
-            <form th:action="@{/admin/users/edit/{id}(id=${userId})}"
-                  th:object="${user}"
-                  method="post"
-                  enctype="multipart/form-data"
-                  class="row g-3" novalidate>
+            <form th:action="@{/admin/videos/add}" th:object="${videos}" method="post"
+                  enctype="multipart/form-data" class="row g-3" novalidate>
 
-                <!-- First Name -->
+                <input type="hidden" th:field="*{id}"/>
+
                 <div class="col-md-6">
-                    <label class="form-label">First Name</label>
-                    <input type="text" th:field="*{firstName}" class="form-control"/>
-                    <div class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                    <label class="form-label">Youtube Url</label>
+                    <input type="text" th:field="*{youtubeUrl}" class="form-control" required/>
+                    <div class="error-message" th:if="${#fields.hasErrors('youtubeUrl')}" th:errors="*{youtubeUrl}" ></div>
                 </div>
 
-                <!-- Last Name -->
-                <div class="col-md-6">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" th:field="*{lastName}" class="form-control"/>
-                    <div class="error-message" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
-                </div>
 
-                <!-- Date of Birth -->
-                <div class="col-md-6">
-                    <label class="form-label">Date of Birth</label>
-                    <input type="date" th:field="*{dob}" class="form-control"/>
-                </div>
-
-                <!-- Avatar -->
-                <div class="col-md-6">
-                    <label class="form-label">Avatar</label>
-                    <input type="file" th:field="*{avatar}" class="form-control"/>
-                </div>
-
-                <!-- Status -->
-                <div class="col-md-6">
-                    <label class="form-label">Status</label>
-                    <select th:field="*{isActive}" class="form-select">
-                        <option th:value="true">Active</option>
-                        <option th:value="false">Inactive</option>
-                    </select>
-                </div>
-
-                <!-- Submit -->
                 <div class="col-12">
                     <button type="submit" class="btn btn-success">Lưu</button>
-                    <a th:href="@{/admin/users}" class="btn btn-secondary">Quay lại</a>
+                    <a th:href="@{/admin/videos}" class="btn btn-secondary">Quay lại</a>
                 </div>
             </form>
         </div>

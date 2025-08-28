@@ -77,9 +77,11 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         userMapper.updateUser(user, request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
 
-        if (!avatar.isEmpty()) {
+        if (avatar != null && !avatar.isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(
                         avatar.getBytes(),

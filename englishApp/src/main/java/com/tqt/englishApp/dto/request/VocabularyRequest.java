@@ -22,6 +22,6 @@ public class VocabularyRequest {
     String example;
     String vnExample;
     String audioUrl;
-    List<Integer> subTopicIds;
-    List<Integer> wordTypeIds;
+    List<Integer> subTopics;
+    List<Integer> wordTypes;
 }

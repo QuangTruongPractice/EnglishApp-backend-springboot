@@ -41,12 +41,12 @@ public class VocabularyService {
 
     public VocabularyResponse createVocabulary(VocabularyRequest request){
         Vocabulary vocabulary = vocabularyMapper.toVocabulary(request);
-        List<SubTopic> subTopics = subTopicRepository.findAllById(request.getSubTopicIds());
+        List<SubTopic> subTopics = subTopicRepository.findAllById(request.getSubTopics());
         if (subTopics.isEmpty()) {
             throw new AppException(ErrorCode.TOPIC_NOT_EXISTED);
         }
         vocabulary.setSubTopics(subTopics);
-        List<WordType> wordTypes = wordTypeRepository.findAllById(request.getWordTypeIds());
+        List<WordType> wordTypes = wordTypeRepository.findAllById(request.getWordTypes());
         if (wordTypes.isEmpty()) {
             throw new AppException(ErrorCode.WORDTYPE_NOT_EXISTED);
         }
@@ -58,12 +58,12 @@ public class VocabularyService {
         Vocabulary vocabulary = vocabularyRepository.findById(vocabularyId)
                 .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED));
         vocabularyMapper.updateVocabulary(vocabulary, request);
-        List<SubTopic> subTopics = subTopicRepository.findAllById(request.getSubTopicIds());
+        List<SubTopic> subTopics = subTopicRepository.findAllById(request.getSubTopics());
         if (subTopics.isEmpty()) {
             throw new AppException(ErrorCode.TOPIC_NOT_EXISTED);
         }
         vocabulary.setSubTopics(subTopics);
-        List<WordType> wordTypes = wordTypeRepository.findAllById(request.getWordTypeIds());
+        List<WordType> wordTypes = wordTypeRepository.findAllById(request.getWordTypes());
         if (wordTypes.isEmpty()) {
             throw new AppException(ErrorCode.WORDTYPE_NOT_EXISTED);
         }

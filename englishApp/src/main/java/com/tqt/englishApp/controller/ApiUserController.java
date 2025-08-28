@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class ApiUserController {
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Page<UserResponse>> getUsers(@RequestParam Map<String, String> params) {
         ApiResponse<Page<UserResponse>> response = new ApiResponse<>();
         response.setResult(userService.getUsers(params));
@@ -35,6 +37,7 @@ public class ApiUserController {
     }
 
     @GetMapping("/users/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId) {
         ApiResponse<UserResponse> response = new ApiResponse<>();
         response.setResult(userService.getUserById(userId));
@@ -42,13 +45,15 @@ public class ApiUserController {
     }
 
     @PutMapping(path="/users/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<UserResponse> updateUser(@ModelAttribute UserUpdateRequest request, @PathVariable("userId") String userId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<UserResponse> updateUser(@ModelAttribute @Valid UserUpdateRequest request, @PathVariable("userId") String userId) {
         ApiResponse<UserResponse> response = new ApiResponse<>();
         response.setResult(userService.updateUser(userId, request));
         return response;
     }
 
     @DeleteMapping("/users/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<UserResponse> deleteUser(@PathVariable String userId) {
         ApiResponse<UserResponse> response = new ApiResponse<>();
         response.setResult(userService.deactivateUser(userId));

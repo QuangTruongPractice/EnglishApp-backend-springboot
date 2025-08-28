@@ -33,11 +33,9 @@ public class VocabularyController {
         if (word != null && !word.isEmpty()) {
             params.put("word", word);
         }
-        params.put("page", String.valueOf(page - 1));
+        params.put("page", String.valueOf(page));
 
         Page<?> vocabularyPage = vocabularyService.getVocabularies(params);
-        System.out.println("Topics Page: " + vocabularyPage.getContent());
-        vocabularyPage.getContent().forEach(System.out::println);
         model.addAttribute("vocabularies", vocabularyPage.getContent());
         model.addAttribute("totalPages", vocabularyPage.getTotalPages());
         model.addAttribute("currentPage", page);
@@ -57,13 +55,11 @@ public class VocabularyController {
         if (result.hasErrors()) {
             return "admin/vocabularies_form";
         }
-        VocabularyResponse response = new VocabularyResponse();
         if (request.getId() != null) {
-            response = vocabularyService.updateVocabulary(request.getId(), request);
+            vocabularyService.updateVocabulary(request.getId(), request);
         } else {
-            response = vocabularyService.createVocabulary(request);
+            vocabularyService.createVocabulary(request);
         }
-        System.out.println(response);
         return "redirect:/admin/vocabularies";
     }
 

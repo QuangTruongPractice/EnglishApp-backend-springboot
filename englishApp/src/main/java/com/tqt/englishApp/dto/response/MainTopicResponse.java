@@ -1,6 +1,5 @@
 package com.tqt.englishApp.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,6 +15,7 @@ public class MainTopicResponse {
     Integer id;
     String name;
     String image;
-    List<SubTopicResponse> subTopics;
+    Long subTopicsCount;
+    List<SubTopicSimpleResponse> subTopics;
     LocalDate createdAt;
 }

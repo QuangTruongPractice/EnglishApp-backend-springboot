@@ -3,15 +3,17 @@ package com.tqt.englishApp.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SubTopicSimpleResponse {
+public class UserVideoResponse {
     Integer id;
-    String name;
-    LocalDate createdAt;
+    VideoResponse video;
+    Integer progressPercentage;
+    Boolean isCompleted;
+    LocalDateTime updatedAt;
 }

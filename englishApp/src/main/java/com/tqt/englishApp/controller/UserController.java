@@ -29,7 +29,7 @@ public class UserController {
         if (keyword != null && !keyword.isEmpty()) {
             params.put("keyword", keyword);
         }
-        params.put("page", String.valueOf(page - 1));
+        params.put("page", String.valueOf(page));
 
         Page<?> users = userService.getUsers(params);
         model.addAttribute("users", users.getContent());
