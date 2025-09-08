@@ -53,6 +53,10 @@ public class UserVocabularyProgress {
             this.status = VocabularyStatus.COMPLETED;
         } else if (viewedFlashcard) {
             this.status = VocabularyStatus.IN_PROGRESS;
+        } else if (practicedPronunciation) {
+            this.status = VocabularyStatus.IN_PROGRESS;
+        } else {
+            this.status = VocabularyStatus.NOT_STARTED;
         }
     }
 }

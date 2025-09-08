@@ -2,14 +2,15 @@ package com.tqt.englishApp.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.tqt.englishApp.dto.request.UserCreationRequest;
-import com.tqt.englishApp.dto.request.UserUpdateRequest;
+import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.UserResponse;
+import com.tqt.englishApp.entity.OTP;
 import com.tqt.englishApp.entity.User;
 import com.tqt.englishApp.entity.Vocabulary;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.UserMapper;
+import com.tqt.englishApp.repository.OtpRepository;
 import com.tqt.englishApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,12 +26,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OtpRepository otpRepository;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -40,6 +45,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MailService mailService;
 
     private static final int PAGE_SIZE = 10;
 
@@ -124,11 +132,68 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserResponse(userRepository.findUserByUsername(username));
     }
 
+    public UserResponse findUserByEmail(String email){
+        User u = userRepository.findUserByEmail(email);
+        if(u == null){
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        return userMapper.toUserResponse(userRepository.findUserByEmail(email));
+    }
+
     public UserResponse deactivateUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.setIsActive(false);
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    public void resetPassword (ResetPasswordRequest request) {
+        String email = request.getEmail();
+        String randomNumber = generateRandomNumber();
+
+        OTP otp = OTP.builder()
+                .email(email)
+                .otp(randomNumber)
+                .expiredAt(LocalDateTime.now().plusMinutes(3))
+                .build();
+        otpRepository.save(otp);
+
+        String subject = "Yêu cầu reset lại Password của bạn đã thành công!";
+        String content = String.format("Mã OTP của bạn là %s. Vui lòng không tiết lộ mã này cho người khác", randomNumber);
+        mailService.sendSimpleMessage(email, subject, content);
+    }
+
+    public String generateRandomNumber() {
+        Random rand = new Random();
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 4; i++) {
+            int digit = rand.nextInt(10);
+            sb.append(digit);
+        }
+
+        return sb.toString();
+    }
+
+    public String optVerifiedRequest(OtpVerifiedRequest request){
+        OTP otp = otpRepository.findByEmailAndOtp(request.getEmail(), request.getOtp());
+        if (otp == null) {
+            return "OTP không tồn tại hoặc không đúng";
+        }
+
+        if (otp.getExpiredAt().isBefore(LocalDateTime.now())) {
+            otpRepository.delete(otp);
+            return "OTP đã hết hạn, vui lòng yêu cầu OTP mới";
+        }
+        return "Xác thực OTP thành công, bạn có thể đổi mật khẩu";
+    }
+
+    public UserResponse changePassword(ChangePasswordRequest request) {
+        User u = userRepository.findUserByEmail(request.getEmail());
+        if (request.getPassword()!= null && !request.getPassword().trim().isEmpty()) {
+            u.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        return  userMapper.toUserResponse(userRepository.save(u));
     }
 
     @Override

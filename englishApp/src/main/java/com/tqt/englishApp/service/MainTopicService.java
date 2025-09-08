@@ -9,6 +9,7 @@ import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.MainTopicMapper;
 import com.tqt.englishApp.repository.MainTopicRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -93,8 +94,9 @@ public class MainTopicService {
         return mainTopicMapper.toMainTopicResponse(mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
-    public void deleteMainTopic(int id){
+    @Transactional
+    public void deleteMainTopic(int id) {
+        mainTopicRepository.deleteVocabularySubTopicRelationsByMainTopic(id);
         mainTopicRepository.deleteById(id);
     }
-
 }

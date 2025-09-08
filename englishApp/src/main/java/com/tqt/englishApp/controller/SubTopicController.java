@@ -1,6 +1,5 @@
 package com.tqt.englishApp.controller;
 
-import com.tqt.englishApp.dto.request.MainTopicRequest;
 import com.tqt.englishApp.dto.request.SubTopicRequest;
 import com.tqt.englishApp.service.MainTopicService;
 import com.tqt.englishApp.service.SubTopicService;

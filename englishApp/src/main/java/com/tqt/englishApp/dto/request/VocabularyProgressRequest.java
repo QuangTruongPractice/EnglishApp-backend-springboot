@@ -1,5 +1,8 @@
 package com.tqt.englishApp.dto.request;
 
+import com.tqt.englishApp.enums.VocabularyStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

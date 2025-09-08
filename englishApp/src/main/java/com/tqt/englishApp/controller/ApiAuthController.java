@@ -2,6 +2,7 @@ package com.tqt.englishApp.controller;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.AuthenticationRequest;
+import com.tqt.englishApp.dto.request.GoogleAuthRequest;
 import com.tqt.englishApp.dto.request.UserUpdateRequest;
 import com.tqt.englishApp.dto.response.AuthenticationResponse;
 import com.tqt.englishApp.dto.response.UserResponse;
@@ -82,6 +83,7 @@ public class ApiAuthController {
     @GetMapping("/secure/profile")
     public ResponseEntity<?> getProfile(Principal principal) {
         String username = principal.getName();
+        System.out.println("username: " + username);
         return ResponseEntity.ok(userService.findUserByUsername(username));
     }
 
@@ -90,5 +92,51 @@ public class ApiAuthController {
         String username = principal.getName();
         UserResponse user = userService.findUserByUsername(username);
         return ResponseEntity.ok(userService.updateUser(user.getId(), request));
+    }
+
+    @PostMapping("/auth/google-signin")
+    public ApiResponse<AuthenticationResponse> googleSignIn(@RequestBody @Valid GoogleAuthRequest request) {
+        ApiResponse<AuthenticationResponse> response = new ApiResponse<>();
+        boolean result = authenticateService.googleAuth(request);
+        if (result) {
+            try{
+                UserResponse user = userService.findUserByEmail(request.getEmail());
+                if (user.getIsActive() == true) {
+                    String token = JwtUtils.generateToken(
+                            user.getEmail(),
+                            user.getRole().name()
+                    );
+
+                    AuthenticationResponse authResponse = new AuthenticationResponse();
+                    authResponse.setAuthenticated(result);
+                    authResponse.setToken(token);
+                    response.setResult(authResponse);
+                    response.setMessage("Đăng nhập thành công");
+                    return response;
+
+                } else {
+                    AuthenticationResponse authResponse = new AuthenticationResponse();
+                    authResponse.setAuthenticated(false);
+                    authResponse.setToken(null);
+                    response.setResult(authResponse);
+                    response.setMessage("Tài khoản chưa được duyệt hoặc đã bị khóa");
+                    response.setCode(403);
+                    return response;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                AuthenticationResponse authResponse = new AuthenticationResponse();
+                authResponse.setAuthenticated(false);
+                authResponse.setToken(null);
+                response.setResult(authResponse);
+                response.setMessage("Lỗi khi tạo JWT: " + e.getMessage());
+                response.setCode(500);
+                return response;
+            }
+
+        } else {
+            response.setMessage("Xác thực Google thất bại");
+            return response;
+        }
     }
 }

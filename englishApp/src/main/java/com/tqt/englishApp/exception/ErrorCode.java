@@ -21,6 +21,8 @@ public enum ErrorCode {
     VOCABULARY_NOT_EXISTED(1011, "Không tìm thấy vocabulary"),
     WORDTYPE_NOT_EXISTED(1012, "Không tìm thấy Word type"),
     VIDEO_NOT_EXISTED(1013, "Không tìm thấy video"),
+    QUIZ_NOT_EXISTED(1014, "Không tìm thấy quiz"),
+    ANSWER_NOT_EXISTED(1015, "Không tìm thấy answer"),
     ;
 
     ErrorCode(int code, String message) {

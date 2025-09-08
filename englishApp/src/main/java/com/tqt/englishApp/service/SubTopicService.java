@@ -9,6 +9,7 @@ import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.SubTopicMapper;
 import com.tqt.englishApp.repository.MainTopicRepository;
 import com.tqt.englishApp.repository.SubTopicRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ public class SubTopicService {
 
     public SubTopicResponse createSubTopic(SubTopicRequest request){
         SubTopic subTopic = subTopicMapper.toSubTopic(request);
-        MainTopic mainTopic = mainTopicRepository.findById(request.getMainTopicId())
+        MainTopic mainTopic = mainTopicRepository.findById(request.getMainTopic())
                 .orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED));
         subTopic.setMainTopic(mainTopic);
         return subTopicMapper.toSubTopicResponse(subTopicRepository.save(subTopic));
@@ -42,7 +43,7 @@ public class SubTopicService {
         SubTopic subTopic = subTopicRepository.findById(subTopicId)
                 .orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED));
         subTopicMapper.updateSubTopic(subTopic, request);
-        MainTopic mainTopic = mainTopicRepository.findById(request.getMainTopicId())
+        MainTopic mainTopic = mainTopicRepository.findById(request.getMainTopic())
                 .orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED));
         subTopic.setMainTopic(mainTopic);
         return subTopicMapper.toSubTopicResponse(subTopicRepository.save(subTopic));
@@ -71,7 +72,9 @@ public class SubTopicService {
         return subTopicMapper.toSubTopicResponse(subTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
-    public void deleteSubTopic(Integer id){
+    @Transactional
+    public void deleteSubTopic(Integer id) {
+        subTopicRepository.deleteVocabularySubTopicRelations(id);
         subTopicRepository.deleteById(id);
     }
 

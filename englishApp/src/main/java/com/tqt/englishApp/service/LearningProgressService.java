@@ -2,6 +2,8 @@ package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.request.VideoProgressRequest;
 import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
+import com.tqt.englishApp.dto.response.LeaderBoardResponse;
+import com.tqt.englishApp.dto.response.LeaderBoardWrapperResponse;
 import com.tqt.englishApp.dto.response.UserVideoResponse;
 import com.tqt.englishApp.dto.response.UserVocabularyResponse;
 import com.tqt.englishApp.entity.UserVideoProgress;
@@ -13,6 +15,9 @@ import com.tqt.englishApp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,9 +54,14 @@ public class LearningProgressService {
 
         if (request.getViewedFlashcard() != null) {
             progress.setViewedFlashcard(request.getViewedFlashcard());
+        } else if (progress.getViewedFlashcard() == null) {
+            progress.setViewedFlashcard(false);
         }
+
         if (request.getPracticedPronunciation() != null) {
             progress.setPracticedPronunciation(request.getPracticedPronunciation());
+        } else if (progress.getPracticedPronunciation() == null) {
+            progress.setPracticedPronunciation(false);
         }
         return userVocabularyProgressRepository.save(progress);
     }
@@ -84,6 +94,21 @@ public class LearningProgressService {
 
     public List<UserVideoResponse> getUserVideoProgress(String userId) {
         return userVideoMapper.toUserVideoResponse(userVideoProgressRepository.findByUserId(userId));
+    }
+
+    public LeaderBoardWrapperResponse getLeaderBoardWithCurrentUser(String userId) {
+        List<LeaderBoardResponse> rawResult = userVocabularyProgressRepository.getUserRanking();
+        List<LeaderBoardResponse> leaderBoard = new ArrayList<>();
+        LeaderBoardResponse currentUser = null;
+        for (LeaderBoardResponse item : rawResult) {
+            leaderBoard.add(item);
+
+            if (item.getUserId().equals(userId)) {
+                currentUser = item;
+            }
+        }
+
+        return new LeaderBoardWrapperResponse(leaderBoard, currentUser);
     }
 
 }

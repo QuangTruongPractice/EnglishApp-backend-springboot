@@ -27,14 +27,6 @@ public class ApiLearningProgressController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/learning-progress/vocabulary")
-    public ApiResponse<UserVocabularyProgress> updateVocabularyProgress(@RequestBody VocabularyProgressRequest request) {
-        ApiResponse<UserVocabularyProgress> response = new ApiResponse<>();
-        UserVocabularyProgress progress = learningProgressService.updateVocabularyProgress(request);
-        response.setResult(progress);
-        return response;
-    }
-
     @PostMapping("/learning-progress/video")
     public ApiResponse<UserVideoProgress> updateVideoProgress(@RequestBody VideoProgressRequest request) {
         ApiResponse<UserVideoProgress> response = new ApiResponse<>();
@@ -64,36 +56,40 @@ public class ApiLearningProgressController {
     }
 
     @PutMapping("/secure/vocabulary/{vocabularyId}/view-flashcard")
-    public ApiResponse<VocabularyProgressRequest> markFlashcardViewed(
+    public ApiResponse<UserVocabularyProgress> markFlashcardViewed(
             Principal principal,
             @PathVariable Integer vocabularyId) {
-        ApiResponse<VocabularyProgressRequest> response = new ApiResponse<>();
+        ApiResponse<UserVocabularyProgress> response = new ApiResponse<>();
         String username = principal.getName();
         UserResponse user = userService.findUserByUsername(username);
+
         VocabularyProgressRequest request = VocabularyProgressRequest.builder()
                 .userId(user.getId())
                 .vocabularyId(vocabularyId)
                 .viewedFlashcard(true)
                 .build();
-        updateVocabularyProgress(request);
-        response.setResult(request);
+
+        UserVocabularyProgress updated = learningProgressService.updateVocabularyProgress(request);
+        response.setResult(updated);
         return response;
     }
 
     @PutMapping("/secure/vocabulary/{vocabularyId}/practice-pronunciation")
-    public ApiResponse<VocabularyProgressRequest> markPronunciationPracticed(
+    public ApiResponse<UserVocabularyProgress> markPronunciationPracticed(
             Principal principal,
             @PathVariable Integer vocabularyId) {
-        ApiResponse<VocabularyProgressRequest> response = new ApiResponse<>();
+        ApiResponse<UserVocabularyProgress> response = new ApiResponse<>();
         String username = principal.getName();
         UserResponse user = userService.findUserByUsername(username);
+
         VocabularyProgressRequest request = VocabularyProgressRequest.builder()
                 .userId(user.getId())
                 .vocabularyId(vocabularyId)
                 .practicedPronunciation(true)
                 .build();
-        updateVocabularyProgress(request);
-        response.setResult(request);
+
+        UserVocabularyProgress updated = learningProgressService.updateVocabularyProgress(request);
+        response.setResult(updated);
         return response;
     }
 
