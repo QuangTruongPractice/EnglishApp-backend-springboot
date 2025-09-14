@@ -94,6 +94,10 @@ public class MainTopicService {
         return mainTopicMapper.toMainTopicResponse(mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
+    public Long countMainTopic(){
+        return mainTopicRepository.count();
+    }
+
     @Transactional
     public void deleteMainTopic(int id) {
         mainTopicRepository.deleteVocabularySubTopicRelationsByMainTopic(id);

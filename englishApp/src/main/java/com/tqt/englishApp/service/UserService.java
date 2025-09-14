@@ -196,6 +196,10 @@ public class UserService implements UserDetailsService {
         return  userMapper.toUserResponse(userRepository.save(u));
     }
 
+    public Long countUser(){
+        return userRepository.countActiveUsers();
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUserByUsername(username);

@@ -66,4 +66,8 @@ public class QuizService {
     public void deleteQuiz(Integer id){
         quizRepository.deleteById(id);
     }
+
+    public Long countQuiz(){
+        return  quizRepository.count();
+    }
 }

@@ -98,4 +98,8 @@ public class VocabularyService {
         vocabularyRepository.deleteById(id);
     }
 
+    public Long countVocabulary(){
+        return vocabularyRepository.count();
+    }
+
 }

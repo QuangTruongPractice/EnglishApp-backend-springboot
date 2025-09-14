@@ -9,5 +9,4 @@ import java.util.Optional;
 public interface UserVideoProgressRepository extends JpaRepository<UserVideoProgress,Integer> {
     Optional<UserVideoProgress> findByUserIdAndVideoId(String userId, Integer videoId);
     List<UserVideoProgress> findByUserId(String userId);
-    List<UserVideoProgress> findByUserIdAndIsCompleted(String userId, Boolean isCompleted);
 }

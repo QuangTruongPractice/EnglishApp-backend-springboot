@@ -52,4 +52,8 @@ public class VideoService {
         videoRepository.deleteById(id);
     }
 
+    public Long countVideo(){
+        return videoRepository.count();
+    }
+
 }

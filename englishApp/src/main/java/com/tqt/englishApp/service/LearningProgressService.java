@@ -6,8 +6,7 @@ import com.tqt.englishApp.dto.response.LeaderBoardResponse;
 import com.tqt.englishApp.dto.response.LeaderBoardWrapperResponse;
 import com.tqt.englishApp.dto.response.UserVideoResponse;
 import com.tqt.englishApp.dto.response.UserVocabularyResponse;
-import com.tqt.englishApp.entity.UserVideoProgress;
-import com.tqt.englishApp.entity.UserVocabularyProgress;
+import com.tqt.englishApp.entity.*;
 import com.tqt.englishApp.enums.VocabularyStatus;
 import com.tqt.englishApp.mapper.UserVideoMapper;
 import com.tqt.englishApp.mapper.UserVocabularyMapper;
@@ -37,6 +36,12 @@ public class LearningProgressService {
 
     @Autowired
     private VideoRepository videoRepository;
+
+    @Autowired
+    private QuizRepository quizRepository;
+
+    @Autowired
+    private UserQuizProgressRepository userQuizProgressRepository;
 
     @Autowired
     private UserVideoMapper userVideoMapper;
@@ -109,6 +114,19 @@ public class LearningProgressService {
         }
 
         return new LeaderBoardWrapperResponse(leaderBoard, currentUser);
+    }
+
+    public UserQuizProgress updateProgress(String userId, Integer quizId) {
+        UserQuizProgress progress = userQuizProgressRepository.findByUserIdAndQuizId(userId, quizId)
+                .orElse(UserQuizProgress.builder()
+                        .user(userRepository.findById(userId).orElse(null))
+                        .quiz(quizRepository.findById(quizId).orElse(null))
+                        .count(0)
+                        .build());
+
+        progress.setCount(progress.getCount() + 1);
+
+        return userQuizProgressRepository.save(progress);
     }
 
 }

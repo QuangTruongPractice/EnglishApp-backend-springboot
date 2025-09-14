@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, String> {
     boolean existsUserByEmail(String email);
     User findUserByUsername(String username);
     User findUserByEmail(String email);
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true")
+    Long countActiveUsers();
     @Query("""
     SELECT u FROM User u
     WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))

@@ -72,6 +72,10 @@ public class SubTopicService {
         return subTopicMapper.toSubTopicResponse(subTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
+    public Long countSubTopic(){
+        return subTopicRepository.count();
+    }
+
     @Transactional
     public void deleteSubTopic(Integer id) {
         subTopicRepository.deleteVocabularySubTopicRelations(id);

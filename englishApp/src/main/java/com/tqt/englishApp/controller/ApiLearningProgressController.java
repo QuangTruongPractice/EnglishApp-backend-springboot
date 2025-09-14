@@ -6,6 +6,7 @@ import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
 import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.dto.response.UserVideoResponse;
 import com.tqt.englishApp.dto.response.UserVocabularyResponse;
+import com.tqt.englishApp.entity.UserQuizProgress;
 import com.tqt.englishApp.entity.UserVideoProgress;
 import com.tqt.englishApp.entity.UserVocabularyProgress;
 import com.tqt.englishApp.service.LearningProgressService;
@@ -111,6 +112,15 @@ public class ApiLearningProgressController {
                 .build();
 
         UserVideoProgress progress = learningProgressService.updateVideoProgress(progressRequest);
+        response.setResult(progress);
+        return response;
+    }
+    @PutMapping("/secure/quiz/{quizId}/quiz-progress")
+    public ApiResponse<UserQuizProgress> updateQuizProgress(Principal principal, @PathVariable Integer quizId){
+        ApiResponse<UserQuizProgress> response = new ApiResponse<>();
+        String username = principal.getName();
+        UserResponse user = userService.findUserByUsername(username);
+        UserQuizProgress progress = learningProgressService.updateProgress(user.getId(), quizId);
         response.setResult(progress);
         return response;
     }
