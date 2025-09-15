@@ -13,6 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>englishApp</name>
 	<description>Learning English App</description>
+	<packaging>war</packaging>
 	<url/>
 	<licenses>
 		<license/>
