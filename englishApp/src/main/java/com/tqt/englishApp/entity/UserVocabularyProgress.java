@@ -9,7 +9,10 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_vocabulary_progress")
+@Table(name = "user_vocabulary_progress",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "vocabulary_id"})
+        })
 @Getter
 @Setter
 @NoArgsConstructor

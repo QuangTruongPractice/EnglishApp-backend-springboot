@@ -41,7 +41,7 @@ public class SubTopicController {
     @GetMapping("/add")
     public String subTopicsForm(Model model) {
         model.addAttribute("subTopics", new SubTopicRequest());
-        model.addAttribute("mainTopics", mainTopicService.getMainTopics(new HashMap<>()));
+        model.addAttribute("mainTopics", mainTopicService.findAll());
         return "admin/subTopics_form";
     }
 
@@ -61,7 +61,7 @@ public class SubTopicController {
     @GetMapping("/edit/{subTopicsId}")
     public String updateSubTopics(Model model, @PathVariable(value = "subTopicsId") int id ) {
         model.addAttribute("subTopics", subTopicService.getSubTopicById(id));
-        model.addAttribute("mainTopics", mainTopicService.getMainTopics(new HashMap<>()));
+        model.addAttribute("mainTopics", mainTopicService.findAll());
         return "admin/subTopics_form";
     }
 

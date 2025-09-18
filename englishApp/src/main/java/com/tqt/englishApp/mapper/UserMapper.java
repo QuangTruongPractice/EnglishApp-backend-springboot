@@ -17,8 +17,6 @@ public interface UserMapper {
 
     UserResponse toUserResponse(User user);
 
-    List<UserResponse> toUserResponse(List<User> users);
-
     @Mapping(target = "avatar", ignore = true)
     @Mapping(target = "password", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

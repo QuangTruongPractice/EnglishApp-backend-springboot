@@ -84,7 +84,12 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Audio URL</label>
-                    <input type="text" th:field="*{audioUrl}" class="form-control"/>
+                    <input type="text" id="audioUrl" th:field="*{audioUrl}" class="form-control"/>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Upload Audio</label>
+                    <input type="file" id="audioFile" name="audioFile" class="form-control" accept="audio/*"/>
                 </div>
 
                 <div class="col-md-6">
@@ -109,6 +114,27 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const audioUrl = document.getElementById("audioUrl");
+        const audioFile = document.getElementById("audioFile");
 
+        audioUrl.addEventListener("input", function () {
+            if (audioUrl.value.trim() !== "") {
+                audioFile.disabled = true;
+            } else {
+                audioFile.disabled = false;
+            }
+        });
+
+        audioFile.addEventListener("change", function () {
+            if (audioFile.files.length > 0) {
+                audioUrl.disabled = true;
+            } else {
+                audioUrl.disabled = false;
+            }
+        });
+    });
+</script>
 </body>
 </html>

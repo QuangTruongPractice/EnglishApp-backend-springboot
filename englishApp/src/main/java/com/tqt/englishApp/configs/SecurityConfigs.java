@@ -2,6 +2,7 @@ package com.tqt.englishApp.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,6 +30,30 @@ public class SecurityConfigs {
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/vocabulary/**",
+                                "/api/videos/**",
+                                "/api/main-topics/**",
+                                "/api/sub-topics/**",
+                                "/api/quiz/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/vocabulary/**",
+                                "/api/videos/**",
+                                "/api/main-topics/**",
+                                "/api/sub-topics/**",
+                                "/api/quiz/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/vocabulary/**",
+                                "/api/videos/**",
+                                "/api/main-topics/**",
+                                "/api/sub-topics/**",
+                                "/api/quiz/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/vocabulary/**",
+                                "/api/videos/**",
+                                "/api/main-topics/**",
+                                "/api/sub-topics/**",
+                                "/api/quiz/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

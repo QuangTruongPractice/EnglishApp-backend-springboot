@@ -45,7 +45,7 @@ public class VocabularyController {
     @GetMapping("/add")
     public String vocabularyForm(Model model) {
         model.addAttribute("vocabularies", new VocabularyRequest());
-        model.addAttribute("subTopics", subTopicService.getSubTopics(new HashMap<>()));
+        model.addAttribute("subTopics", subTopicService.findAll());
         model.addAttribute("wordTypes", wordTypeService.findAll());
         return "admin/vocabularies_form";
     }
@@ -66,7 +66,7 @@ public class VocabularyController {
     @GetMapping("/edit/{vocabularyId}")
     public String updateVocabulary(Model model, @PathVariable(value = "vocabularyId") int id ) {
         model.addAttribute("vocabularies", vocabularyService.getVocabularyById(id));
-        model.addAttribute("subTopics", subTopicService.getSubTopics(new HashMap<>()));
+        model.addAttribute("subTopics", subTopicService.findAll());
         model.addAttribute("wordTypes", wordTypeService.findAll());
         return "admin/vocabularies_form";
     }

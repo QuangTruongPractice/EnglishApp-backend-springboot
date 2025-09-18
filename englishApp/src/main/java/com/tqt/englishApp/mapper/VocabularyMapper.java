@@ -15,11 +15,12 @@ import java.util.List;
 public interface VocabularyMapper {
     @Mapping(target = "subTopics", ignore = true)
     @Mapping(target = "wordTypes", ignore = true)
+    @Mapping(target = "audioUrl", ignore = true)
     Vocabulary toVocabulary(VocabularyRequest vocabulary);
     VocabularyResponse toVocabularyResponse(Vocabulary vocabulary);
-    List<VocabularyResponse> toVocabularyResponse(List<Vocabulary> vocabularies);
     @Mapping(target = "subTopics", ignore = true)
     @Mapping(target = "wordTypes", ignore = true)
+    @Mapping(target = "audioUrl", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateVocabulary(@MappingTarget Vocabulary vocabulary, VocabularyRequest request);
 }

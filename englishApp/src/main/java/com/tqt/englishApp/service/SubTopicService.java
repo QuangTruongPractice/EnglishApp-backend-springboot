@@ -1,6 +1,7 @@
 package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.request.SubTopicRequest;
+import com.tqt.englishApp.dto.response.MainTopicResponse;
 import com.tqt.englishApp.dto.response.SubTopicResponse;
 import com.tqt.englishApp.entity.MainTopic;
 import com.tqt.englishApp.entity.SubTopic;
@@ -9,6 +10,7 @@ import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.SubTopicMapper;
 import com.tqt.englishApp.repository.MainTopicRepository;
 import com.tqt.englishApp.repository.SubTopicRepository;
+import com.tqt.englishApp.repository.VocabularyRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -28,6 +31,9 @@ public class SubTopicService {
 
     @Autowired
     private MainTopicRepository mainTopicRepository;
+
+    @Autowired
+    private VocabularyService vocabularyService;
 
     private static final int PAGE_SIZE = 10;
 
@@ -76,10 +82,15 @@ public class SubTopicService {
         return subTopicRepository.count();
     }
 
+    public List<SubTopicResponse> findAll(){
+        return subTopicMapper.toSubTopicResponse(subTopicRepository.findAll());
+    }
+
     @Transactional
     public void deleteSubTopic(Integer id) {
         subTopicRepository.deleteVocabularySubTopicRelations(id);
         subTopicRepository.deleteById(id);
+        vocabularyService.deleteAllVocabulary();
     }
 
 }

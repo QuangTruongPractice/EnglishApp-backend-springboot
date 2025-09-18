@@ -1,5 +1,7 @@
 package com.tqt.englishApp.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.tqt.englishApp.dto.request.VocabularyRequest;
 import com.tqt.englishApp.dto.response.SubTopicResponse;
 import com.tqt.englishApp.dto.response.VocabularyResponse;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +41,14 @@ public class VocabularyService {
     @Autowired
     private VocabularyMapper vocabularyMapper;
 
+    @Autowired
+    private Cloudinary cloudinary;
+
     private static final int PAGE_SIZE = 10;
 
     public VocabularyResponse createVocabulary(VocabularyRequest request){
+        MultipartFile audio = request.getAudioFile();
+        String audioUrl = request.getAudioUrl();
         Vocabulary vocabulary = vocabularyMapper.toVocabulary(request);
         List<SubTopic> subTopics = subTopicRepository.findAllById(request.getSubTopics());
         if (subTopics.isEmpty()) {
@@ -51,10 +60,25 @@ public class VocabularyService {
             throw new AppException(ErrorCode.WORDTYPE_NOT_EXISTED);
         }
         vocabulary.setWordTypes(wordTypes);
+        if (audio != null && !audio.isEmpty()) {
+            try {
+                Map res = cloudinary.uploader().upload(
+                        audio.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto")
+                );
+                vocabulary.setAudioUrl(res.get("secure_url").toString());
+            } catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            }
+        } else {
+            vocabulary.setAudioUrl(audioUrl);
+        }
         return vocabularyMapper.toVocabularyResponse(vocabularyRepository.save(vocabulary));
     }
 
     public VocabularyResponse updateVocabulary(Integer vocabularyId, VocabularyRequest request){
+        MultipartFile audio = request.getAudioFile();
+        String audioUrl = request.getAudioUrl();
         Vocabulary vocabulary = vocabularyRepository.findById(vocabularyId)
                 .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED));
         vocabularyMapper.updateVocabulary(vocabulary, request);
@@ -68,6 +92,19 @@ public class VocabularyService {
             throw new AppException(ErrorCode.WORDTYPE_NOT_EXISTED);
         }
         vocabulary.setWordTypes(wordTypes);
+        if (audio != null && !audio.isEmpty()) {
+            try {
+                Map res = cloudinary.uploader().upload(
+                        audio.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto")
+                );
+                vocabulary.setAudioUrl(res.get("secure_url").toString());
+            } catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            }
+        }else {
+            vocabulary.setAudioUrl(audioUrl);
+        }
         return vocabularyMapper.toVocabularyResponse(vocabularyRepository.save(vocabulary));
     }
 
@@ -92,6 +129,12 @@ public class VocabularyService {
 
     public VocabularyResponse getVocabularyById(Integer id){
         return vocabularyMapper.toVocabularyResponse(vocabularyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED)));
+    }
+
+    public void deleteAllVocabulary(){
+        List<Vocabulary> list = vocabularyRepository.findAllWithoutSubTopics();
+        System.out.println("Số từ vựng cần xóa: " + list.size());
+        list.forEach(v -> deleteVocabulary(v.getId()));
     }
 
     public void deleteVocabulary(Integer id){

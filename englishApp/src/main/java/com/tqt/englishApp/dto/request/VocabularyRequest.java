@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class VocabularyRequest {
     String example;
     String vnExample;
     String audioUrl;
+    MultipartFile audioFile;
     List<Integer> subTopics;
     List<Integer> wordTypes;
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -27,6 +28,9 @@ public class MainTopicService {
 
     @Autowired
     private MainTopicMapper mainTopicMapper;
+
+    @Autowired
+    private VocabularyService vocabularyService;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -98,9 +102,14 @@ public class MainTopicService {
         return mainTopicRepository.count();
     }
 
+    public List<MainTopicResponse> findAll(){
+        return mainTopicMapper.toMainTopicResponse(mainTopicRepository.findAll());
+    }
+
     @Transactional
     public void deleteMainTopic(int id) {
         mainTopicRepository.deleteVocabularySubTopicRelationsByMainTopic(id);
         mainTopicRepository.deleteById(id);
+        vocabularyService.deleteAllVocabulary();
     }
 }
