@@ -80,7 +80,7 @@ Cài đặt & Chạy backend
 
 1. Clone dự án
 
-git clone https://github.com/QuangTruongPractice/socialNetwork-Backend.git
+https://github.com/QuangTruongPractice/EnglishApp-backend-springboot.git
 
 2. Cấu hình Database trong resources/application.yaml
 
