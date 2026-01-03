@@ -39,7 +39,7 @@ public class VocabularyController {
         model.addAttribute("vocabularies", vocabularyPage.getContent());
         model.addAttribute("totalPages", vocabularyPage.getTotalPages());
         model.addAttribute("currentPage", page);
-        return "/admin/vocabularies";
+        return "admin/vocabularies";
     }
 
     @GetMapping("/add")
