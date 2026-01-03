@@ -27,7 +27,7 @@ public class VocabularyController {
     private WordTypeService wordTypeService;
 
     @GetMapping
-    public String listSubTopics(Model model, @RequestParam(name = "word",required = false) String word,
+    public String listVocabularies(Model model, @RequestParam(name = "word",required = false) String word,
                                 @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
         Map<String, String> params = new HashMap<>();
         if (word != null && !word.isEmpty()) {
