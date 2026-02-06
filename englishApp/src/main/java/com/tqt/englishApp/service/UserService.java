@@ -4,13 +4,10 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.UserResponse;
-import com.tqt.englishApp.entity.OTP;
 import com.tqt.englishApp.entity.User;
-import com.tqt.englishApp.entity.Vocabulary;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.UserMapper;
-import com.tqt.englishApp.repository.OtpRepository;
 import com.tqt.englishApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -35,7 +31,7 @@ public class UserService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
-    private OtpRepository otpRepository;
+    private OtpService otpService;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -57,30 +53,27 @@ public class UserService implements UserDetailsService {
         if (avatar == null || avatar.isEmpty()) {
             throw new AppException(ErrorCode.AVATAR_REQUIRED);
         }
-        if(userRepository.existsUserByUsername(request.getUsername())) {
+        if (userRepository.existsUserByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
-        if(userRepository.existsUserByEmail(request.getEmail())) {
+        if (userRepository.existsUserByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        if (!avatar.isEmpty()) {
-            try {
-                Map res = cloudinary.uploader().upload(
-                        avatar.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto")
-                );
-                user.setAvatar(res.get("secure_url").toString());
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
+        try {
+            Map res = cloudinary.uploader().upload(
+                    avatar.getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto"));
+            user.setAvatar(res.get("secure_url").toString());
+        } catch (IOException ex) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserResponse updateUser(String userId ,UserUpdateRequest request) {
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
         MultipartFile avatar = request.getAvatar();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -93,17 +86,16 @@ public class UserService implements UserDetailsService {
             try {
                 Map res = cloudinary.uploader().upload(
                         avatar.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto")
-                );
+                        ObjectUtils.asMap("resource_type", "auto"));
                 user.setAvatar(res.get("secure_url").toString());
             } catch (IOException ex) {
-                System.err.println(ex.getMessage());
+                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
             }
         }
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public Page<UserResponse> getUsers(Map<String, String> params){
+    public Page<UserResponse> getUsers(Map<String, String> params) {
         String keyword = params.get("keyword");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));
@@ -120,21 +112,22 @@ public class UserService implements UserDetailsService {
         return result.map(userMapper::toUserResponse);
     }
 
-    public UserResponse getUserById(String id){
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    public UserResponse getUserById(String id) {
+        return userMapper.toUserResponse(
+                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
-    public UserResponse findUserByUsername(String username){
+    public UserResponse findUserByUsername(String username) {
         User u = userRepository.findUserByUsername(username);
-        if(u == null){
+        if (u == null) {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
         return userMapper.toUserResponse(userRepository.findUserByUsername(username));
     }
 
-    public UserResponse findUserByEmail(String email){
+    public UserResponse findUserByEmail(String email) {
         User u = userRepository.findUserByEmail(email);
-        if(u == null){
+        if (u == null) {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
         return userMapper.toUserResponse(userRepository.findUserByEmail(email));
@@ -147,57 +140,49 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public void resetPassword (ResetPasswordRequest request) {
+    public void resetPassword(ResetPasswordRequest request) {
         String email = request.getEmail();
-        String randomNumber = generateRandomNumber();
-
-        OTP otp = OTP.builder()
-                .email(email)
-                .otp(randomNumber)
-                .expiredAt(LocalDateTime.now().plusMinutes(3))
-                .build();
-        otpRepository.save(otp);
+        String randomNumber = otpService.generateAndSaveOtp(email);
 
         String subject = "Yêu cầu reset lại Password của bạn đã thành công!";
-        String content = String.format("Mã OTP của bạn là %s. Vui lòng không tiết lộ mã này cho người khác", randomNumber);
+        String content = String.format("Mã OTP của bạn là %s. Vui lòng không tiết lộ mã này cho người khác",
+                randomNumber);
         mailService.sendSimpleMessage(email, subject, content);
     }
 
-    public String generateRandomNumber() {
-        Random rand = new Random();
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < 4; i++) {
-            int digit = rand.nextInt(10);
-            sb.append(digit);
-        }
-
-        return sb.toString();
-    }
-
-    public String optVerifiedRequest(OtpVerifiedRequest request){
-        OTP otp = otpRepository.findByEmailAndOtp(request.getEmail(), request.getOtp());
-        if (otp == null) {
-            return "OTP không tồn tại hoặc không đúng";
-        }
-
-        if (otp.getExpiredAt().isBefore(LocalDateTime.now())) {
-            otpRepository.delete(otp);
-            return "OTP đã hết hạn, vui lòng yêu cầu OTP mới";
-        }
-        return "Xác thực OTP thành công, bạn có thể đổi mật khẩu";
+    public String optVerifiedRequest(OtpVerifiedRequest request) {
+        return otpService.verifyOtp(request.getEmail(), request.getOtp());
     }
 
     public UserResponse changePassword(ChangePasswordRequest request) {
         User u = userRepository.findUserByEmail(request.getEmail());
-        if (request.getPassword()!= null && !request.getPassword().trim().isEmpty()) {
+        if (u == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             u.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        return  userMapper.toUserResponse(userRepository.save(u));
+        return userMapper.toUserResponse(userRepository.save(u));
     }
 
-    public Long countUser(){
+    public Long countUser() {
         return userRepository.countActiveUsers();
+    }
+
+    public User createGoogleUser(String email, String firstName, String lastName, String avatar) {
+        User user = userRepository.findUserByEmail(email);
+        if (user == null) {
+            user = new User();
+            user.setUsername(email);
+            user.setEmail(email);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setAvatar(avatar);
+            user.setIsActive(true);
+            user.setRole(com.tqt.englishApp.enums.Role.USER);
+            return userRepository.save(user);
+        }
+        return user;
     }
 
     @Override
@@ -213,8 +198,7 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                authorities
-        );
+                authorities);
     }
 
 }

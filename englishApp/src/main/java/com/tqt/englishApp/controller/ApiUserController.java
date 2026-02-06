@@ -2,7 +2,6 @@ package com.tqt.englishApp.controller;
 
 import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.UserResponse;
-import com.tqt.englishApp.service.MailService;
 import com.tqt.englishApp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

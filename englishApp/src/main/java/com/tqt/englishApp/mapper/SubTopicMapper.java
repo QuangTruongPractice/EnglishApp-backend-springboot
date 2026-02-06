@@ -1,10 +1,7 @@
 package com.tqt.englishApp.mapper;
 
 import com.tqt.englishApp.dto.request.SubTopicRequest;
-import com.tqt.englishApp.dto.response.MainTopicResponse;
 import com.tqt.englishApp.dto.response.SubTopicResponse;
-import com.tqt.englishApp.dto.response.SubTopicSimpleResponse;
-import com.tqt.englishApp.entity.MainTopic;
 import com.tqt.englishApp.entity.SubTopic;
 import com.tqt.englishApp.repository.SubTopicRepository;
 import org.mapstruct.*;

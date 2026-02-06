@@ -1,9 +1,6 @@
 package com.tqt.englishApp.controller;
 
-import com.tqt.englishApp.dto.request.UserCreationRequest;
 import com.tqt.englishApp.dto.request.VideoRequest;
-import com.tqt.englishApp.dto.request.VocabularyRequest;
-import com.tqt.englishApp.dto.response.VideoProcessingResponse;
 import com.tqt.englishApp.service.VideoProcessingService;
 import com.tqt.englishApp.service.VideoService;
 import jakarta.validation.Valid;

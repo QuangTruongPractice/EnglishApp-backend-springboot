@@ -2,10 +2,7 @@ package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.request.QuizRequest;
 import com.tqt.englishApp.dto.response.QuizResponse;
-import com.tqt.englishApp.dto.response.SubTopicResponse;
-import com.tqt.englishApp.entity.MainTopic;
 import com.tqt.englishApp.entity.Quiz;
-import com.tqt.englishApp.entity.SubTopic;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.QuizMapper;

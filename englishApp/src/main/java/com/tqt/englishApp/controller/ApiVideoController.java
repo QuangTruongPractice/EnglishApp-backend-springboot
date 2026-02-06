@@ -2,7 +2,6 @@ package com.tqt.englishApp.controller;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.response.SubtitlesResponse;
-import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.dto.response.VideoData;
 import com.tqt.englishApp.dto.response.VideoResponse;
 import com.tqt.englishApp.service.SubtitlesService;

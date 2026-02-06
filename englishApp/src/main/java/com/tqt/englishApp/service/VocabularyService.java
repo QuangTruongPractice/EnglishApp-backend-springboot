@@ -3,7 +3,6 @@ package com.tqt.englishApp.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.tqt.englishApp.dto.request.VocabularyRequest;
-import com.tqt.englishApp.dto.response.SubTopicResponse;
 import com.tqt.englishApp.dto.response.VocabularyResponse;
 import com.tqt.englishApp.entity.SubTopic;
 import com.tqt.englishApp.entity.Vocabulary;
@@ -22,10 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 public class VocabularyService {
@@ -46,7 +43,7 @@ public class VocabularyService {
 
     private static final int PAGE_SIZE = 10;
 
-    public VocabularyResponse createVocabulary(VocabularyRequest request){
+    public VocabularyResponse createVocabulary(VocabularyRequest request) {
         MultipartFile audio = request.getAudioFile();
         String audioUrl = request.getAudioUrl();
         Vocabulary vocabulary = vocabularyMapper.toVocabulary(request);
@@ -64,11 +61,10 @@ public class VocabularyService {
             try {
                 Map res = cloudinary.uploader().upload(
                         audio.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto")
-                );
+                        ObjectUtils.asMap("resource_type", "auto"));
                 vocabulary.setAudioUrl(res.get("secure_url").toString());
             } catch (IOException ex) {
-                System.err.println(ex.getMessage());
+                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
             }
         } else {
             vocabulary.setAudioUrl(audioUrl);
@@ -76,7 +72,7 @@ public class VocabularyService {
         return vocabularyMapper.toVocabularyResponse(vocabularyRepository.save(vocabulary));
     }
 
-    public VocabularyResponse updateVocabulary(Integer vocabularyId, VocabularyRequest request){
+    public VocabularyResponse updateVocabulary(Integer vocabularyId, VocabularyRequest request) {
         MultipartFile audio = request.getAudioFile();
         String audioUrl = request.getAudioUrl();
         Vocabulary vocabulary = vocabularyRepository.findById(vocabularyId)
@@ -96,19 +92,18 @@ public class VocabularyService {
             try {
                 Map res = cloudinary.uploader().upload(
                         audio.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto")
-                );
+                        ObjectUtils.asMap("resource_type", "auto"));
                 vocabulary.setAudioUrl(res.get("secure_url").toString());
             } catch (IOException ex) {
-                System.err.println(ex.getMessage());
+                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
             }
-        }else {
+        } else {
             vocabulary.setAudioUrl(audioUrl);
         }
         return vocabularyMapper.toVocabularyResponse(vocabularyRepository.save(vocabulary));
     }
 
-    public Page<VocabularyResponse> getVocabularies(Map<String, String> params){
+    public Page<VocabularyResponse> getVocabularies(Map<String, String> params) {
         String word = params.get("word");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));
@@ -127,21 +122,22 @@ public class VocabularyService {
         return result.map(vocabularyMapper::toVocabularyResponse);
     }
 
-    public VocabularyResponse getVocabularyById(Integer id){
-        return vocabularyMapper.toVocabularyResponse(vocabularyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED)));
+    public VocabularyResponse getVocabularyById(Integer id) {
+        return vocabularyMapper.toVocabularyResponse(vocabularyRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED)));
     }
 
-    public void deleteAllVocabulary(){
+    public void deleteAllVocabulary() {
         List<Vocabulary> list = vocabularyRepository.findAllWithoutSubTopics();
         System.out.println("Số từ vựng cần xóa: " + list.size());
         list.forEach(v -> deleteVocabulary(v.getId()));
     }
 
-    public void deleteVocabulary(Integer id){
+    public void deleteVocabulary(Integer id) {
         vocabularyRepository.deleteById(id);
     }
 
-    public Long countVocabulary(){
+    public Long countVocabulary() {
         return vocabularyRepository.count();
     }
 

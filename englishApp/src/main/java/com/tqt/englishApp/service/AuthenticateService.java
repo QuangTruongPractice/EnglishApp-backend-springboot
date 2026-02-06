@@ -7,7 +7,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.tqt.englishApp.dto.request.AuthenticationRequest;
 import com.tqt.englishApp.dto.request.GoogleAuthRequest;
 import com.tqt.englishApp.entity.User;
-import com.tqt.englishApp.enums.Role;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.repository.UserRepository;
@@ -22,6 +21,8 @@ public class AuthenticateService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private UserService userService;
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     public boolean authentication(AuthenticationRequest authenticationRequest) {
@@ -30,7 +31,7 @@ public class AuthenticateService {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
         boolean result = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
-        if(!result) {
+        if (!result) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         return result;
@@ -38,11 +39,7 @@ public class AuthenticateService {
 
     public boolean googleAuth(GoogleAuthRequest googleAuthRequest) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                    new NetHttpTransport(), new JacksonFactory()
-            ).setAudience(Collections.singletonList("395593925572-n0k16v2srue48kotcgi60rlmk0350sp9.apps.googleusercontent.com"))
-                    .build();
-
+            GoogleIdTokenVerifier verifier = getVerifier();
             GoogleIdToken idToken = verifier.verify(googleAuthRequest.getIdToken());
 
             if (idToken != null) {
@@ -54,23 +51,20 @@ public class AuthenticateService {
                 String fullName = (String) payload.get("name");
                 String pictureUrl = (String) payload.get("picture");
 
-                User user = userRepository.findUserByEmail(email);
-                if (user == null) {
-                    user = new User();
-                    user.setUsername(email);
-                    user.setEmail(email);
-                    user.setFirstName(firstName != null ? firstName : fullName);
-                    user.setLastName(lastName);
-                    user.setAvatar(pictureUrl);
-                    user.setIsActive(true);
-                    user.setRole(Role.USER);
-                    userRepository.save(user);
-                }
+                userService.createGoogleUser(email, firstName != null ? firstName : fullName, lastName, pictureUrl);
                 return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    protected GoogleIdTokenVerifier getVerifier() {
+        return new GoogleIdTokenVerifier.Builder(
+                new NetHttpTransport(), new JacksonFactory())
+                .setAudience(Collections
+                        .singletonList("395593925572-n0k16v2srue48kotcgi60rlmk0350sp9.apps.googleusercontent.com"))
+                .build();
     }
 }

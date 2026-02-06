@@ -20,7 +20,7 @@ public class ApiVocabularyController {
     private VocabularyService vocabularyService;
 
     @PostMapping(path = "/vocabulary", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<VocabularyResponse> createVocabulary(@RequestBody @Valid VocabularyRequest topic) {
+    public ApiResponse<VocabularyResponse> createVocabulary(@ModelAttribute @Valid VocabularyRequest topic) {
         ApiResponse<VocabularyResponse> response = new ApiResponse<>();
         response.setResult(vocabularyService.createVocabulary(topic));
         return response;
@@ -40,8 +40,9 @@ public class ApiVocabularyController {
         return response;
     }
 
-    @PutMapping(path="/vocabulary/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<VocabularyResponse> updateVocabulary(@ModelAttribute VocabularyRequest request, @PathVariable("id") Integer id) {
+    @PutMapping(path = "/vocabulary/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<VocabularyResponse> updateVocabulary(@ModelAttribute VocabularyRequest request,
+            @PathVariable("id") Integer id) {
         ApiResponse<VocabularyResponse> response = new ApiResponse<>();
         response.setResult(vocabularyService.updateVocabulary(id, request));
         return response;

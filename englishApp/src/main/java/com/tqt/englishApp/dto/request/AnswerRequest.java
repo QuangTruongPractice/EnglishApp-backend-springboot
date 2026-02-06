@@ -1,7 +1,5 @@
 package com.tqt.englishApp.dto.request;
 
-import com.tqt.englishApp.dto.response.QuizResponse;
-import com.tqt.englishApp.entity.Quiz;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

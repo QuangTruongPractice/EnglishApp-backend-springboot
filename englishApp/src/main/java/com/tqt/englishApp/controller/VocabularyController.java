@@ -1,7 +1,6 @@
 package com.tqt.englishApp.controller;
 
 import com.tqt.englishApp.dto.request.VocabularyRequest;
-import com.tqt.englishApp.dto.response.VocabularyResponse;
 import com.tqt.englishApp.service.SubTopicService;
 import com.tqt.englishApp.service.VocabularyService;
 import com.tqt.englishApp.service.WordTypeService;

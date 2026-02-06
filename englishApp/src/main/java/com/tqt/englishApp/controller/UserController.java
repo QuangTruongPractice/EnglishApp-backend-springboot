@@ -1,9 +1,9 @@
 package com.tqt.englishApp.controller;
 
-import com.tqt.englishApp.dto.request.SubTopicRequest;
 import com.tqt.englishApp.dto.request.UserCreationRequest;
 import com.tqt.englishApp.dto.request.UserUpdateRequest;
 import com.tqt.englishApp.dto.response.UserResponse;
+import com.tqt.englishApp.mapper.UserMapper;
 import com.tqt.englishApp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +22,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @GetMapping
-    public String listUsers(Model model, @RequestParam(name = "keyword",required = false) String keyword,
-                            @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+    public String listUsers(Model model, @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
         Map<String, String> params = new HashMap<>();
         if (keyword != null && !keyword.isEmpty()) {
             params.put("keyword", keyword);
@@ -56,21 +59,14 @@ public class UserController {
     @GetMapping("/edit/{id}")
     public String editUserForm(@PathVariable("id") String userId, Model model) {
         UserResponse userResponse = userService.getUserById(userId);
-
-        UserUpdateRequest userUpdateRequest = UserUpdateRequest.builder()
-                .firstName(userResponse.getFirstName())
-                .lastName(userResponse.getLastName())
-                .dob(userResponse.getDob())
-                .isActive(userResponse.getIsActive())
-                .build();
-        model.addAttribute("user", userUpdateRequest);
+        model.addAttribute("user", userMapper.toUserUpdateRequest(userResponse));
         model.addAttribute("userId", userId);
         return "admin/users_edit_form";
     }
 
     @PostMapping("/edit/{id}")
-    public String updateUser(@PathVariable("id") String userId, @ModelAttribute("user") @Valid UserUpdateRequest request,
-                             BindingResult result) {
+    public String updateUser(@PathVariable("id") String userId, 
+        @ModelAttribute("user") @Valid UserUpdateRequest request, BindingResult result) {
         if (result.hasErrors()) {
             return "admin/users_edit_form";
         }

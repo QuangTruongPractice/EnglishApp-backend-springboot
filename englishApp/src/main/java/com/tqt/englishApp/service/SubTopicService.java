@@ -1,7 +1,6 @@
 package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.request.SubTopicRequest;
-import com.tqt.englishApp.dto.response.MainTopicResponse;
 import com.tqt.englishApp.dto.response.SubTopicResponse;
 import com.tqt.englishApp.entity.MainTopic;
 import com.tqt.englishApp.entity.SubTopic;
@@ -10,7 +9,6 @@ import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.SubTopicMapper;
 import com.tqt.englishApp.repository.MainTopicRepository;
 import com.tqt.englishApp.repository.SubTopicRepository;
-import com.tqt.englishApp.repository.VocabularyRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

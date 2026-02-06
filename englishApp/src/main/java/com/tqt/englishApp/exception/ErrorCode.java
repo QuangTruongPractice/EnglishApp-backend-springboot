@@ -6,11 +6,12 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ErrorCode {
-    UNAUTHORIZED_EXCEPTION(9999, "Unauthorized"),
+    UNCATEGORIZED_EXCEPTION(9999, "Lỗi hệ thống"),
+    UNAUTHORIZED_EXCEPTION(9998, "Unauthorized"),
     USERNAME_EXISTED(1001, "Username đã tồn tại"),
     EMAIL_EXISTED(1002, "Email đã tồn tại"),
     USERNAME_INVALID(1003, "Username phải có ít nhất 3 kí tự"),
-    EMAIL_INVALID(1004,"Phải đúng định dạng Email"),
+    EMAIL_INVALID(1004, "Phải đúng định dạng Email"),
     PASSWORD_INVALID(1005, "Password phải có ít nhất 6 kí tự"),
     AVATAR_REQUIRED(1006, "Avatar là bắt buộc"),
     IMAGE_REQUIRED(1006, "Image là bắt buộc"),

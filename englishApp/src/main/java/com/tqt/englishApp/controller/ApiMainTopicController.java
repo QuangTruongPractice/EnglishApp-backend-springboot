@@ -2,10 +2,7 @@ package com.tqt.englishApp.controller;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.MainTopicRequest;
-import com.tqt.englishApp.dto.request.UserCreationRequest;
-import com.tqt.englishApp.dto.request.UserUpdateRequest;
 import com.tqt.englishApp.dto.response.MainTopicResponse;
-import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.service.MainTopicService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

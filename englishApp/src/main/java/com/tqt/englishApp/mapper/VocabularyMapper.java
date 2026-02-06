@@ -1,15 +1,9 @@
 package com.tqt.englishApp.mapper;
 
-import com.tqt.englishApp.dto.request.MainTopicRequest;
 import com.tqt.englishApp.dto.request.VocabularyRequest;
-import com.tqt.englishApp.dto.response.MainTopicResponse;
 import com.tqt.englishApp.dto.response.VocabularyResponse;
-import com.tqt.englishApp.entity.MainTopic;
 import com.tqt.englishApp.entity.Vocabulary;
 import org.mapstruct.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface VocabularyMapper {

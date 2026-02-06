@@ -7,7 +7,6 @@ import com.tqt.englishApp.entity.User;
 import org.mapstruct.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -16,6 +15,10 @@ public interface UserMapper {
     User toUser(UserCreationRequest user);
 
     UserResponse toUserResponse(User user);
+
+    @Mapping(target = "avatar", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    UserUpdateRequest toUserUpdateRequest(UserResponse userResponse);
 
     @Mapping(target = "avatar", ignore = true)
     @Mapping(target = "password", ignore = true)

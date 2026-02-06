@@ -1,7 +1,6 @@
 package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.response.SubtitlesResponse;
-import com.tqt.englishApp.entity.Subtitles;
 import com.tqt.englishApp.mapper.SubtitlesMapper;
 import com.tqt.englishApp.repository.SubtitlesRepository;
 import org.springframework.beans.factory.annotation.Autowired;

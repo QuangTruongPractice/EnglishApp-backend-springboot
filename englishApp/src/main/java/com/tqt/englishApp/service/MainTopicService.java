@@ -36,46 +36,42 @@ public class MainTopicService {
     private Cloudinary cloudinary;
     private static final int PAGE_SIZE = 8;
 
-    public MainTopicResponse createMainTopic(MainTopicRequest request){
+    public MainTopicResponse createMainTopic(MainTopicRequest request) {
         MultipartFile image = request.getImage();
         if (image == null || image.isEmpty()) {
             throw new AppException(ErrorCode.IMAGE_REQUIRED);
         }
-        MainTopic topic =  mainTopicMapper.toMainTopic(request);
-        if (!image.isEmpty()) {
-            try {
-                Map res = cloudinary.uploader().upload(
-                        image.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto")
-                );
-                topic.setImage(res.get("secure_url").toString());
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
+        MainTopic topic = mainTopicMapper.toMainTopic(request);
+        try {
+            Map res = cloudinary.uploader().upload(
+                    image.getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto"));
+            topic.setImage(res.get("secure_url").toString());
+        } catch (IOException ex) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
         return mainTopicMapper.toMainTopicResponse(mainTopicRepository.save(topic));
     }
 
-    public MainTopicResponse updateMainTopic(Integer topicId, MainTopicRequest request){
+    public MainTopicResponse updateMainTopic(Integer topicId, MainTopicRequest request) {
         MultipartFile image = request.getImage();
         MainTopic topic = mainTopicRepository.findById(topicId)
                 .orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED));
         mainTopicMapper.updateMainTopic(topic, request);
-        if (!image.isEmpty()) {
+        if (image != null && !image.isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(
                         image.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto")
-                );
+                        ObjectUtils.asMap("resource_type", "auto"));
                 topic.setImage(res.get("secure_url").toString());
             } catch (IOException ex) {
-                System.err.println(ex.getMessage());
+                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
             }
         }
         return mainTopicMapper.toMainTopicResponse(mainTopicRepository.save(topic));
     }
 
-    public Page<MainTopicResponse> getMainTopics(Map<String, String> params){
+    public Page<MainTopicResponse> getMainTopics(Map<String, String> params) {
         String name = params.get("name");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));
@@ -94,15 +90,16 @@ public class MainTopicService {
         return result.map(mainTopicMapper::toMainTopicResponse);
     }
 
-    public MainTopicResponse getMainTopicById(int id){
-        return mainTopicMapper.toMainTopicResponse(mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
+    public MainTopicResponse getMainTopicById(int id) {
+        return mainTopicMapper.toMainTopicResponse(
+                mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
-    public Long countMainTopic(){
+    public Long countMainTopic() {
         return mainTopicRepository.count();
     }
 
-    public List<MainTopicResponse> findAll(){
+    public List<MainTopicResponse> findAll() {
         return mainTopicMapper.toMainTopicResponse(mainTopicRepository.findAll());
     }
 
