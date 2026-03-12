@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Answers', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" th:text="${answers.id == null ? 'Create Answer' : 'Update Answer'}"></h2>
+                <p class="text-muted">Manage answer options for quizzes.</p>
+            </div>
+            <a th:href="@{/admin/quizs}" class="btn btn-outline-secondary">Back to Quizzes</a>
+        </div>
+
+        <div class="premium-card p-4">
+            <form th:action="@{/admin/answers/add}" th:object="${answers}" method="post" class="row g-4" novalidate>
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">Answer Text</label>
+                    <input type="text" th:field="*{answer}" class="form-control" required
+                        placeholder="Enter the answer option" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('answer')}" th:errors="*{answer}">
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Parent Quiz</label>
+                    <select th:field="*{quiz}" class="form-select" required>
+                        <option value="">Select the quiz this answer belongs to</option>
+                        <option th:each="q : ${quizs}" th:value="${q.id}" th:text="${q.text}"></option>
+                    </select>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('quiz')}" th:errors="*{quiz}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold d-block">Correctness</label>
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" th:field="*{isCorrect}" id="isCorrectSwitch" />
+                        <label class="form-check-label fw-medium" for="isCorrectSwitch">Is Correct Answer</label>
+                    </div>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('isCorrect')}"
+                        th:errors="*{isCorrect}"></div>
+                </div>
+
+                <div class="col-12 mt-5 border-top pt-4">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Save Answer</button>
+                        <a th:href="@{/admin/quizs}" class="btn btn-light px-4">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>

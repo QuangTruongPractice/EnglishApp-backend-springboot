@@ -1,0 +1,158 @@
+# Learning Service - Final Entity Review & Class Diagram
+
+The entities have been successfully updated to address the previous findings. The table name conflict is resolved, and Lombok usage is now consistent.
+
+## 📊 Class Diagram
+
+```mermaid
+classDiagram
+    class MainTopic {
+        +Integer id
+        +String name
+        +String image
+        +List~SubTopic~ subTopics
+        +LocalDate createdAt
+    }
+
+    class SubTopic {
+        +Integer id
+        +String name
+        +MainTopic mainTopic
+        +List~Vocabulary~ vocabularies
+        +LocalDate createdAt
+    }
+
+    class Vocabulary {
+        +Integer id
+        +String phonetic
+        +String word
+        +String level
+        +String audioUrl
+        +List~SubTopic~ subTopics
+    }
+
+    class WordMeaning {
+        +Integer id
+        +Vocabulary vocabulary
+        +String definition
+        +String vnWord
+        +String vnDefinition
+        +String example
+        +String vnExample
+    }
+
+    class MeaningSynonym {
+        +Integer id
+        +WordMeaning meaning
+        +WordMeaning synonymMeaning
+    }
+
+    class WordImage {
+        +Integer id
+        +Vocabulary vocabulary
+        +String url
+    }
+
+    class WordType {
+        +Integer id
+        +Type type
+    }
+
+    class Video {
+        +Integer id
+        +String videoId
+        +String title
+        +String youtubeUrl
+        +Integer duration
+        +String language
+        +String status
+        +Integer segmentsCount
+        +List~Subtitles~ subtitles
+        +LocalDateTime createdAt
+    }
+
+    class Subtitles {
+        +Integer id
+        +Video video
+        +Integer segmentId
+        +Float startTime
+        +Float endTime
+        +String originalText
+        +Float confidence
+        +LocalDateTime createdAt
+    }
+
+    class Quiz {
+        +Integer id
+        +QuizType type
+        +String question
+        +String text
+        +List~Answer~ answers
+        +LocalDateTime createdAt
+    }
+
+    class Answer {
+        +Integer id
+        +Quiz quiz
+        +String answer
+        +Boolean isCorrect
+        +LocalDateTime createdAt
+    }
+
+    class UserVocabularyProgress {
+        +Integer id
+        +String userId
+        +Vocabulary vocabulary
+        +VocabularyStatus status
+        +Boolean viewedFlashcard
+        +Boolean practicedPronunciation
+        +LocalDateTime updatedAt
+    }
+
+    class UserVideoProgress {
+        +Integer id
+        +String userId
+        +Video video
+        +Integer watchedDuration
+        +Double progressPercentage
+        +Integer lastPosition
+        +Boolean isCompleted
+        +LocalDateTime updatedAt
+    }
+
+    class UserQuizProgress {
+        +Integer id
+        +String userId
+        +Quiz quiz
+        +Integer count
+        +LocalDateTime updatedAt
+    }
+
+    MainTopic "1" -- "*" SubTopic : contains
+    SubTopic "*" -- "*" Vocabulary : categorized_in
+    Vocabulary "1" -- "*" WordMeaning : defines
+    Vocabulary "1" -- "*" WordImage : illustrates
+    WordMeaning "1" -- "*" MeaningSynonym : has_synonym
+    Video "1" -- "*" Subtitles : has
+    Quiz "1" -- "*" Answer : has_options
+    UserVocabularyProgress "*" -- "1" Vocabulary : tracks
+    UserVideoProgress "*" -- "1" Video : tracks
+    UserQuizProgress "*" -- "1" Quiz : tracks
+```
+
+## 📝 Final Observations & Comparison
+
+### Changes Applied:
+- **Table Name Conflict Fixed**: [MeaningSynonym](file:///d:/Code/Github-Code/EnglishApp/EnglishApp-backend-springboot/learning-service/src/main/java/com/tqt/englishApp/entity/MeaningSynonym.java#7-28) now correctly maps to `@Table(name = "meaning_synonym")`.
+- **Lombok Standardized**: Almost all entities now use `@Data`, which provides getters, setters, `equals`, `hashCode`, and `toString` in one annotation.
+- **New Field Added**: [Vocabulary](file:///d:/Code/Github-Code/EnglishApp/EnglishApp-backend-springboot/learning-service/src/main/java/com/tqt/englishApp/entity/Vocabulary.java#9-32) now has a `level` field (e.g., A1, B2, C1), which is excellent for filtering content by difficulty.
+
+### ⚠️ A Small Note on `@Data`:
+> [!NOTE]
+> Since you are now using `@Data` on all entities, be mindful if you encounter `StackOverflowError` or performance issues with large object graphs (especially with `ManyToMany` circular references like `Vocabulary <-> SubTopic`). 
+> If that happens, you might need to exclude the relationship fields from `toString` and `hashCode/equals` using `@ToString.Exclude` and `@EqualsAndHashCode.Exclude`.
+
+### 🌟 Conclusion
+The entity layer is now very clean and robust. The relationships are clear, auditing fields are in place (though still a mix of `LocalDate` and `LocalDateTime`, which is acceptable if intended), and the table mapping bug is gone.
+
+**The current structure is ready for the Service and Repository layers.**

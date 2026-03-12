@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Dashboard', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Dashboard Overview</h2>
+                <p class="text-muted">Welcome to the EnglishApp administration panel.</p>
+            </div>
+            <div class="text-end d-none d-md-block">
+                <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill fw-semibold"
+                    th:text="${#temporals.format(#temporals.createNow(), 'EEEE, d MMMM yyyy')}"></span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="premium-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-info bg-opacity-10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-info">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h6 class="text-muted mb-1 fs-xs text-uppercase fw-bold letter-spacing-wider">Users</h6>
+                    <h3 class="fw-bold mb-0" th:text="${userNum}"></h3>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="premium-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Recent User Activity</h5>
+                    </div>
+                    <div style="position: relative; height: 350px;">
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function () {
+                const userStats = /*[[${userStats}]]*/[];
+                const labels = userStats.map(s => "Tháng " + s[0]);
+                const data = userStats.map(s => s[1]);
+
+                const ctx = document.getElementById('userChart').getContext('2d');
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'New Users',
+                            data: data,
+                            backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                            hoverBackgroundColor: 'rgba(79, 70, 229, 1)',
+                            borderRadius: 8,
+                            barThickness: 24
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                padding: 12,
+                                titleFont: { size: 14, weight: 'bold' },
+                                bodyFont: { size: 13 },
+                                cornerRadius: 8
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f1f5f9' },
+                                ticks: {
+                                    stepSize: 5,
+                                    color: '#64748b',
+                                    font: { family: 'Plus Jakarta Sans' }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    color: '#64748b',
+                                    font: { family: 'Plus Jakarta Sans' }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('System Statistics', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">System Statistics</h2>
+            <p class="text-muted">Analyze platform growth and user activity trends.</p>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="premium-card p-4 mb-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">Filter Type</label>
+                    <select name="type" id="type" class="form-select" onchange="toggleDateFields()">
+                        <option value="default" th:selected="${selectedType == 'default'}">All Time</option>
+                        <option value="year" th:selected="${selectedType == 'year'}">Yearly</option>
+                        <option value="quarter" th:selected="${selectedType == 'quarter'}">Quarterly</option>
+                        <option value="month" th:selected="${selectedType == 'month'}">Monthly</option>
+                    </select>
+                </div>
+                <div class="col-md-2" id="yearField" style="display:none;">
+                    <label class="form-label small fw-bold text-muted">Year</label>
+                    <select name="year" class="form-select">
+                        <option th:each="y : ${#numbers.sequence(2022, 2026)}" th:value="${y}" th:text="${y}"
+                            th:selected="${selectedYear == y}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2" id="quarterField" style="display:none;">
+                    <label class="form-label small fw-bold text-muted">Quarter</label>
+                    <select name="quarter" class="form-select">
+                        <option value="">Select Quarter</option>
+                        <option th:each="q : ${#numbers.sequence(1, 4)}" th:value="${q}" th:text="'Q' + ${q}"
+                            th:selected="${selectedQuarter == q}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2" id="monthField" style="display:none;">
+                    <label class="form-label small fw-bold text-muted">Month</label>
+                    <select name="month" class="form-select">
+                        <option value="">Select Month</option>
+                        <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="'Month ' + ${m}"
+                            th:selected="${selectedMonth == m}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100 py-2 fw-bold">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Display Section -->
+        <div class="row g-4 mb-4">
+            <!-- Table Side -->
+            <div class="col-lg-5">
+                <div class="premium-card h-100">
+                    <div class="p-4 border-bottom bg-light bg-opacity-10 rounded-top-4">
+                        <h5 class="mb-0 fw-bold">User Registrations</h5>
+                    </div>
+                    <div class="table-container shadow-none p-2">
+                        <table class="table align-middle table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Period</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="stat, i : ${userStats}">
+                                    <td><span class="text-muted" th:text="${i.index + 1}"></span></td>
+                                    <td class="fw-bold" th:text="${stat[0]}"></td>
+                                    <td>
+                                        <span class="badge bg-primary-light text-primary px-3 py-2 fs-6"
+                                            th:text="${stat[1]}"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(userStats)}">
+                                    <td colspan="3" class="text-center py-5 text-muted fst-italic">No statistical data
+                                        available for this range.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Side -->
+            <div class="col-lg-7">
+                <div class="premium-card h-100">
+                    <div class="p-4 border-bottom bg-light bg-opacity-10 rounded-top-4">
+                        <h5 class="mb-0 fw-bold">Trend Visualization</h5>
+                    </div>
+                    <div class="p-4">
+                        <canvas id="userChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            function toggleDateFields() {
+                const type = document.getElementById('type').value;
+                document.getElementById('yearField').style.display = (type === 'year' || type === 'quarter' || type === 'month') ? 'block' : 'none';
+                document.getElementById('quarterField').style.display = type === 'quarter' ? 'block' : 'none';
+                document.getElementById('monthField').style.display = type === 'month' ? 'block' : 'none';
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                toggleDateFields();
+
+                const userStats = /*[[${userStats}]]*/[];
+                if (userStats.length) {
+                    const ctx = document.getElementById('userChart').getContext('2d');
+
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+                    gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: userStats.map(s => s[0]),
+                            datasets: [{
+                                label: 'New Users',
+                                data: userStats.map(s => s[1]),
+                                backgroundColor: gradient,
+                                borderColor: '#4f46e5',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#4f46e5',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { borderDash: [5, 5] }
+                                },
+                                x: {
+                                    grid: { display: false }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
+    </section>
+</body>
+
+</html>

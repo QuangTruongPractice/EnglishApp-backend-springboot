@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Quizzes', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" th:text="${quizs.id == null ? 'Create Quiz' : 'Update Quiz'}"></h2>
+                <p class="text-muted">Manage quiz questions and their metadata.</p>
+            </div>
+            <a th:href="@{/admin/quizs}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+
+        <div class="premium-card p-4">
+            <form th:action="@{/admin/quizs/add}" th:object="${quizs}" method="post" class="row g-4" novalidate>
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">Question Title</label>
+                    <input type="text" th:field="*{question}" class="form-control" required
+                        placeholder="Enter the main question text" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('question')}"
+                        th:errors="*{question}">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Display Content / Text</label>
+                    <input type="text" th:field="*{text}" class="form-control" required
+                        placeholder="Enter display text or data" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Quiz Type</label>
+                    <select th:field="*{type}" class="form-select" required>
+                        <option value="" disabled selected>Select a type</option>
+                        <option value="AUDIO">Audio-based</option>
+                        <option value="TEXT">Text-based</option>
+                    </select>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                </div>
+
+                <div class="col-12 mt-5 border-top pt-4">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Save Quiz</button>
+                        <a th:href="@{/admin/quizs}" class="btn btn-light px-4">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>

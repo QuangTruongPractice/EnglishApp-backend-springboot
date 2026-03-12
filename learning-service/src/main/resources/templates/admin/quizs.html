@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Quizzes', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <!-- Flash Messages for Modal -->
+        <div th:if="${successMessage}" id="successMessageField" th:text="${successMessage}" class="d-none"></div>
+        <div th:if="${errorMessage}" id="errorMessageField" th:text="${errorMessage}" class="d-none"></div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Quiz Management</h2>
+                <p class="text-muted">Manage assessment quizzes and their corresponding questions.</p>
+            </div>
+            <a th:href="@{/admin/quizs/add}" class="btn btn-primary d-flex align-items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Add New Quiz
+            </a>
+        </div>
+
+        <!-- Search Section -->
+        <div class="premium-card p-4 mb-4">
+            <form class="row g-3" method="get" action="">
+                <div class="col-lg-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-muted">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" x2="21" y1="21" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" name="question" class="form-control border-start-0 ps-0"
+                            placeholder="Search by question text..." th:value="${param.question}">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <button class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container shadow-sm">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Type</th>
+                            <th>Text</th>
+                            <th>Question</th>
+                            <th>Answers</th>
+                            <th>Created At</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="quiz, iterStat : ${quizs}">
+                            <td><span class="text-muted" th:text="${iterStat.index + 1}"></span></td>
+                            <td>
+                                <span class="badge bg-primary-light text-primary" th:text="${quiz.type}"></span>
+                            </td>
+                            <td>
+                                <div th:text="${quiz.text}"></div>
+                            </td>
+                            <td>
+                                <div class="fw-bold" th:text="${quiz.question}"></div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1" style="max-width: 250px;">
+                                    <span th:each="ans : ${quiz.answers}"
+                                        class="badge bg-light text-dark fw-normal border" th:text="${ans.answer}">
+                                    </span>
+                                    <span th:if="${#lists.isEmpty(quiz.answers)}" class="text-muted small italic">No
+                                        answers</span>
+                                </div>
+                            </td>
+                            <td th:text="${#temporals.format(quiz.createdAt, 'dd/MM/yyyy')}"></td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a th:href="@{'/admin/quizs/edit/' + ${quiz.id}}"
+                                        class="btn btn-sm btn-outline-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                                            <path d="m15 5 4 4"></path>
+                                        </svg>
+                                    </a>
+                                    <form th:action="@{'/admin/quizs/delete/' + ${quiz.id}}" method="post"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Delete this quiz?')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4" th:if="${totalPages > 1}">
+            <nav>
+                <ul class="pagination gap-2 border-0">
+                    <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+                        <a class="page-link rounded-pill px-3"
+                            th:href="@{''(question=${param.question}, page=${currentPage - 1})}">Previous</a>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link border-0 bg-transparent text-dark fw-bold"
+                            th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages}"></span>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                        <a class="page-link rounded-pill px-3"
+                            th:href="@{''(question=${param.question}, page=${currentPage + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+</body>
+
+</html>

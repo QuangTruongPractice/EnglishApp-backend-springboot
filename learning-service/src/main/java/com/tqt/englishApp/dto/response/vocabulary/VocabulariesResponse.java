@@ -1,0 +1,25 @@
+package com.tqt.englishApp.dto.response.vocabulary;
+
+import com.tqt.englishApp.dto.response.WordMeaningResponse;
+import com.tqt.englishApp.dto.response.subTopic.SubTopicsSimpleResponse;
+import com.tqt.englishApp.enums.Level;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class VocabulariesResponse {
+    Integer id;
+    String phonetic;
+    String word;
+    Level level;
+    String audioUrl;
+    Boolean isSave;
+    List<SubTopicsSimpleResponse> subTopics;
+    List<WordMeaningResponse> meanings;
+}

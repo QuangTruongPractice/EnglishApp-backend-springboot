@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Edit User', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Edit User</h2>
+                <p class="text-muted">Update user details and account status.</p>
+            </div>
+            <a th:href="@{/admin/users}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+
+        <div class="premium-card p-4">
+            <form th:action="@{/admin/users/edit/{id}(id=${userId})}" th:object="${user}" method="post"
+                enctype="multipart/form-data" class="row g-4" novalidate>
+
+                <!-- First Name -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">First Name</label>
+                    <input type="text" th:field="*{firstName}" class="form-control" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('firstName')}"
+                        th:errors="*{firstName}"></div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Last Name</label>
+                    <input type="text" th:field="*{lastName}" class="form-control" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('lastName')}"
+                        th:errors="*{lastName}">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Change Password(blank if don't change)</label>
+                    <input type="password" th:field="*{password}" class="form-control" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}"
+                        th:errors="*{password}">
+                    </div>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Date of Birth</label>
+                    <input type="date" th:field="*{dob}" th:value="${#temporals.format(user.dob, 'yyyy-MM-dd')}"
+                        class="form-control" />
+                </div>
+
+                <!-- Avatar -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Avatar Image</label>
+                    <div th:if="${currentAvatar}" class="mb-2">
+                        <img th:src="${currentAvatar}" alt="Current Avatar" class="img-thumbnail"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                    </div>
+                    <input type="file" th:field="*{avatar}" class="form-control" accept="image/*" />
+                </div>
+
+                <!-- Roles -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Roles</label>
+                    <select th:field="*{roles}" class="form-select" multiple size="5">
+                        <option th:each="role : ${allRoles}" th:value="${role.name}" th:text="${role.name}">ADMIN
+                        </option>
+                    </select>
+                    <div class="text-muted small mt-1">Hold Ctrl/Cmd to select multiple roles.</div>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Account Status</label>
+                    <select th:field="*{isActive}" class="form-select">
+                        <option th:value="true">Active</option>
+                        <option th:value="false">Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <div class="col-12 mt-5 border-top pt-4">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Update User</button>
+                        <a th:href="@{/admin/users}" class="btn btn-light px-4">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>

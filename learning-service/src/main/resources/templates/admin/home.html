@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Dashboard', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Dashboard Overview</h2>
+                <p class="text-muted">Welcome to the EnglishApp administration panel.</p>
+            </div>
+            <div class="text-end d-none d-md-block">
+                <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill fw-semibold"
+                    th:text="${#temporals.format(#temporals.createNow(), 'EEEE, d MMMM yyyy')}"></span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="premium-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-primary">
+                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h6 class="text-muted mb-1 fs-xs text-uppercase fw-bold letter-spacing-wider">Main Topics</h6>
+                    <h3 class="fw-bold mb-0" th:text="${mainTopicNum}"></h3>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="premium-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-success">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <h6 class="text-muted mb-1 fs-xs text-uppercase fw-bold letter-spacing-wider">Sub Topics</h6>
+                    <h3 class="fw-bold mb-0" th:text="${subTopicNum}"></h3>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="premium-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-warning">
+                                <path d="m11 17 2 2 4-4"></path>
+                                <path d="m3 17 2 2 4-4"></path>
+                                <path d="M13 6h8"></path>
+                                <path d="M13 12h8"></path>
+                                <path d="M13 18h8"></path>
+                                <path d="M3 6h2"></path>
+                                <path d="M3 12h2"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h6 class="text-muted mb-1 fs-xs text-uppercase fw-bold letter-spacing-wider">Vocabulary</h6>
+                    <h3 class="fw-bold mb-0" th:text="${vocabularyNum}"></h3>
+                </div>
+            </div>
+
+
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="premium-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-danger bg-opacity-10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-danger">
+                                <path d="m22 8-6 4 6 4V8Z"></path>
+                                <rect width="14" height="12" x="2" y="6" rx="2" ry="2"></rect>
+                            </svg>
+                        </div>
+                    </div>
+                    <h6 class="text-muted mb-1 fs-xs text-uppercase fw-bold letter-spacing-wider">Videos</h6>
+                    <h3 class="fw-bold mb-0" th:text="${videoNum}"></h3>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="premium-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-secondary bg-opacity-10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-secondary">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h6 class="text-muted mb-1 fs-xs text-uppercase fw-bold letter-spacing-wider">Quizzes</h6>
+                    <h3 class="fw-bold mb-0" th:text="${quizNum}"></h3>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

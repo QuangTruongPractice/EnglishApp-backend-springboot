@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Sub Topics', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" th:text="${subTopics.id == null ? 'Create Sub Topic' : 'Update Sub Topic'}">
+                </h2>
+                <p class="text-muted">Manage sub-categories and their parent topics.</p>
+            </div>
+            <a th:href="@{/admin/subTopics}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+
+        <div class="premium-card p-4">
+            <form th:action="@{/admin/subTopics/add}" th:object="${subTopics}" method="post" class="row g-4" novalidate>
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Sub Topic Name</label>
+                    <input type="text" th:field="*{name}" class="form-control" required
+                        placeholder="Enter sub topic name" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Parent Main Topic</label>
+                    <select th:field="*{mainTopic}" class="form-select" required>
+                        <option value="">Select a main topic</option>
+                        <option th:each="mt : ${mainTopics}" th:value="${mt.id}" th:text="${mt.name}"></option>
+                    </select>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('mainTopic')}"
+                        th:errors="*{mainTopic}"></div>
+                </div>
+
+                <div class="col-12 mt-5 border-top pt-4">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Save Sub Topic</button>
+                        <a th:href="@{/admin/subTopics}" class="btn btn-light px-4">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>

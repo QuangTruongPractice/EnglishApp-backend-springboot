@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/layout :: layout('Videos', ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <section>
+        <!-- Flash Messages for Modal -->
+        <div th:if="${successMessage}" id="successMessageField" th:text="${successMessage}" class="d-none"></div>
+        <div th:if="${errorMessage}" id="errorMessageField" th:text="${errorMessage}" class="d-none"></div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Video Management</h2>
+                <p class="text-muted">Manage educational videos and media content.</p>
+            </div>
+            <a th:href="@{/admin/videos/add}" class="btn btn-primary d-flex align-items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m22 8-6 4 6 4V8Z"></path>
+                    <rect width="14" height="12" x="2" y="6" rx="2" ry="2"></rect>
+                </svg>
+                Add New Video
+            </a>
+        </div>
+
+        <!-- Search Section -->
+        <div class="premium-card p-4 mb-4">
+            <form class="row g-3" method="get" action="">
+                <div class="col-lg-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-muted">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" x2="21" y1="21" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" name="title" class="form-control border-start-0 ps-0"
+                            placeholder="Search by video title..." th:value="${title}">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <button class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container shadow-sm">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Video Title</th>
+                            <th>Duration</th>
+                            <th>Language</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="video, iterStat : ${videos}">
+                            <td><span class="text-muted" th:text="${iterStat.index + 1}"></span></td>
+                            <td>
+                                <div class="fw-bold" th:text="${video.title}"></div>
+                                <small class="text-muted text-truncate d-block" style="max-width: 300px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="me-1">
+                                        <path
+                                            d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z">
+                                        </path>
+                                        <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                                    </svg>
+                                    <span th:text="${video.youtubeUrl}"></span>
+                                </small>
+                            </td>
+                            <td th:text="${video.duration}"></td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary"
+                                    th:text="${video.language}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${video.status}" class="badge"
+                                    th:classappend="${video.status == 'active' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}"></span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form th:action="@{'/admin/videos/delete/' + ${video.id}}" method="post"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Delete this video?')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(videos)}">
+                            <td colspan="6" class="text-center py-5 text-muted">No videos found matching your
+                                criteria.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4" th:if="${totalPages > 1}">
+            <nav>
+                <ul class="pagination gap-2 border-0">
+                    <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+                        <a class="page-link rounded-pill px-3"
+                            th:href="@{''(title=${param.title}, page=${currentPage - 1})}">Previous</a>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link border-0 bg-transparent text-dark fw-bold"
+                            th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages}"></span>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                        <a class="page-link rounded-pill px-3"
+                            th:href="@{''(title=${param.title}, page=${currentPage + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+</body>
+
+</html>
