@@ -5,7 +5,7 @@ import com.tqt.englishApp.dto.response.vocabulary.VocabulariesResponse;
 import com.tqt.englishApp.dto.response.subTopic.SubTopicsAdminResponse;
 import com.tqt.englishApp.enums.Type;
 import com.tqt.englishApp.mapper.VocabularyMapper;
-import com.tqt.englishApp.mapper.WordMeaningMapper;
+import com.tqt.englishApp.mapper.VocabularyMeaningMapper;
 import com.tqt.englishApp.service.SubTopicService;
 import com.tqt.englishApp.service.VocabularyService;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class VocabularyControllerTest {
         private VocabularyMapper vocabularyMapper;
 
         @MockitoBean
-        private WordMeaningMapper wordMeaningMapper;
+        private VocabularyMeaningMapper VocabularyMeaningMapper;
 
         @Test
         void listVocabularies_WithoutParams_Success() throws Exception {

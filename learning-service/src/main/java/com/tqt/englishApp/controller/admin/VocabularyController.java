@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import com.tqt.englishApp.dto.request.WordMeaningRequest;
-import com.tqt.englishApp.mapper.WordMeaningMapper;
+import com.tqt.englishApp.dto.request.VocabularyMeaningRequest;
+import com.tqt.englishApp.mapper.VocabularyMeaningMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +36,7 @@ public class VocabularyController {
     @Autowired
     private VocabularyMapper vocabularyMapper;
     @Autowired
-    private WordMeaningMapper wordMeaningMapper;
+    private VocabularyMeaningMapper VocabularyMeaningMapper;
 
     @GetMapping
     public String listVocabularies(Model model, @RequestParam(name = "word", required = false) String word,
@@ -63,7 +63,7 @@ public class VocabularyController {
     @GetMapping("/add")
     public String vocabularyForm(Model model) {
         VocabularyRequest request = new VocabularyRequest();
-        request.setMeanings(new ArrayList<>(List.of(new WordMeaningRequest())));
+        request.setMeanings(new ArrayList<>(List.of(new VocabularyMeaningRequest())));
         model.addAttribute("vocabularies", request);
         model.addAttribute("subTopics", subTopicService.findAll());
         model.addAttribute("wordTypes", Type.values());
@@ -106,11 +106,11 @@ public class VocabularyController {
 
         // Map all meanings from response to request
         if (response.getMeanings() != null) {
-            request.setMeanings(wordMeaningMapper.toWordMeaningRequest(response.getMeanings()));
+            request.setMeanings(VocabularyMeaningMapper.toVocabularyMeaningRequest(response.getMeanings()));
         }
 
         if (request.getMeanings() == null || request.getMeanings().isEmpty()) {
-            request.setMeanings(new ArrayList<>(List.of(new WordMeaningRequest())));
+            request.setMeanings(new ArrayList<>(List.of(new VocabularyMeaningRequest())));
         }
 
         model.addAttribute("vocabularies", request);

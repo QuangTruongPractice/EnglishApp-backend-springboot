@@ -6,10 +6,10 @@ import com.tqt.englishApp.entity.UserVocabularyProgress;
 import com.tqt.englishApp.enums.VocabularyStatus;
 import com.tqt.englishApp.mapper.UserVocabularyMapper;
 import com.tqt.englishApp.mapper.VocabularyMapper;
-import com.tqt.englishApp.mapper.WordMeaningMapper;
+import com.tqt.englishApp.mapper.VocabularyMeaningMapper;
 import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.UserVocabularyProgressRepository;
-import com.tqt.englishApp.repository.WordMeaningRepository;
+import com.tqt.englishApp.repository.VocabularyMeaningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class VocabularyLearningService {
     private UserVocabularyProgressRepository userVocabularyProgressRepository;
 
     @Autowired
-    private WordMeaningRepository wordMeaningRepository;
+    private VocabularyMeaningRepository VocabularyMeaningRepository;
 
     @Autowired
     private UserLearningProfileRepository userLearningProfileRepository;
@@ -34,14 +34,14 @@ public class VocabularyLearningService {
     private VocabularyMapper vocabularyMapper;
 
     @Autowired
-    private WordMeaningMapper wordMeaningMapper;
+    private VocabularyMeaningMapper VocabularyMeaningMapper;
 
     public UserVocabularyProgress updateVocabularyProgress(VocabularyProgressRequest request) {
         UserVocabularyProgress progress = userVocabularyProgressRepository
                 .findByUserIdAndMeaningId(request.getUserId(), request.getMeaningId())
                 .orElse(UserVocabularyProgress.builder()
                         .userId(request.getUserId())
-                        .meaning(wordMeaningRepository.findById(request.getMeaningId()).orElse(null))
+                        .meaning(VocabularyMeaningRepository.findById(request.getMeaningId()).orElse(null))
                         .build());
 
         LocalDateTime now = LocalDateTime.now();

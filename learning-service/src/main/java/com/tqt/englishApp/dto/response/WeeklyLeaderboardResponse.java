@@ -3,14 +3,15 @@ package com.tqt.englishApp.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VideoData {
-    List<SubtitlesResponse> subtitles;
-    VideoResponse video;
+public class WeeklyLeaderboardResponse {
+    String userId;
+    String username; // From auth-service or placeholder
+    Integer weeklyXp;
+    Integer rank;
+    String level;
 }

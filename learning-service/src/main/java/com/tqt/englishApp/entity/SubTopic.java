@@ -20,9 +20,15 @@ public class SubTopic {
     Integer id;
     String name;
 
+    @Column(name = "topic_order")
+    Integer topicOrder;
+
     @ManyToOne
     @JoinColumn(name = "main_topic_id", nullable = false)
     MainTopic mainTopic;
+
+    @Column(name = "topic_order")
+    Integer topicOrder;
 
     @ManyToMany(mappedBy = "subTopics")
     List<Vocabulary> vocabularies;

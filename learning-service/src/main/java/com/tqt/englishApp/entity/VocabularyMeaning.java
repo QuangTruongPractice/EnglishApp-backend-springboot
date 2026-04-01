@@ -8,13 +8,13 @@ import lombok.experimental.FieldDefaults;
 import java.util.List;
 
 @Entity
-@Table(name = "word_meaning")
+@Table(name = "vocabulary_meaning")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WordMeaning {
+public class VocabularyMeaning {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;

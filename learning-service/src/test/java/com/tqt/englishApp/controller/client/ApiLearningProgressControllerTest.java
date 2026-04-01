@@ -12,7 +12,7 @@ import com.tqt.englishApp.service.ContentProgressService;
 import com.tqt.englishApp.service.VocabularyLearningService;
 import com.tqt.englishApp.service.VocabularySelectionService;
 import com.tqt.englishApp.mapper.VocabularyMapper;
-import com.tqt.englishApp.mapper.WordMeaningMapper;
+import com.tqt.englishApp.mapper.VocabularyMeaningMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,7 +50,7 @@ public class ApiLearningProgressControllerTest {
         private VocabularySelectionService vocabularySelectionService;
 
         @MockitoBean
-        private WordMeaningMapper wordMeaningMapper;
+        private VocabularyMeaningMapper VocabularyMeaningMapper;
 
         @MockitoBean
         private VocabularyMapper vocabularyMapper;

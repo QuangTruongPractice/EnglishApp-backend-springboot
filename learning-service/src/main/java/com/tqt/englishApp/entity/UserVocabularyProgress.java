@@ -28,7 +28,7 @@ public class UserVocabularyProgress {
 
     @ManyToOne
     @JoinColumn(name = "meaning_id", nullable = false)
-    WordMeaning meaning;
+    VocabularyMeaning meaning;
 
     @Builder.Default
     @Column(name = "repetition_count")

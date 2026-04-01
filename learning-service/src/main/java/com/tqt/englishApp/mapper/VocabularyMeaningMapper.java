@@ -1,10 +1,10 @@
 package com.tqt.englishApp.mapper;
 
-import com.tqt.englishApp.dto.request.WordMeaningRequest;
-import com.tqt.englishApp.dto.response.WordMeaningResponse;
+import com.tqt.englishApp.dto.request.VocabularyMeaningRequest;
+import com.tqt.englishApp.dto.response.VocabularyMeaningResponse;
 import com.tqt.englishApp.entity.MeaningImage;
 import com.tqt.englishApp.entity.MeaningSynonym;
-import com.tqt.englishApp.entity.WordMeaning;
+import com.tqt.englishApp.entity.VocabularyMeaning;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -13,20 +13,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public interface WordMeaningMapper {
+public interface VocabularyMeaningMapper {
 
     @Mapping(target = "synonyms", source = "synonyms", qualifiedByName = "mapSynonyms")
     @Mapping(target = "images", source = "images", qualifiedByName = "mapImages")
-    WordMeaningResponse toWordMeaningResponse(WordMeaning meaning);
+    VocabularyMeaningResponse toVocabularyMeaningResponse(VocabularyMeaning meaning);
 
-    List<WordMeaningResponse> toWordMeaningResponse(List<WordMeaning> meanings);
+    List<VocabularyMeaningResponse> toVocabularyMeaningResponse(List<VocabularyMeaning> meanings);
 
     @Mapping(target = "existingImageUrls", source = "images")
     @Mapping(target = "imageFiles", ignore = true)
     @Mapping(target = "synonymWords", source = "synonyms")
-    WordMeaningRequest toWordMeaningRequest(WordMeaningResponse response);
+    VocabularyMeaningRequest toVocabularyMeaningRequest(VocabularyMeaningResponse response);
 
-    List<WordMeaningRequest> toWordMeaningRequest(List<WordMeaningResponse> responses);
+    List<VocabularyMeaningRequest> toVocabularyMeaningRequest(List<VocabularyMeaningResponse> responses);
 
     @Named("mapSynonyms")
     default List<String> mapSynonyms(List<MeaningSynonym> synonyms) {

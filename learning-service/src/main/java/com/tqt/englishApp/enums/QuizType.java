@@ -4,5 +4,8 @@ public enum QuizType {
     AUDIO,
     TEXT,
     ENG_TO_VN,
-    VN_TO_ENG
+    VN_TO_ENG,
+    MC,
+    FILL,
+    MATCH
 }

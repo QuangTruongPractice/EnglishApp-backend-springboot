@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WordMeaningResponse {
+public class VocabularyMeaningResponse {
     Integer id;
     Type type;
     String definition;

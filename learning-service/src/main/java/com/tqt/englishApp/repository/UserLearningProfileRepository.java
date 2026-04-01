@@ -9,4 +9,10 @@ import java.util.Optional;
 @Repository
 public interface UserLearningProfileRepository extends JpaRepository<UserLearningProfile, Integer> {
     Optional<UserLearningProfile> findByUserId(String userId);
+
+    @Query("SELECT ulp FROM UserLearningProfile ulp ORDER BY ulp.weeklyXp DESC LIMIT 10")
+    List<UserLearningProfile> findTop10ByWeeklyXp();
+
+    @Query("SELECT ulp FROM UserLearningProfile ulp ORDER BY ulp.totalXp DESC LIMIT 10")
+    List<UserLearningProfile> findTop10ByTotalXp();
 }

@@ -23,5 +23,5 @@ public class VocabularyRequest {
     String audioUrl;
     MultipartFile audioFile;
     List<Integer> subTopics;
-    List<WordMeaningRequest> meanings;
+    List<VocabularyMeaningRequest> meanings;
 }

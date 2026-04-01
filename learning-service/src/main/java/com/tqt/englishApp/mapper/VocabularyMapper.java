@@ -6,7 +6,7 @@ import com.tqt.englishApp.dto.response.vocabulary.VocabulariesSimpleResponse;
 import com.tqt.englishApp.entity.Vocabulary;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = { WordMeaningMapper.class })
+@Mapper(componentModel = "spring", uses = { VocabularyMeaningMapper.class })
 public interface VocabularyMapper {
     @Mapping(target = "subTopics", ignore = true)
     @Mapping(target = "audioUrl", ignore = true)

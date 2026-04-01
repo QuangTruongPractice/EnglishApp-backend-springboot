@@ -1,10 +1,13 @@
 package com.tqt.englishApp.repository;
 
 import com.tqt.englishApp.entity.Answer;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface AnswerRepository extends JpaRepository<Answer,Integer> {
-    Page<Answer> findByAnswerContainingIgnoreCase(String answer, Pageable pageable);
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.List;
+
+@Repository
+public interface AnswerRepository extends JpaRepository<Answer, Integer> {
 }

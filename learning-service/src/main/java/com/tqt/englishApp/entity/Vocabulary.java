@@ -33,10 +33,6 @@ public class Vocabulary {
     @Column(name = "audio_url")
     String audioUrl;
 
-    @Column(name = "is_save")
-    @Builder.Default
-    Boolean isSave = false;
-
     @ManyToMany
     @JoinTable(name = "vocabulary_subtopic", joinColumns = @JoinColumn(name = "vocabulary_id"), inverseJoinColumns = @JoinColumn(name = "sub_topic_id"))
     @Builder.Default
@@ -44,5 +40,5 @@ public class Vocabulary {
 
     @OneToMany(mappedBy = "vocabulary", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<WordMeaning> meanings = new ArrayList<>();
+    List<VocabularyMeaning> meanings = new ArrayList<>();
 }

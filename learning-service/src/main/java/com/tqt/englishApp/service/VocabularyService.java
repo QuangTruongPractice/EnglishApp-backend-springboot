@@ -3,17 +3,15 @@ package com.tqt.englishApp.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.tqt.englishApp.dto.request.VocabularyRequest;
-import com.tqt.englishApp.dto.request.WordMeaningRequest;
+import com.tqt.englishApp.dto.request.VocabularyMeaningRequest;
 import com.tqt.englishApp.dto.response.vocabulary.VocabulariesResponse;
 import com.tqt.englishApp.dto.response.vocabulary.VocabulariesSimpleResponse;
-import com.tqt.englishApp.entity.SubTopic;
-import com.tqt.englishApp.entity.Vocabulary;
-import com.tqt.englishApp.entity.WordMeaning;
-import com.tqt.englishApp.entity.MeaningSynonym;
+import com.tqt.englishApp.entity.*;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.VocabularyMapper;
 import com.tqt.englishApp.repository.SubTopicRepository;
+import com.tqt.englishApp.repository.UserSavedVocabularyRepository;
 import com.tqt.englishApp.repository.VocabularyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,11 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import com.tqt.englishApp.entity.MeaningImage;
 
 @Service
 public class VocabularyService {
@@ -39,6 +34,9 @@ public class VocabularyService {
 
     @Autowired
     private VocabularyMapper vocabularyMapper;
+
+    @Autowired
+    private UserSavedVocabularyRepository userSavedVocabularyRepository;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -84,11 +82,11 @@ public class VocabularyService {
         return vocabularyMapper.toVocabulariesResponse(vocabularyRepository.save(vocabulary));
     }
 
-    private void updateMeanings(Vocabulary vocabulary, List<WordMeaningRequest> requests) {
-        java.util.Map<Integer, WordMeaningRequest> requestMap = new java.util.HashMap<>();
-        List<WordMeaningRequest> newRequests = new ArrayList<>();
+    private void updateMeanings(Vocabulary vocabulary, List<VocabularyMeaningRequest> requests) {
+        Map<Integer, VocabularyMeaningRequest> requestMap = new HashMap<>();
+        List<VocabularyMeaningRequest> newRequests = new ArrayList<>();
 
-        for (WordMeaningRequest req : requests) {
+        for (VocabularyMeaningRequest req : requests) {
             if (req.getId() != null) {
                 requestMap.put(req.getId(), req);
             } else {
@@ -96,11 +94,11 @@ public class VocabularyService {
             }
         }
 
-        java.util.Iterator<WordMeaning> iterator = vocabulary.getMeanings().iterator();
+        Iterator<VocabularyMeaning> iterator = vocabulary.getMeanings().iterator();
         while (iterator.hasNext()) {
-            WordMeaning existing = iterator.next();
+            VocabularyMeaning existing = iterator.next();
             if (requestMap.containsKey(existing.getId())) {
-                WordMeaningRequest req = requestMap.get(existing.getId());
+                VocabularyMeaningRequest req = requestMap.get(existing.getId());
                 existing.setType(req.getType());
                 existing.setDefinition(req.getDefinition());
                 existing.setVnWord(req.getVnWord());
@@ -114,8 +112,8 @@ public class VocabularyService {
             }
         }
 
-        for (WordMeaningRequest mReq : newRequests) {
-            WordMeaning meaning = WordMeaning.builder()
+        for (VocabularyMeaningRequest mReq : newRequests) {
+            VocabularyMeaning meaning = VocabularyMeaning.builder()
                     .type(mReq.getType())
                     .definition(mReq.getDefinition())
                     .vnWord(mReq.getVnWord())
@@ -131,12 +129,12 @@ public class VocabularyService {
         }
     }
 
-    private List<WordMeaning> processMeanings(VocabularyRequest request, Vocabulary vocabulary) {
+    private List<VocabularyMeaning> processMeanings(VocabularyRequest request, Vocabulary vocabulary) {
         if (request.getMeanings() == null)
             return new ArrayList<>();
 
         return request.getMeanings().stream().map(mReq -> {
-            WordMeaning meaning = WordMeaning.builder()
+            VocabularyMeaning meaning = VocabularyMeaning.builder()
                     .type(mReq.getType())
                     .definition(mReq.getDefinition())
                     .vnWord(mReq.getVnWord())
@@ -153,14 +151,14 @@ public class VocabularyService {
         }).collect(Collectors.toList());
     }
 
-    private void processSynonymsAndImages(WordMeaningRequest mReq, WordMeaning meaning) {
+    private void processSynonymsAndImages(VocabularyMeaningRequest mReq, VocabularyMeaning meaning) {
         if (mReq.getSynonymWords() != null) {
-            List<com.tqt.englishApp.entity.MeaningSynonym> synonyms = mReq.getSynonymWords().stream()
+            List<MeaningSynonym> synonyms = mReq.getSynonymWords().stream()
                     .map(word -> vocabularyRepository
-                            .findByWordContainingIgnoreCase(word, org.springframework.data.domain.PageRequest.of(0, 1))
+                            .findByWordContainingIgnoreCase(word, PageRequest.of(0, 1))
                             .getContent().stream().findFirst().orElse(null))
                     .filter(v -> v != null && !v.getMeanings().isEmpty())
-                    .map(v -> com.tqt.englishApp.entity.MeaningSynonym.builder()
+                    .map(v -> MeaningSynonym.builder()
                             .meaning(meaning)
                             .synonymMeaning(v.getMeanings().get(0))
                             .build())
@@ -173,13 +171,13 @@ public class VocabularyService {
             meaning.getSynonyms().clear();
         }
 
-        List<com.tqt.englishApp.entity.MeaningImage> images = new ArrayList<>();
+        List<MeaningImage> images = new ArrayList<>();
 
         if (mReq.getExistingImageUrls() != null) {
             mReq.getExistingImageUrls().stream()
                     .filter(url -> url != null && !url.trim().isEmpty())
                     .forEach(url -> images
-                            .add(com.tqt.englishApp.entity.MeaningImage.builder().url(url).meaning(meaning).build()));
+                            .add(MeaningImage.builder().url(url).meaning(meaning).build()));
         }
 
         if (mReq.getImageFiles() != null) {
@@ -188,7 +186,7 @@ public class VocabularyService {
                     .forEach(file -> {
                         String uploadedUrl = uploadToCloudinary(file, "image");
                         if (uploadedUrl != null) {
-                            images.add(com.tqt.englishApp.entity.MeaningImage.builder().url(uploadedUrl)
+                            images.add(MeaningImage.builder().url(uploadedUrl)
                                     .meaning(meaning).build());
                         }
                     });
@@ -244,9 +242,14 @@ public class VocabularyService {
                 .collect(Collectors.toList());
     }
 
-    public VocabulariesResponse getVocabularyById(Integer id) {
-        return vocabularyMapper.toVocabulariesResponse(vocabularyRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED)));
+    public VocabulariesResponse getVocabularyById(Integer id, String userId) {
+        Vocabulary vocabulary = vocabularyRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED));
+        VocabulariesResponse response = vocabularyMapper.toVocabulariesResponse(vocabulary);
+        if (userId != null) {
+            response.setIsSave(userSavedVocabularyRepository.existsByUserIdAndVocabularyId(userId, id));
+        }
+        return response;
     }
 
     public void deleteAllVocabulary() {
@@ -263,24 +266,37 @@ public class VocabularyService {
         return vocabularyRepository.count();
     }
 
-    public Page<VocabulariesSimpleResponse> getSaveVocabularies(Map<String, String> params) {
+    public Page<VocabulariesSimpleResponse> getSaveVocabularies(String userId, Map<String, String> params) {
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));
 
         page = Math.max(0, page);
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Vocabulary> result = vocabularyRepository.findByIsSaveTrue(pageable);
+        Page<UserSavedVocabulary> result = userSavedVocabularyRepository.findByUserId(userId, pageable);
 
-        return result.map(vocabularyMapper::toVocabulariesSimpleResponse);
+        return result.map(saved -> {
+            VocabulariesSimpleResponse res = vocabularyMapper.toVocabulariesSimpleResponse(saved.getVocabulary());
+            res.setIsSave(true);
+            return res;
+        });
     }
 
-    public void toggleSaveVocabulary(Integer id) {
+    public void toggleSaveVocabulary(Integer id, String userId) {
         Vocabulary vocabulary = vocabularyRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED));
 
-        vocabulary.setIsSave(!vocabulary.getIsSave());
-        vocabularyRepository.save(vocabulary);
+        Optional<UserSavedVocabulary> existing = 
+            userSavedVocabularyRepository.findByUserIdAndVocabularyId(userId, id);
+
+        if (existing.isPresent()) {
+            userSavedVocabularyRepository.delete(existing.get());
+        } else {
+            userSavedVocabularyRepository.save(UserSavedVocabulary.builder()
+                    .userId(userId)
+                    .vocabulary(vocabulary)
+                    .build());
+        }
     }
 
 }

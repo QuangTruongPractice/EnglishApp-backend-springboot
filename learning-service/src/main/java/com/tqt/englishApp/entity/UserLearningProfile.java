@@ -30,6 +30,18 @@ public class UserLearningProfile {
     @Column(name = "daily_target")
     Integer dailyTarget;
 
+    @Column(name = "xp")
+    @Builder.Default
+    Integer xp = 0;
+
+    @Column(name = "weekly_xp")
+    @Builder.Default
+    Integer weeklyXp = 0;
+
+    @Column(name = "total_xp")
+    @Builder.Default
+    Integer totalXp = 0;
+
     @Enumerated(EnumType.STRING)
     LearningGoal goal;
 

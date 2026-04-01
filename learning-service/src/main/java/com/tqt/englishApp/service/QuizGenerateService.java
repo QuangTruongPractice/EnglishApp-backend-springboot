@@ -1,118 +1,121 @@
 package com.tqt.englishApp.service;
 
-import com.tqt.englishApp.dto.response.AnswerSimpleResponse;
-import com.tqt.englishApp.dto.response.quiz.QuizGenerateResponse;
-import com.tqt.englishApp.entity.Vocabulary;
-import com.tqt.englishApp.entity.WordMeaning;
+import com.tqt.englishApp.entity.*;
 import com.tqt.englishApp.enums.QuizType;
-import com.tqt.englishApp.exception.AppException;
-import com.tqt.englishApp.exception.ErrorCode;
-import com.tqt.englishApp.repository.VocabularyRepository;
-import com.tqt.englishApp.repository.WordMeaningRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tqt.englishApp.repository.VocabularyMeaningRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class QuizGenerateService {
-        @Autowired
-        WordMeaningRepository wordMeaningRepository;
+    private final VocabularyMeaningRepository meaningRepository;
 
-        @Autowired
-        VocabularyRepository vocabularyRepository;
-
-        public QuizGenerateResponse generateQuizEngToVn(Integer meanId) {
-                WordMeaning correctMeaning = wordMeaningRepository.findById(meanId)
-                                .orElseThrow(() -> new AppException(ErrorCode.WORD_MEANING_NOT_EXISTED));
-
-                String word = correctMeaning.getVocabulary().getWord();
-                String example = correctMeaning.getExample();
-                String question;
-
-                if (example != null && !example.isEmpty()) {
-                        question = String.format("%s, “%s” có nghĩa là gì?", example, word);
-                } else {
-                        question = String.format("“%s” có nghĩa là gì?", word);
-                }
-
-                AnswerSimpleResponse correctAnswer = AnswerSimpleResponse.builder()
-                                .answer(correctMeaning.getVnWord())
-                                .isCorrect(true)
-                                .build();
-
-                List<WordMeaning> distractors = wordMeaningRepository.findRandomDistractors(meanId, 3);
-                List<AnswerSimpleResponse> distractorAnswers = distractors.stream()
-                                .map(dm -> AnswerSimpleResponse.builder()
-                                                .answer(dm.getVnWord())
-                                                .isCorrect(false)
-                                                .build())
-                                .collect(Collectors.toList());
-
-                // Combine and shuffle
-                List<AnswerSimpleResponse> allAnswers = new ArrayList<>();
-                allAnswers.add(correctAnswer);
-                allAnswers.addAll(distractorAnswers);
-                Collections.shuffle(allAnswers);
-
-                // Assign IDs
-                for (int i = 0; i < allAnswers.size(); i++) {
-                        allAnswers.get(i).setId(i + 1);
-                }
-
-                return QuizGenerateResponse.builder()
-                                .id(1)
-                                .meanId(meanId)
-                                .question(question)
-                                .text(word)
-                                .type(QuizType.ENG_TO_VN)
-                                .answers(allAnswers)
-                                .createdAt(LocalDateTime.now())
-                                .build();
+    public List<SessionQuiz> generateSessionQuizzes(Session session, int dailyTarget) {
+        List<VocabularyMeaning> meanings = session.getMeanings();
+        List<SessionQuiz> sessionQuizzes = new ArrayList<>();
+        
+        int mcCount, fillCount, matchCount;
+        if (dailyTarget <= 5) {
+            mcCount = 5; fillCount = 1; matchCount = 0;
+        } else if (dailyTarget <= 15) {
+            mcCount = 7; fillCount = 5; matchCount = 1;
+        } else {
+            mcCount = 12; fillCount = 8; matchCount = 2;
         }
 
-        public QuizGenerateResponse generateQuizVNToEng(Integer meanId) {
-                WordMeaning correctMeaning = wordMeaningRepository.findById(meanId)
-                                .orElseThrow(() -> new AppException(ErrorCode.WORD_MEANING_NOT_EXISTED));
-                String word = correctMeaning.getVnWord();
-                String question = String.format("Từ nào có nghĩa là “%s”?", word);
+        int currentIdx = 0;
 
-                AnswerSimpleResponse correctAnswer = AnswerSimpleResponse.builder()
-                                .answer(correctMeaning.getVocabulary().getWord())
-                                .isCorrect(true)
-                                .build();
-
-                Integer vocabId = correctMeaning.getVocabulary().getId();
-                List<Vocabulary> distractors = vocabularyRepository.findRandomDistractors(vocabId, 3);
-                List<AnswerSimpleResponse> distractorAnswers = distractors.stream()
-                                .map(dm -> AnswerSimpleResponse.builder()
-                                                .answer(dm.getWord())
-                                                .isCorrect(false)
-                                                .build())
-                                .collect(Collectors.toList());
-
-                List<AnswerSimpleResponse> allAnswers = new ArrayList<>();
-                allAnswers.add(correctAnswer);
-                allAnswers.addAll(distractorAnswers);
-                Collections.shuffle(allAnswers);
-
-                // Assign IDs
-                for (int i = 0; i < allAnswers.size(); i++) {
-                        allAnswers.get(i).setId(i + 1);
-                }
-
-                return QuizGenerateResponse.builder()
-                                .id(1)
-                                .meanId(meanId)
-                                .question(question)
-                                .text(word)
-                                .type(QuizType.VN_TO_ENG)
-                                .answers(allAnswers)
-                                .createdAt(LocalDateTime.now())
-                                .build();
+        // Generate MC
+        for (int i = 0; i < mcCount && currentIdx < meanings.size(); i++) {
+            sessionQuizzes.add(createMC(meanings.get(currentIdx++), session));
         }
+
+        // Generate FILL
+        for (int i = 0; i < fillCount && currentIdx < meanings.size(); i++) {
+            sessionQuizzes.add(createFILL(meanings.get(currentIdx++), session));
+        }
+
+        // Generate MATCH
+        for (int i = 0; i < matchCount && (currentIdx + 3) < meanings.size(); i++) {
+            List<VocabularyMeaning> batch = meanings.subList(currentIdx, currentIdx + 4);
+            sessionQuizzes.addAll(createMATCH(batch, session, i));
+            currentIdx += 4;
+        }
+
+        return sessionQuizzes;
+    }
+
+    private SessionQuiz createMC(VocabularyMeaning target, Session session) {
+        Quiz quiz = Quiz.builder()
+                .type(QuizType.MC)
+                .question("Chọn định nghĩa đúng cho từ: " + target.getVocabulary().getWord())
+                .text(target.getVocabulary().getWord())
+                .build();
+        
+        List<Answer> answers = new ArrayList<>();
+        answers.add(Answer.builder().answer(target.getDefinition()).isCorrect(true).quiz(quiz).build());
+
+        // Distractors
+        meaningRepository.findRandomDistractors(target.getId(), 3).forEach(vm -> 
+            answers.add(Answer.builder().answer(vm.getDefinition()).isCorrect(false).quiz(quiz).build())
+        );
+
+        Collections.shuffle(answers);
+        quiz.setAnswers(answers);
+
+        return SessionQuiz.builder()
+                .session(session)
+                .quiz(quiz)
+                .meaning(target)
+                .xpAwarded(3)
+                .build();
+    }
+
+    private SessionQuiz createFILL(VocabularyMeaning target, Session session) {
+        Quiz quiz = Quiz.builder()
+                .type(QuizType.FILL)
+                .question("Điền từ đúng cho định nghĩa: " + target.getDefinition())
+                .text(target.getDefinition())
+                .build();
+        
+        List<Answer> answers = new ArrayList<>();
+        answers.add(Answer.builder().answer(target.getVocabulary().getWord()).isCorrect(true).quiz(quiz).build());
+
+        meaningRepository.findRandomDistractors(target.getId(), 5).forEach(vm -> 
+            answers.add(Answer.builder().answer(vm.getVocabulary().getWord()).isCorrect(false).quiz(quiz).build())
+        );
+
+        Collections.shuffle(answers);
+        quiz.setAnswers(answers);
+
+        return SessionQuiz.builder()
+                .session(session)
+                .quiz(quiz)
+                .meaning(target)
+                .xpAwarded(4)
+                .build();
+    }
+
+    private List<SessionQuiz> createMATCH(List<VocabularyMeaning> batch, Session session, int matchId) {
+        return batch.stream().map(vm -> {
+            Quiz quiz = Quiz.builder()
+                    .type(QuizType.MATCH)
+                    .question(vm.getVocabulary().getWord())
+                    .text(String.valueOf(matchId))
+                    .build();
+            
+            quiz.setAnswers(List.of(Answer.builder().answer(vm.getDefinition()).isCorrect(true).quiz(quiz).build()));
+
+            return SessionQuiz.builder()
+                    .session(session)
+                    .quiz(quiz)
+                    .meaning(vm)
+                    .xpAwarded(10)
+                    .build();
+        }).collect(Collectors.toList());
+    }
 }

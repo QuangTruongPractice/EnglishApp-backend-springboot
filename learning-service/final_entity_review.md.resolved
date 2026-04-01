@@ -31,7 +31,7 @@ classDiagram
         +List~SubTopic~ subTopics
     }
 
-    class WordMeaning {
+    class VocabularyMeaning {
         +Integer id
         +Vocabulary vocabulary
         +String definition
@@ -43,8 +43,8 @@ classDiagram
 
     class MeaningSynonym {
         +Integer id
-        +WordMeaning meaning
-        +WordMeaning synonymMeaning
+        +VocabularyMeaning meaning
+        +VocabularyMeaning synonymMeaning
     }
 
     class WordImage {
@@ -130,9 +130,9 @@ classDiagram
 
     MainTopic "1" -- "*" SubTopic : contains
     SubTopic "*" -- "*" Vocabulary : categorized_in
-    Vocabulary "1" -- "*" WordMeaning : defines
+    Vocabulary "1" -- "*" VocabularyMeaning : defines
     Vocabulary "1" -- "*" WordImage : illustrates
-    WordMeaning "1" -- "*" MeaningSynonym : has_synonym
+    VocabularyMeaning "1" -- "*" MeaningSynonym : has_synonym
     Video "1" -- "*" Subtitles : has
     Quiz "1" -- "*" Answer : has_options
     UserVocabularyProgress "*" -- "1" Vocabulary : tracks

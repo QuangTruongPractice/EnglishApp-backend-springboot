@@ -1,6 +1,6 @@
 package com.tqt.englishApp.dto.response.vocabulary;
 
-import com.tqt.englishApp.dto.response.WordMeaningResponse;
+import com.tqt.englishApp.dto.response.VocabularyMeaningResponse;
 import com.tqt.englishApp.dto.response.subTopic.SubTopicsSimpleResponse;
 import com.tqt.englishApp.enums.Level;
 import lombok.*;
@@ -21,5 +21,5 @@ public class VocabulariesResponse {
     String audioUrl;
     Boolean isSave;
     List<SubTopicsSimpleResponse> subTopics;
-    List<WordMeaningResponse> meanings;
+    List<VocabularyMeaningResponse> meanings;
 }

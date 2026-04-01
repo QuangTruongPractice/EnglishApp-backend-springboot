@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WordMeaningRequest {
+public class VocabularyMeaningRequest {
     Integer id;
     @NotNull(message = "Loại từ không được để trống")
     Type type;

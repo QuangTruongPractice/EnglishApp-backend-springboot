@@ -3,7 +3,7 @@ package com.tqt.englishApp.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Uploader;
 import com.tqt.englishApp.dto.request.VocabularyRequest;
-import com.tqt.englishApp.dto.request.WordMeaningRequest;
+import com.tqt.englishApp.dto.request.VocabularyMeaningRequest;
 import com.tqt.englishApp.dto.response.vocabulary.VocabulariesResponse;
 import com.tqt.englishApp.dto.response.vocabulary.VocabulariesSimpleResponse;
 import com.tqt.englishApp.entity.SubTopic;
@@ -85,7 +85,7 @@ class VocabularyServiceTest {
     void createVocabulary_Success_WithFile() throws IOException {
         VocabularyRequest req = VocabularyRequest.builder()
                 .id(1).phonetic("ph").word("Hello").audioFile(audioFile).subTopics(List.of(1))
-                .meanings(List.of(WordMeaningRequest.builder()
+                .meanings(List.of(VocabularyMeaningRequest.builder()
                         .type(Type.NOUN).definition("def").vnWord("vnW").vnDefinition("vnD")
                         .example("ex").vnExample("vnE").build()))
                 .build();
@@ -110,7 +110,7 @@ class VocabularyServiceTest {
     void createVocabulary_Success_WithUrl() {
         VocabularyRequest req = VocabularyRequest.builder()
                 .id(1).phonetic("ph").word("Hello").audioUrl("http://fixed.url").subTopics(List.of(1))
-                .meanings(List.of(WordMeaningRequest.builder()
+                .meanings(List.of(VocabularyMeaningRequest.builder()
                         .type(Type.NOUN).definition("def").vnWord("vnW").vnDefinition("vnD")
                         .example("ex").vnExample("vnE").build()))
                 .build();
@@ -129,7 +129,7 @@ class VocabularyServiceTest {
     void createVocabulary_Fail_TopicNotFound() {
         VocabularyRequest req = VocabularyRequest.builder()
                 .id(1).phonetic("ph").word("Hello").subTopics(List.of(99))
-                .meanings(List.of(WordMeaningRequest.builder()
+                .meanings(List.of(VocabularyMeaningRequest.builder()
                         .type(Type.NOUN).definition("def").vnWord("vnW").vnDefinition("vnD")
                         .example("ex").vnExample("vnE").build()))
                 .build();
@@ -145,7 +145,7 @@ class VocabularyServiceTest {
     void createVocabulary_CloudinaryFailure() throws IOException {
         VocabularyRequest req = VocabularyRequest.builder()
                 .id(1).phonetic("ph").word("Hello").audioFile(audioFile).subTopics(List.of(1))
-                .meanings(List.of(WordMeaningRequest.builder()
+                .meanings(List.of(VocabularyMeaningRequest.builder()
                         .type(Type.NOUN).definition("def").vnWord("vnW").vnDefinition("vnD")
                         .example("ex").vnExample("vnE").build()))
                 .build();
@@ -165,7 +165,7 @@ class VocabularyServiceTest {
     void updateVocabulary_Success() throws IOException {
         VocabularyRequest req = VocabularyRequest.builder()
                 .id(1).phonetic("ph").word("Updated").audioFile(audioFile).subTopics(List.of(1))
-                .meanings(List.of(WordMeaningRequest.builder()
+                .meanings(List.of(VocabularyMeaningRequest.builder()
                         .type(Type.VERB).definition("def").vnWord("vnW").vnDefinition("vnD")
                         .example("ex").vnExample("vnE").build()))
                 .build();
@@ -190,7 +190,7 @@ class VocabularyServiceTest {
     void updateVocabulary_Success_NoFile() {
         VocabularyRequest req = VocabularyRequest.builder()
                 .id(1).phonetic("ph").word("Updated").subTopics(List.of(1))
-                .meanings(List.of(WordMeaningRequest.builder()
+                .meanings(List.of(VocabularyMeaningRequest.builder()
                         .type(Type.NOUN).definition("def").vnWord("vnW").vnDefinition("vnD")
                         .example("ex").vnExample("vnE").build()))
                 .build();

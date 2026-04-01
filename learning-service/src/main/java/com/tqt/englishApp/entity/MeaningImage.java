@@ -18,7 +18,7 @@ public class MeaningImage {
 
     @ManyToOne
     @JoinColumn(name = "meaning_id")
-    WordMeaning meaning;
+    VocabularyMeaning meaning;
 
     @Column(name = "url")
     String url;

@@ -20,8 +20,6 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, Integer>
         @Query("SELECT v FROM Vocabulary v WHERE v.subTopics IS EMPTY")
         List<Vocabulary> findAllWithoutSubTopics();
 
-        @Query("SELECT v FROM Vocabulary v WHERE v.isSave = true")
-        Page<Vocabulary> findByIsSaveTrue(Pageable pageable);
 
         @Query(value = "SELECT * FROM vocabulary WHERE id != :currentId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
         List<Vocabulary> findRandomDistractors(@Param("currentId") Integer currentId, @Param("limit") int limit);
