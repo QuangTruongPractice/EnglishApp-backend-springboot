@@ -24,7 +24,7 @@ public class UserLearningProfile {
     String userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "level")
+    @Column(name = "level", length = 50)
     Level level;
 
     @Column(name = "daily_target")
@@ -43,10 +43,12 @@ public class UserLearningProfile {
     Integer totalXp = 0;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "goal", length = 50)
     LearningGoal goal;
 
     @Column(name = "onboarding_completed")
-    Boolean onboardingCompleted;
+    @Builder.Default
+    Boolean onboardingCompleted = false;
 
     @Column(name = "current_topic_id")
     Integer currentTopicId;

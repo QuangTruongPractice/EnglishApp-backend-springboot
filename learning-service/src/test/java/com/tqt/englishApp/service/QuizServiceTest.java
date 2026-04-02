@@ -1,7 +1,8 @@
 package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.request.QuizRequest;
-import com.tqt.englishApp.dto.response.quiz.QuizResponse;
+import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
+import com.tqt.englishApp.dto.response.quiz.DefaultQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.entity.Quiz;
 import com.tqt.englishApp.exception.AppException;
@@ -41,14 +42,14 @@ class QuizServiceTest {
 
     private Quiz quiz;
     private QuizRequest quizRequest;
-    private QuizResponse quizResponse;
+    private BaseQuizResponse quizResponse;
     private QuizDetailResponse quizDetailResponse;
 
     @BeforeEach
     void init() {
         quiz = Quiz.builder().id(1).question("Test Question").build();
         quizRequest = QuizRequest.builder().question("Updated Question").build();
-        quizResponse = QuizResponse.builder().id(1).question("Test Question").build();
+        quizResponse = DefaultQuizResponse.builder().id(1).question("Test Question").build();
         quizDetailResponse = QuizDetailResponse.builder().id(1).question("Test Question").build();
     }
 
@@ -58,7 +59,7 @@ class QuizServiceTest {
         when(quizRepository.save(quiz)).thenReturn(quiz);
         when(quizMapper.toQuizResponse(quiz)).thenReturn(quizResponse);
 
-        QuizResponse result = quizService.createQuiz(quizRequest);
+        BaseQuizResponse result = quizService.createQuiz(quizRequest);
 
         assertNotNull(result);
         verify(quizRepository).save(quiz);
@@ -70,7 +71,7 @@ class QuizServiceTest {
         when(quizRepository.save(quiz)).thenReturn(quiz);
         when(quizMapper.toQuizResponse(quiz)).thenReturn(quizResponse);
 
-        QuizResponse result = quizService.updateQuiz(quizRequest, 1);
+        BaseQuizResponse result = quizService.updateQuiz(quizRequest, 1);
 
         assertNotNull(result);
         verify(quizMapper).updateQuiz(quiz, quizRequest);
@@ -94,7 +95,7 @@ class QuizServiceTest {
         when(quizRepository.findAll(any(Pageable.class))).thenReturn(quizPage);
         when(quizMapper.toQuizResponse(any(Quiz.class))).thenReturn(quizResponse);
 
-        Page<QuizResponse> result = quizService.getQuiz(params);
+        Page<BaseQuizResponse> result = quizService.getQuiz(params);
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());

@@ -15,6 +15,8 @@ public class AnswerResponse {
     Integer id;
     String answer;
     Boolean isCorrect;
+    String text;
+    Integer meaningId;
     Quiz quiz;
     LocalDate createdAt;
 }

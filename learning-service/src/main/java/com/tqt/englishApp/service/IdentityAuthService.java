@@ -17,7 +17,7 @@ public class IdentityAuthService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static final String IDENTITY_SERVICE_URL = "http://localhost:8081/identity/api/login";
+    private static final String IDENTITY_SERVICE_URL = "http://localhost:8080/identity/api/login";
 
     public AuthenticationResponse authenticate(String username, String password) {
         AuthenticationRequest request = new AuthenticationRequest(username, password);

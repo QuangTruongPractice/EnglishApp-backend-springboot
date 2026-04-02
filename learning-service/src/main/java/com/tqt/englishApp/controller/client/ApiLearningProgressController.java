@@ -4,20 +4,15 @@ import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.VideoProgressRequest;
 import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
 import com.tqt.englishApp.dto.response.*;
-import com.tqt.englishApp.dto.response.vocabulary.VocabulariesResponse;
 import com.tqt.englishApp.dto.response.vocabulary.UserVocabularyResponse;
 import com.tqt.englishApp.entity.*;
-import com.tqt.englishApp.mapper.VocabularyMapper;
 import com.tqt.englishApp.service.ContentProgressService;
 import com.tqt.englishApp.service.VocabularyLearningService;
-import com.tqt.englishApp.service.VocabularySelectionService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -28,12 +23,6 @@ public class ApiLearningProgressController {
 
     @Autowired
     private ContentProgressService contentProgressService;
-
-    @Autowired
-    private VocabularySelectionService vocabularySelectionService;
-
-    @Autowired
-    private VocabularyMapper vocabularyMapper;
 
     @PostMapping("/learning-progress/video")
     public ApiResponse<UserVideoProgress> updateVideoProgress(@RequestBody VideoProgressRequest request) {
@@ -49,24 +38,6 @@ public class ApiLearningProgressController {
         String userId = principal.getName();
         List<UserVocabularyResponse> progress = vocabularyLearningService.getUserVocabularyProgress(userId);
         response.setResult(progress);
-        return response;
-    }
-
-    @GetMapping("/secure/daily-vocabulary")
-    public ApiResponse<List<DailyVocabularyResponse>> getDailyVocabulary(Principal principal) {
-        ApiResponse<List<DailyVocabularyResponse>> response = new ApiResponse<>();
-        String userId = principal.getName();
-        List<DailyVocabularyItem> items = vocabularySelectionService.getDailyVocabulary(userId);
-        response.setResult(items.stream()
-                .map(item -> {
-                    VocabulariesResponse base = vocabularyMapper.toVocabulariesResponse(item.getVocabulary());
-                    DailyVocabularyResponse res = new DailyVocabularyResponse();
-                    BeanUtils.copyProperties(base, res);
-                    res.setIsReview(item.isReview());
-                    res.setStatus(item.getStatus());
-                    return res;
-                })
-                .collect(Collectors.toList()));
         return response;
     }
 

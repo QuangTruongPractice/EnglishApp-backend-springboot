@@ -17,6 +17,10 @@ public interface VocabularyMeaningMapper {
 
     @Mapping(target = "synonyms", source = "synonyms", qualifiedByName = "mapSynonyms")
     @Mapping(target = "images", source = "images", qualifiedByName = "mapImages")
+    @Mapping(target = "word", source = "vocabulary.word")
+    @Mapping(target = "phonetic", source = "vocabulary.phonetic")
+    @Mapping(target = "level", source = "vocabulary.level")
+    @Mapping(target = "audioUrl", source = "vocabulary.audioUrl")
     VocabularyMeaningResponse toVocabularyMeaningResponse(VocabularyMeaning meaning);
 
     List<VocabularyMeaningResponse> toVocabularyMeaningResponse(List<VocabularyMeaning> meanings);

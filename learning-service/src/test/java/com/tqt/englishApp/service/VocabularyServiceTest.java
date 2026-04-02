@@ -50,6 +50,9 @@ class VocabularyServiceTest {
     VocabularyMapper vocabularyMapper;
 
     @Mock
+    com.tqt.englishApp.repository.UserSavedVocabularyRepository userSavedVocabularyRepository;
+
+    @Mock
     Cloudinary cloudinary;
 
     @Mock
@@ -279,7 +282,7 @@ class VocabularyServiceTest {
         when(vocabularyRepository.findById(1)).thenReturn(Optional.of(vocabulary));
         when(vocabularyMapper.toVocabulariesResponse(vocabulary)).thenReturn(vocabularyResponse);
 
-        VocabulariesResponse result = vocabularyService.getVocabularyById(1);
+        VocabulariesResponse result = vocabularyService.getVocabularyById(1, "user1");
 
         assertNotNull(result);
         assertEquals(1, result.getId());
@@ -289,7 +292,7 @@ class VocabularyServiceTest {
     void getVocabularyById_Fail() {
         when(vocabularyRepository.findById(99)).thenReturn(Optional.empty());
 
-        AppException ex = assertThrows(AppException.class, () -> vocabularyService.getVocabularyById(99));
+        AppException ex = assertThrows(AppException.class, () -> vocabularyService.getVocabularyById(99, null));
         assertEquals(ErrorCode.VOCABULARY_NOT_EXISTED, ex.getErrorCode());
     }
 
@@ -317,16 +320,18 @@ class VocabularyServiceTest {
     @Test
     void getSaveVocabularies_Success() {
         Map<String, String> params = new HashMap<>();
-        Page<Vocabulary> page = new PageImpl<>(List.of(vocabulary));
+        com.tqt.englishApp.entity.UserSavedVocabulary saved = new com.tqt.englishApp.entity.UserSavedVocabulary();
+        saved.setVocabulary(vocabulary);
+        Page<com.tqt.englishApp.entity.UserSavedVocabulary> page = new PageImpl<>(List.of(saved));
 
-        when(vocabularyRepository.findByIsSaveTrue(any(Pageable.class))).thenReturn(page);
+        when(userSavedVocabularyRepository.findByUserId(eq("user1"), any(Pageable.class))).thenReturn(page);
         when(vocabularyMapper.toVocabulariesSimpleResponse(any(Vocabulary.class)))
                 .thenReturn(vocabulariesSimpleResponse);
 
-        Page<VocabulariesSimpleResponse> result = vocabularyService.getSaveVocabularies(params);
+        Page<VocabulariesSimpleResponse> result = vocabularyService.getSaveVocabularies("user1", params);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        verify(vocabularyRepository).findByIsSaveTrue(any(Pageable.class));
+        verify(userSavedVocabularyRepository).findByUserId(eq("user1"), any(Pageable.class));
     }
 }

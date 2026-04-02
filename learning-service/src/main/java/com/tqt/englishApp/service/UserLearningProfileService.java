@@ -32,7 +32,10 @@ public class UserLearningProfileService {
         profile.setLevel(request.getLevel());
         profile.setDailyTarget(request.getDailyTarget());
         profile.setGoal(request.getGoal());
-        profile.setOnboardingCompleted(true);
+        boolean isComplete = request.getLevel() != null &&
+                            request.getDailyTarget() != null &&
+                            request.getGoal() != null;
+        profile.setOnboardingCompleted(isComplete);
 
         return userLearningProfileRepository.save(profile);
     }

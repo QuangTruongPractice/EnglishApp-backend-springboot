@@ -3,6 +3,7 @@ package com.tqt.englishApp.dto.response;
 import com.tqt.englishApp.enums.Type;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -19,6 +20,13 @@ public class VocabularyMeaningResponse {
     String vnDefinition;
     String example;
     String vnExample;
+    String word;
+    String phonetic;
+    String level;
+    String audioUrl;
     List<String> synonyms;
     List<String> images;
+
+    @JsonProperty("user_progress")
+    UserMeaningProgressResponse userProgress;
 }

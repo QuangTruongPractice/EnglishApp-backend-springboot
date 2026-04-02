@@ -94,7 +94,7 @@ public class VocabularyController {
 
     @GetMapping("/edit/{vocabularyId}")
     public String updateVocabulary(Model model, @PathVariable(value = "vocabularyId") int id) {
-        VocabulariesResponse response = vocabularyService.getVocabularyById(id);
+        VocabulariesResponse response = vocabularyService.getVocabularyById(id, null);
         VocabularyRequest request = vocabularyMapper.toVocabularyRequest(response);
 
         // Map sub-topic IDs from response so the form pre-selects them

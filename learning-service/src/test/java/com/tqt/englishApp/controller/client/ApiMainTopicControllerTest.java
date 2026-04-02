@@ -46,7 +46,7 @@ public class ApiMainTopicControllerTest {
     @Test
     void getMainTopics_Success() throws Exception {
         Page<MainTopicsResponse> page = new PageImpl<>(Collections.emptyList());
-        when(mainTopicService.getMainTopicsForClient(anyMap())).thenReturn(page);
+        when(mainTopicService.getMainTopicsForClient(anyMap(), nullable(String.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/main-topics"))
                 .andExpect(status().isOk())
@@ -58,7 +58,7 @@ public class ApiMainTopicControllerTest {
         MainTopicsDetailResponse response = new MainTopicsDetailResponse();
         response.setId(1);
         response.setName("Detail Topic");
-        when(mainTopicService.getMainTopicDetailForClient(1)).thenReturn(response);
+        when(mainTopicService.getMainTopicDetailForClient(eq(1), nullable(String.class))).thenReturn(response);
 
         mockMvc.perform(get("/api/main-topics/1"))
                 .andExpect(status().isOk())

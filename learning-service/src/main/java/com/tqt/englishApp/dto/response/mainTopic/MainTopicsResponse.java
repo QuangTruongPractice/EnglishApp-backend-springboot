@@ -2,6 +2,7 @@ package com.tqt.englishApp.dto.response.mainTopic;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @NoArgsConstructor
@@ -13,4 +14,7 @@ public class MainTopicsResponse {
     String name;
     String image;
     Long subTopicsCount;
+
+    @JsonProperty("user_progress")
+    UserTopicProgressResponse userProgress;
 }

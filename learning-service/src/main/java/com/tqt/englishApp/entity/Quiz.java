@@ -21,7 +21,7 @@ public class Quiz {
     Integer id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "type", length = 50)
     QuizType type;
 
     @Column(name = "question")

@@ -23,7 +23,7 @@ public enum ErrorCode {
     VIDEO_NOT_EXISTED(1013, "Không tìm thấy video"),
     QUIZ_NOT_EXISTED(1014, "Không tìm thấy quiz"),
     ANSWER_NOT_EXISTED(1015, "Không tìm thấy answer"),
-    WORD_MEANING_NOT_EXISTED(1016, "Không tìm thấy nghĩa của từ")
+    VOCABULARY_MEANING_NOT_EXISTED(1016, "Không tìm thấy nghĩa của từ")
     ;
 
     ErrorCode(int code, String message) {

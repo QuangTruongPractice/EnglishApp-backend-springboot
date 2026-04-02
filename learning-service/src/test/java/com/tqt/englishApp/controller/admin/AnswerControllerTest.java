@@ -2,7 +2,7 @@ package com.tqt.englishApp.controller.admin;
 
 import com.tqt.englishApp.dto.request.AnswerRequest;
 import com.tqt.englishApp.dto.response.AnswerResponse;
-import com.tqt.englishApp.dto.response.quiz.QuizResponse;
+import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
 import com.tqt.englishApp.service.AnswerService;
 import com.tqt.englishApp.service.QuizService;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ public class AnswerControllerTest {
 
     @Test
     void answersForm_Success() throws Exception {
-        Page<QuizResponse> quizPage = new PageImpl<>(Collections.emptyList());
+        Page<BaseQuizResponse> quizPage = new PageImpl<>(Collections.emptyList());
         when(quizService.getQuiz(anyMap())).thenReturn(quizPage);
 
         mockMvc.perform(get("/admin/answers/add"))
@@ -78,7 +78,7 @@ public class AnswerControllerTest {
 
     @Test
     void addAnswers_ValidationErrors() throws Exception {
-        Page<QuizResponse> quizPage = new PageImpl<>(Collections.emptyList());
+        Page<BaseQuizResponse> quizPage = new PageImpl<>(Collections.emptyList());
         when(quizService.getQuiz(anyMap())).thenReturn(quizPage);
 
         mockMvc.perform(post("/admin/answers/add")
@@ -121,7 +121,7 @@ public class AnswerControllerTest {
     @Test
     void updateAnswers_Success() throws Exception {
         when(answerService.getAnswerRequestById(anyInt())).thenReturn(new AnswerRequest());
-        Page<QuizResponse> quizPage = new PageImpl<>(Collections.emptyList());
+        Page<BaseQuizResponse> quizPage = new PageImpl<>(Collections.emptyList());
         when(quizService.getQuiz(anyMap())).thenReturn(quizPage);
 
         mockMvc.perform(get("/admin/answers/edit/{answerId}", 1))

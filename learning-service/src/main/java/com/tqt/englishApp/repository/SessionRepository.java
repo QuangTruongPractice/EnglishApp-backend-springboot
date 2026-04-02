@@ -11,4 +11,8 @@ import java.util.List;
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Integer> {
     Optional<Session> findByUserIdAndDate(String userId, LocalDate date);
+
+    List<Session> findByUserIdAndDateBetween(String userId, LocalDate startDate, LocalDate endDate);
+
+    List<Session> findByUserIdOrderByDateDesc(String userId);
 }

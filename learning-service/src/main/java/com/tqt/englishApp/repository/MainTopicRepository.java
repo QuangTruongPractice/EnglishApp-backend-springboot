@@ -26,4 +26,19 @@ public interface MainTopicRepository extends JpaRepository<MainTopic, Integer> {
             "INNER JOIN sub_topic st ON vs.sub_topic_id = st.id " +
             "WHERE st.main_topic_id = :mainTopicId", nativeQuery = true)
     void deleteVocabularySubTopicRelationsByMainTopic(@Param("mainTopicId") Integer mainTopicId);
+
+    @Query("SELECT COUNT(vm) FROM VocabularyMeaning vm " +
+           "JOIN vm.vocabulary v " +
+           "JOIN v.subTopics st " +
+           "WHERE st.mainTopic.id = :mainTopicId")
+    Long countTotalMeaningsByMainTopic(@Param("mainTopicId") Integer mainTopicId);
+
+    @Query("SELECT COUNT(uvp) FROM UserVocabularyProgress uvp " +
+           "JOIN uvp.meaning vm " +
+           "JOIN vm.vocabulary v " +
+           "JOIN v.subTopics st " +
+           "WHERE st.mainTopic.id = :mainTopicId " +
+           "AND uvp.userId = :userId " +
+           "AND uvp.status = 'LEARNING'")
+    Long countLearnedMeaningsByMainTopic(@Param("mainTopicId") Integer mainTopicId, @Param("userId") String userId);
 }

@@ -1,7 +1,9 @@
 package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
+import com.tqt.englishApp.dto.response.SessionResponse;
 import com.tqt.englishApp.entity.Session;
+import com.tqt.englishApp.mapper.SessionMapper;
 import com.tqt.englishApp.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,18 +15,20 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class ApiSessionController {
     private final SessionService sessionService;
+    private final SessionMapper sessionMapper;
 
     @PostMapping("/secure/sessions/daily")
-    public ApiResponse<Session> getOrCreateDailySession(Principal principal) {
-        ApiResponse<Session> response = new ApiResponse<>();
-        response.setResult(sessionService.getOrCreateDailySession(principal.getName()));
+    public ApiResponse<SessionResponse> getOrCreateDailySession(Principal principal) {
+        ApiResponse<SessionResponse> response = new ApiResponse<>();
+        Session session = sessionService.getOrCreateDailySession(principal.getName());
+        response.setResult(sessionMapper.toSessionResponse(session));
         return response;
     }
 
     @PostMapping("/secure/sessions/{sessionId}/quiz/{quizId}/submit")
     public ApiResponse<Integer> submitQuiz(@PathVariable Integer sessionId,
                                            @PathVariable Integer quizId,
-                                           @RequestBody Boolean isCorrect,
+                                           @RequestParam Boolean isCorrect,
                                            Principal principal) {
         ApiResponse<Integer> response = new ApiResponse<>();
         response.setResult(sessionService.submitQuiz(sessionId, quizId, principal.getName(), isCorrect));

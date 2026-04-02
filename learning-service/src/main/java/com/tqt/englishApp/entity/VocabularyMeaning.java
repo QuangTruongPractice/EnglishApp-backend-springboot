@@ -24,6 +24,7 @@ public class VocabularyMeaning {
     Vocabulary vocabulary;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type", length = 50)
     Type type;
 
     @Column(name = "definition")

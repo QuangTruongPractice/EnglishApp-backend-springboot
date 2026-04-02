@@ -55,7 +55,7 @@ public class ApiSubTopicControllerTest {
     @Test
     void getSubTopic_Success() throws Exception {
         SubTopicsDetailResponse response = new SubTopicsDetailResponse();
-        when(subTopicService.getSubTopicDetailForClient(1)).thenReturn(response);
+        when(subTopicService.getSubTopicDetailForClient(1, null)).thenReturn(response);
 
         mockMvc.perform(get("/api/sub-topics/1"))
                 .andExpect(status().isOk())

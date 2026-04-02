@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/leaderboard")
 @RequiredArgsConstructor
-public class ApiLeaderboardController {
+public class ApiLeaderBoardController {
     private final UserLearningProfileRepository profileRepository;
 
     @GetMapping("/weekly")
@@ -27,7 +27,7 @@ public class ApiLeaderboardController {
             UserLearningProfile user = topUsers.get(i);
             responseList.add(WeeklyLeaderboardResponse.builder()
                     .userId(user.getUserId())
-                    .username("User " + user.getUserId()) // Placeholder until auth integrated
+                    .username("User " + user.getUserId()) 
                     .weeklyXp(user.getWeeklyXp())
                     .rank(i + 1)
                     .level(user.getLevel().name())

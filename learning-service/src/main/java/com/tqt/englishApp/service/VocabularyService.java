@@ -10,10 +10,9 @@ import com.tqt.englishApp.entity.*;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.VocabularyMapper;
-import com.tqt.englishApp.repository.SubTopicRepository;
-import com.tqt.englishApp.repository.UserSavedVocabularyRepository;
-import com.tqt.englishApp.repository.VocabularyRepository;
+import com.tqt.englishApp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,10 +41,11 @@ public class VocabularyService {
     private Cloudinary cloudinary;
 
     @Autowired
-    private UserLearningProfileService userLearningProfileService;
+    private UserVocabularyProgressRepository userVocabularyProgressRepository;
 
     private static final int PAGE_SIZE = 10;
 
+    @Transactional
     public VocabulariesResponse createVocabulary(VocabularyRequest request) {
         MultipartFile audio = request.getAudioFile();
         String audioUrl = request.getAudioUrl();
@@ -60,6 +60,7 @@ public class VocabularyService {
         return vocabularyMapper.toVocabulariesResponse(vocabularyRepository.save(vocabulary));
     }
 
+    @Transactional
     public VocabulariesResponse updateVocabulary(Integer vocabularyId, VocabularyRequest request) {
         MultipartFile audio = request.getAudioFile();
         String audioUrl = request.getAudioUrl();
@@ -153,21 +154,64 @@ public class VocabularyService {
 
     private void processSynonymsAndImages(VocabularyMeaningRequest mReq, VocabularyMeaning meaning) {
         if (mReq.getSynonymWords() != null) {
-            List<MeaningSynonym> synonyms = mReq.getSynonymWords().stream()
+            Set<VocabularyMeaning> targetMeanings = mReq.getSynonymWords().stream()
                     .map(word -> vocabularyRepository
                             .findByWordContainingIgnoreCase(word, PageRequest.of(0, 1))
                             .getContent().stream().findFirst().orElse(null))
                     .filter(v -> v != null && !v.getMeanings().isEmpty())
-                    .map(v -> MeaningSynonym.builder()
-                            .meaning(meaning)
-                            .synonymMeaning(v.getMeanings().get(0))
-                            .build())
-                    .collect(Collectors.toList());
-            if (meaning.getSynonyms() == null)
-                meaning.setSynonyms(new ArrayList<>());
+                    .map(v -> v.getMeanings().get(0))
+                    .filter(v -> meaning.getId() == null || !v.getId().equals(meaning.getId()))
+                    .collect(Collectors.toSet());
+
+            List<MeaningSynonym> currentSynonyms = meaning.getSynonyms();
+            if (currentSynonyms == null) {
+                currentSynonyms = new ArrayList<>();
+                meaning.setSynonyms(currentSynonyms);
+            }
+
+            Set<VocabularyMeaning> currentTargets = currentSynonyms.stream()
+                    .map(MeaningSynonym::getSynonymMeaning)
+                    .collect(Collectors.toSet());
+
             meaning.getSynonyms().clear();
-            meaning.getSynonyms().addAll(synonyms);
+            for (VocabularyMeaning target : targetMeanings) {
+                meaning.getSynonyms().add(MeaningSynonym.builder()
+                        .meaning(meaning)
+                        .synonymMeaning(target)
+                        .build());
+
+                if (target.getSynonyms() == null)
+                    target.setSynonyms(new ArrayList<>());
+                
+                boolean alreadyContains = target.getSynonyms().stream()
+                        .anyMatch(s -> s.getSynonymMeaning().getId().equals(meaning.getId()));
+                
+                if (!alreadyContains) {
+                    target.getSynonyms().add(MeaningSynonym.builder()
+                            .meaning(target)
+                            .synonymMeaning(meaning)
+                            .build());
+                }
+            }
+
+            for (VocabularyMeaning oldTarget : currentTargets) {
+                if (!targetMeanings.contains(oldTarget)) {
+                    if (oldTarget.getSynonyms() != null) {
+                        oldTarget.getSynonyms().removeIf(s -> 
+                            s.getSynonymMeaning().getId() != null && 
+                            s.getSynonymMeaning().getId().equals(meaning.getId()));
+                    }
+                }
+            }
         } else if (meaning.getSynonyms() != null) {
+            for (MeaningSynonym s : meaning.getSynonyms()) {
+                VocabularyMeaning target = s.getSynonymMeaning();
+                if (target.getSynonyms() != null) {
+                    target.getSynonyms().removeIf(rs -> 
+                        rs.getSynonymMeaning().getId() != null && 
+                        rs.getSynonymMeaning().getId().equals(meaning.getId()));
+                }
+            }
             meaning.getSynonyms().clear();
         }
 
@@ -200,7 +244,7 @@ public class VocabularyService {
 
     private String uploadToCloudinary(MultipartFile file, String resourceType) {
         try {
-            Map res = cloudinary.uploader().upload(
+            Map<?, ?> res = cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap("resource_type", resourceType));
             return res.get("secure_url").toString();
@@ -248,6 +292,25 @@ public class VocabularyService {
         VocabulariesResponse response = vocabularyMapper.toVocabulariesResponse(vocabulary);
         if (userId != null) {
             response.setIsSave(userSavedVocabularyRepository.existsByUserIdAndVocabularyId(userId, id));
+            List<UserVocabularyProgress> progresses = userVocabularyProgressRepository.findByUserIdAndMeaning_Vocabulary_IdIn(userId, List.of(id));
+            Map<Integer, UserVocabularyProgress> progressMap = progresses.stream()
+                .collect(Collectors.toMap(p -> p.getMeaning().getId(), p -> p));
+            if (response.getMeanings() != null) {
+                response.getMeanings().forEach(m -> {
+                    UserVocabularyProgress prog = progressMap.get(m.getId());
+                    if (prog != null) {
+                        m.setUserProgress(com.tqt.englishApp.dto.response.UserMeaningProgressResponse.builder()
+                            .status(prog.getStatus().name().toLowerCase())
+                            .nextReviewAt(prog.getNextReviewAt() != null ? prog.getNextReviewAt().toLocalDate() : null)
+                            .build());
+                    } else {
+                        m.setUserProgress(com.tqt.englishApp.dto.response.UserMeaningProgressResponse.builder()
+                            .status("not_started")
+                            .nextReviewAt(null)
+                            .build());
+                    }
+                });
+            }
         }
         return response;
     }

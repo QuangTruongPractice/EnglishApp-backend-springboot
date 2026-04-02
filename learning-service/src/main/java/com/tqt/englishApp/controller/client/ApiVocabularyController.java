@@ -27,7 +27,7 @@ public class ApiVocabularyController {
         return response;
     }
 
-    @GetMapping("/vocabulary/{id}")
+    @GetMapping("/secure/vocabulary/{id}")
     public ApiResponse<VocabulariesResponse> getVocabulary(
             @PathVariable("id") Integer id, 
             Principal principal) {

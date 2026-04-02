@@ -5,6 +5,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.tqt.englishApp.dto.response.mainTopic.MainTopicsAdminResponse;
 import com.tqt.englishApp.dto.response.mainTopic.MainTopicsDetailResponse;
 import com.tqt.englishApp.dto.response.mainTopic.MainTopicsResponse;
+import com.tqt.englishApp.dto.response.mainTopic.UserTopicProgressResponse;
 import com.tqt.englishApp.dto.request.MainTopicRequest;
 import com.tqt.englishApp.entity.MainTopic;
 import com.tqt.englishApp.entity.UserLearningProfile;
@@ -39,6 +40,9 @@ public class MainTopicService {
 
     @Autowired
     private VocabularyService vocabularyService;
+
+    @Autowired
+    private SubTopicService subTopicService;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -128,10 +132,15 @@ public class MainTopicService {
         }
         List<MainTopic> topics = mainTopicRepository.findByGoalOrderByTopicOrderAsc(goal);
 
-        return mainTopicMapper.toMainTopicsResponse(topics);
+        List<MainTopicsResponse> responses = mainTopicMapper.toMainTopicsResponse(topics);
+        for (MainTopicsResponse res : responses) {
+            res.setUserProgress(calculateProgress(res.getId(), userId));
+        }
+
+        return responses;
     }
 
-    public Page<MainTopicsResponse> getMainTopicsForClient(Map<String, String> params) {
+    public Page<MainTopicsResponse> getMainTopicsForClient(Map<String, String> params, String userId) {
         String name = params.get("name");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));
@@ -147,11 +156,45 @@ public class MainTopicService {
             result = mainTopicRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
         }
 
-        return result.map(mainTopicMapper::toMainTopicsResponse);
+        Page<MainTopicsResponse> responsePage = result.map(mainTopicMapper::toMainTopicsResponse);
+        responsePage.forEach(res -> res.setUserProgress(calculateProgress(res.getId(), userId)));
+        return responsePage;
     }
 
-    public MainTopicsDetailResponse getMainTopicDetailForClient(int id) {
-        return mainTopicMapper.toMainTopicsDetailResponse(
+    public MainTopicsDetailResponse getMainTopicDetailForClient(int id, String userId) {
+        MainTopicsDetailResponse response = mainTopicMapper.toMainTopicsDetailResponse(
                 mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
+        response.setUserProgress(calculateProgress(id, userId));
+        
+        if (response.getSubTopics() != null && !response.getSubTopics().isEmpty()) {
+            response.getSubTopics().forEach(st -> {
+                st.setUserProgress(subTopicService.calculateProgress(st.getId(), userId));
+            });
+        }
+        
+        return response;
+    }
+
+    private UserTopicProgressResponse calculateProgress(Integer mainTopicId, String userId) {
+        if (userId == null) return null;
+        Long total = mainTopicRepository.countTotalMeaningsByMainTopic(mainTopicId);
+        if (total == null || total == 0) return null;
+
+        Long learned = mainTopicRepository.countLearnedMeaningsByMainTopic(mainTopicId, userId);
+        int pct = (int) ((learned * 100) / total);
+        
+        String status = "not_started";
+        if (learned > 0 && learned < total) {
+            status = "active";
+        } else if (learned.equals(total)) {
+            status = "completed";
+        }
+
+        return UserTopicProgressResponse.builder()
+                .meanings_learned(learned)
+                .meanings_total(total)
+                .pct(pct)
+                .status(status)
+                .build();
     }
 }

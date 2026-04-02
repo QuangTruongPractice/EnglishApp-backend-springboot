@@ -82,9 +82,11 @@ public class SubTopicService {
                 subTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
-    public SubTopicsDetailResponse getSubTopicDetailForClient(Integer id) {
-        return subTopicMapper.toSubTopicsDetailResponse(
+    public SubTopicsDetailResponse getSubTopicDetailForClient(Integer id, String userId) {
+        SubTopicsDetailResponse response = subTopicMapper.toSubTopicsDetailResponse(
                 subTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
+        response.setUserProgress(calculateProgress(id, userId));
+        return response;
     }
 
     public Long countSubTopic() {
@@ -99,6 +101,28 @@ public class SubTopicService {
     public void deleteSubTopic(Integer id) {
         subTopicRepository.deleteById(id);
         vocabularyService.deleteAllVocabulary();
+    }
+
+    public com.tqt.englishApp.dto.response.mainTopic.UserTopicProgressResponse calculateProgress(Integer subTopicId, String userId) {
+        if (userId == null) return null;
+
+        Long total = subTopicRepository.countTotalMeaningsBySubTopic(subTopicId);
+        if (total == null || total == 0) return null;
+
+        Long learned = subTopicRepository.countLearnedMeaningsBySubTopic(subTopicId, userId);
+        if (learned == null) learned = 0L;
+
+        int pct = (int) Math.round((learned.doubleValue() / total) * 100);
+        String status = "not_started";
+        if (pct == 100) status = "completed";
+        else if (pct > 0) status = "active";
+
+        return com.tqt.englishApp.dto.response.mainTopic.UserTopicProgressResponse.builder()
+                .meanings_learned(learned)
+                .meanings_total(total)
+                .pct(pct)
+                .status(status)
+                .build();
     }
 
 }

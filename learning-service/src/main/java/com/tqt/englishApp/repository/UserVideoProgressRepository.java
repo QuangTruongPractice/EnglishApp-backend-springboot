@@ -10,4 +10,6 @@ public interface UserVideoProgressRepository extends JpaRepository<UserVideoProg
     Optional<UserVideoProgress> findByUserIdAndVideoId(String userId, Integer videoId);
 
     List<UserVideoProgress> findByUserId(String userId);
+
+    long countByUserId(String userId);
 }

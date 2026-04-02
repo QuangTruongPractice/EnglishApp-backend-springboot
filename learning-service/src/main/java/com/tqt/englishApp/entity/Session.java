@@ -34,7 +34,7 @@ public class Session {
     List<VocabularyMeaning> meanings;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Quiz> quizzes;
+    List<SessionQuiz> quizzes;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     List<WritingPrompt> writingPrompts;

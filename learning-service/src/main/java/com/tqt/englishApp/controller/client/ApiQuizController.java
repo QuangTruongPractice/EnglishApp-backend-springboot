@@ -2,7 +2,7 @@ package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
-import com.tqt.englishApp.dto.response.quiz.QuizResponse;
+import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizGenerateResponse;
 import com.tqt.englishApp.entity.UserVocabularyProgress;
@@ -33,8 +33,8 @@ public class ApiQuizController {
     private final Random random = new Random();
 
     @GetMapping("/quiz")
-    public ApiResponse<Page<QuizResponse>> getQuizzes(@RequestParam Map<String, String> params) {
-        ApiResponse<Page<QuizResponse>> response = new ApiResponse<>();
+    public ApiResponse<Page<BaseQuizResponse>> getQuizzes(@RequestParam Map<String, String> params) {
+        ApiResponse<Page<BaseQuizResponse>> response = new ApiResponse<>();
         response.setResult(quizService.getQuiz(params));
         return response;
     }

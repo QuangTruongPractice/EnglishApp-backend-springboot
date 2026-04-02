@@ -1,7 +1,7 @@
 package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.dto.request.QuizRequest;
-import com.tqt.englishApp.dto.response.quiz.QuizResponse;
+import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.entity.Quiz;
 import com.tqt.englishApp.exception.AppException;
@@ -26,19 +26,19 @@ public class QuizService {
 
     private static final int PAGE_SIZE = 8;
 
-    public QuizResponse createQuiz(QuizRequest quizRequest) {
+    public BaseQuizResponse createQuiz(QuizRequest quizRequest) {
         Quiz quiz = quizMapper.toQuiz(quizRequest);
         return quizMapper.toQuizResponse(quizRepository.save(quiz));
     }
 
-    public QuizResponse updateQuiz(QuizRequest quizRequest, Integer quizId) {
+    public BaseQuizResponse updateQuiz(QuizRequest quizRequest, Integer quizId) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_EXISTED));
         quizMapper.updateQuiz(quiz, quizRequest);
         return quizMapper.toQuizResponse(quizRepository.save(quiz));
     }
 
-    public Page<QuizResponse> getQuiz(Map<String, String> params) {
+    public Page<BaseQuizResponse> getQuiz(Map<String, String> params) {
         String question = params.get("question");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));

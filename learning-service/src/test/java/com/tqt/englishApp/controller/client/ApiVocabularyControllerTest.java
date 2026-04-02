@@ -32,7 +32,7 @@ public class ApiVocabularyControllerTest {
     @Test
     void getVocabulary_Success() throws Exception {
         VocabulariesResponse response = new VocabulariesResponse();
-        when(vocabularyService.getVocabularyById(1)).thenReturn(response);
+        when(vocabularyService.getVocabularyById(eq(1), any())).thenReturn(response);
 
         mockMvc.perform(get("/api/vocabulary/1"))
                 .andExpect(status().isOk())
@@ -42,19 +42,21 @@ public class ApiVocabularyControllerTest {
     @Test
     void getSaveVocabularies_Success() throws Exception {
         Page<VocabulariesSimpleResponse> page = new PageImpl<>(Collections.emptyList());
-        when(vocabularyService.getSaveVocabularies(anyMap())).thenReturn(page);
+        when(vocabularyService.getSaveVocabularies(any(), anyMap())).thenReturn(page);
 
-        mockMvc.perform(get("/api/vocabulary/save"))
+        mockMvc.perform(get("/api/secure/vocabulary/save")
+                .principal(() -> "testUserId"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.content").isArray());
     }
 
     @Test
     void toggleSaveVocabulary_Success() throws Exception {
-        mockMvc.perform(post("/api/vocabulary/1/toggle"))
+        mockMvc.perform(post("/api/secure/vocabulary/1/toggle")
+                .principal(() -> "testUserId"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Toggle save vocabulary Sucessfully"));
+                .andExpect(jsonPath("$.message").value("Toggle save vocabulary successfully"));
 
-        verify(vocabularyService).toggleSaveVocabulary(1);
+        verify(vocabularyService).toggleSaveVocabulary(eq(1), any());
     }
 }

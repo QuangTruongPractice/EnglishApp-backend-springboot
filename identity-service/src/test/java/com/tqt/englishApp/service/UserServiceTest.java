@@ -74,6 +74,47 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_Success_SetDefaultIsActive() throws IOException {
+        UserCreationRequest req = new UserCreationRequest("testuser", "password", "test@gmail.com", "First", "Last",
+                null, avatar, true, Set.of("USER"));
+        when(avatar.isEmpty()).thenReturn(false);
+        when(userRepository.existsUserByUsername(any())).thenReturn(false);
+        when(userRepository.existsUserByEmail(any())).thenReturn(false);
+        when(userMapper.toUser(any())).thenReturn(new User());
+        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+        when(roleRepository.findAllById(any())).thenReturn(List.of(Role.builder().name("USER").build()));
+        when(cloudinary.uploader()).thenReturn(uploader);
+        when(uploader.upload(any(), any())).thenReturn(Map.of("secure_url", "url"));
+        when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userMapper.toUserResponse(any())).thenReturn(userResponse);
+
+        userService.createUser(req);
+
+        verify(userRepository).save(argThat(u -> u.getIsActive() != null && u.getIsActive()));
+    }
+
+    @Test
+    void createUser_Success_DefaultUserRole() throws IOException {
+        UserCreationRequest req = new UserCreationRequest("testuser", "password", "test@gmail.com", "First", "Last",
+                null, avatar, true, null); // Roles is null
+        when(avatar.isEmpty()).thenReturn(false);
+        when(userRepository.existsUserByUsername(any())).thenReturn(false);
+        when(userRepository.existsUserByEmail(any())).thenReturn(false);
+        when(userMapper.toUser(any())).thenReturn(new User());
+        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+        when(roleRepository.findById("USER")).thenReturn(Optional.of(Role.builder().name("USER").build()));
+        when(cloudinary.uploader()).thenReturn(uploader);
+        when(uploader.upload(any(), any())).thenReturn(Map.of("secure_url", "url"));
+        when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userMapper.toUserResponse(any())).thenReturn(userResponse);
+
+        userService.createUser(req);
+
+        verify(userRepository).save(argThat(u -> u.getRoles() != null && 
+            u.getRoles().stream().anyMatch(r -> r.getName().equals("USER"))));
+    }
+
+    @Test
     void createUser_Success() throws IOException {
         UserCreationRequest req = new UserCreationRequest("testuser", "password", "test@gmail.com", "First", "Last",
                 null, avatar, true, Set.of("USER"));

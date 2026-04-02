@@ -13,4 +13,6 @@ public interface UserSavedVocabularyRepository extends JpaRepository<UserSavedVo
     Page<UserSavedVocabulary> findByUserId(String userId, Pageable pageable);
     Optional<UserSavedVocabulary> findByUserIdAndVocabularyId(String userId, Integer vocabularyId);
     boolean existsByUserIdAndVocabularyId(String userId, Integer vocabularyId);
+
+    long countByUserId(String userId);
 }

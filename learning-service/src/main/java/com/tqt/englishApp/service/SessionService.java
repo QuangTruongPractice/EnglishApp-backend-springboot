@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
+
 @Service
 @RequiredArgsConstructor
 public class SessionService {
@@ -22,6 +24,7 @@ public class SessionService {
     private final VocabularySelectionService selectionService;
     private final QuizGenerateService quizService;
     private final LevelService levelService;
+    private final VocabularyLearningService vocabularyLearningService;
 
     @Transactional
     public int submitQuiz(Integer sessionId, Integer quizId, String userId, boolean isCorrect) {
@@ -31,6 +34,15 @@ public class SessionService {
         SessionQuiz sessionQuiz = sessionQuizRepository.findBySessionIdAndQuizId(sessionId, quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found in this session"));
 
+        sessionQuiz.setIsCorrect(isCorrect);
+        sessionQuizRepository.save(sessionQuiz);
+
+        VocabularyProgressRequest progressRequest = new VocabularyProgressRequest();
+        progressRequest.setUserId(userId);
+        progressRequest.setMeaningId(sessionQuiz.getMeaning().getId());
+        progressRequest.setIsCorrect(isCorrect);
+        vocabularyLearningService.updateVocabularyProgress(progressRequest);
+
         if (!isCorrect) return 0;
 
         int xpAwarded = sessionQuiz.getXpAwarded();
@@ -39,12 +51,24 @@ public class SessionService {
         
         levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
         
-        sessionQuiz.setIsCorrect(true);
-        sessionQuizRepository.save(sessionQuiz);
-        
         session.setTotalXP(session.getTotalXP() + xpAwarded);
         sessionRepository.save(session);
         
+        return xpAwarded;
+    }
+
+    @Transactional
+    public int submitWriting(Integer sessionId, String userId) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+        UserLearningProfile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        int xpAwarded = 10; 
+        levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
+        
+        session.setTotalXP(session.getTotalXP() + xpAwarded);
+        sessionRepository.save(session);
         return xpAwarded;
     }
 
@@ -59,23 +83,6 @@ public class SessionService {
             sessionRepository.save(session);
         }
         return levelUp;
-    }
-
-    @Transactional
-    public int submitWriting(Integer sessionId, String userId) {
-        // Placeholder for writing submission logic
-        // For now, let's say it gives 20 XP for testing purposes
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
-        UserLearningProfile profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
-
-        int xpAwarded = 20; 
-        levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
-        
-        session.setTotalXP(session.getTotalXP() + xpAwarded);
-        sessionRepository.save(session);
-        return xpAwarded;
     }
 
     @Transactional
@@ -99,11 +106,10 @@ public class SessionService {
                 .build();
 
         List<SessionQuiz> sessionQuizzes = quizService.generateSessionQuizzes(session, profile.getDailyTarget());
+        session.setQuizzes(sessionQuizzes);
         
         // Save session first to get ID
         Session savedSession = sessionRepository.save(session);
-        
-        sessionQuizRepository.saveAll(sessionQuizzes);
 
         // Writing prompts
         List<VocabularyMeaning> usedInQuizzes = sessionQuizzes.stream().map(SessionQuiz::getMeaning).distinct().collect(Collectors.toList());

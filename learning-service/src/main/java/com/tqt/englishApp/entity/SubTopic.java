@@ -27,9 +27,6 @@ public class SubTopic {
     @JoinColumn(name = "main_topic_id", nullable = false)
     MainTopic mainTopic;
 
-    @Column(name = "topic_order")
-    Integer topicOrder;
-
     @ManyToMany(mappedBy = "subTopics")
     List<Vocabulary> vocabularies;
 

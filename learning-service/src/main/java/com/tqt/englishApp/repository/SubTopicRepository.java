@@ -19,4 +19,19 @@ public interface SubTopicRepository extends JpaRepository<SubTopic, Integer> {
     @Query(value = "DELETE FROM vocabulary_subtopic WHERE sub_topic_id = :subTopicId",
             nativeQuery = true)
     void deleteVocabularySubTopicRelations(@Param("subTopicId") Integer subTopicId);
+
+    @Query("SELECT COUNT(vm) FROM VocabularyMeaning vm " +
+           "JOIN vm.vocabulary v " +
+           "JOIN v.subTopics st " +
+           "WHERE st.id = :subTopicId")
+    Long countTotalMeaningsBySubTopic(@Param("subTopicId") Integer subTopicId);
+
+    @Query("SELECT COUNT(uvp) FROM UserVocabularyProgress uvp " +
+           "JOIN uvp.meaning vm " +
+           "JOIN vm.vocabulary v " +
+           "JOIN v.subTopics st " +
+           "WHERE st.id = :subTopicId " +
+           "AND uvp.userId = :userId " +
+           "AND uvp.status = 'LEARNING'")
+    Long countLearnedMeaningsBySubTopic(@Param("subTopicId") Integer subTopicId, @Param("userId") String userId);
 }

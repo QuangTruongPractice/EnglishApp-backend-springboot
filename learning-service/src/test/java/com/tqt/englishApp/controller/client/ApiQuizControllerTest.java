@@ -1,6 +1,6 @@
 package com.tqt.englishApp.controller.client;
 
-import com.tqt.englishApp.dto.response.quiz.QuizResponse;
+import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.service.QuizService;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ public class ApiQuizControllerTest {
 
     @Test
     void getQuizzes_Success() throws Exception {
-        Page<QuizResponse> page = new PageImpl<>(Collections.emptyList());
+        Page<BaseQuizResponse> page = new PageImpl<>(Collections.emptyList());
         when(quizService.getQuiz(anyMap())).thenReturn(page);
 
         mockMvc.perform(get("/api/quiz"))

@@ -71,10 +71,13 @@ public class UserService implements UserDetailsService {
         }
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setIsActive(true);
 
-        if (request.getRoles() != null) {
+        if (request.getRoles() != null && !request.getRoles().isEmpty()) {
             Set<com.tqt.englishApp.entity.Role> roles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
             user.setRoles(roles);
+        } else {
+            roleRepository.findById("USER").ifPresent(role -> user.setRoles(new HashSet<>(Set.of(role))));
         }
 
         try {

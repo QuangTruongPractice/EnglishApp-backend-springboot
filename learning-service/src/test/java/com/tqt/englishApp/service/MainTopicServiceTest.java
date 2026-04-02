@@ -379,7 +379,7 @@ class MainTopicServiceTest {
         when(mainTopicRepository.findAll(any(Pageable.class))).thenReturn(page);
         when(mainTopicMapper.toMainTopicsResponse(any(MainTopic.class))).thenReturn(clientResponse);
 
-        Page<MainTopicsResponse> result = mainTopicService.getMainTopicsForClient(params);
+        Page<MainTopicsResponse> result = mainTopicService.getMainTopicsForClient(params, "userId");
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
@@ -390,7 +390,7 @@ class MainTopicServiceTest {
         when(mainTopicRepository.findById(1)).thenReturn(Optional.of(mainTopic));
         when(mainTopicMapper.toMainTopicsDetailResponse(mainTopic)).thenReturn(detailResponse);
 
-        MainTopicsDetailResponse result = mainTopicService.getMainTopicDetailForClient(1);
+        MainTopicsDetailResponse result = mainTopicService.getMainTopicDetailForClient(1, "userId");
 
         assertNotNull(result);
         assertEquals(1, result.getId());

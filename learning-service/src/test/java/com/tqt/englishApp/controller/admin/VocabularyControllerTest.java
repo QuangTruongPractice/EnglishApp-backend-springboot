@@ -126,7 +126,7 @@ public class VocabularyControllerTest {
                 VocabularyRequest request = new VocabularyRequest();
                 request.setId(1);
 
-                when(vocabularyService.getVocabularyById(anyInt())).thenReturn(response);
+                when(vocabularyService.getVocabularyById(anyInt(), any())).thenReturn(response);
                 when(vocabularyMapper.toVocabularyRequest(any())).thenReturn(request);
                 when(subTopicService.findAll()).thenReturn(Collections.emptyList());
 

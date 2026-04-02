@@ -5,8 +5,6 @@ import com.tqt.englishApp.dto.response.vocabulary.UserVocabularyResponse;
 import com.tqt.englishApp.entity.UserVocabularyProgress;
 import com.tqt.englishApp.enums.VocabularyStatus;
 import com.tqt.englishApp.mapper.UserVocabularyMapper;
-import com.tqt.englishApp.mapper.VocabularyMapper;
-import com.tqt.englishApp.mapper.VocabularyMeaningMapper;
 import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.UserVocabularyProgressRepository;
 import com.tqt.englishApp.repository.VocabularyMeaningRepository;
@@ -30,12 +28,6 @@ public class VocabularyLearningService {
     @Autowired
     private UserVocabularyMapper userVocabularyMapper;
 
-    @Autowired
-    private VocabularyMapper vocabularyMapper;
-
-    @Autowired
-    private VocabularyMeaningMapper VocabularyMeaningMapper;
-
     public UserVocabularyProgress updateVocabularyProgress(VocabularyProgressRequest request) {
         UserVocabularyProgress progress = userVocabularyProgressRepository
                 .findByUserIdAndMeaningId(request.getUserId(), request.getMeaningId())
@@ -48,6 +40,7 @@ public class VocabularyLearningService {
 
         if (request.getIsCorrect() != null) {
             updateSrsData(progress, request.getIsCorrect(), now);
+            progress.setLastReviewedAt(now);
         }
 
         updateVocabularyStatus(progress);
