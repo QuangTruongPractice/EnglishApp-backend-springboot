@@ -16,6 +16,7 @@ import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,7 +37,7 @@ public class ApiVideoControllerTest {
     @Test
     void getVideos_Success() throws Exception {
         Page<VideoResponse> page = new PageImpl<>(Collections.emptyList());
-        when(videoService.getVideos(anyMap())).thenReturn(page);
+        when(videoService.getVideos(anyMap(), isNull())).thenReturn(page);
 
         mockMvc.perform(get("/api/videos"))
                 .andExpect(status().isOk())
@@ -46,7 +47,7 @@ public class ApiVideoControllerTest {
     @Test
     void getVideo_Success() throws Exception {
         VideoResponse video = new VideoResponse();
-        when(videoService.getVideoById(anyInt())).thenReturn(video);
+        when(videoService.getVideoById(anyInt(), isNull())).thenReturn(video);
         when(subtitlesService.getSubtitlesByVideoId(anyInt())).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/api/videos/1"))

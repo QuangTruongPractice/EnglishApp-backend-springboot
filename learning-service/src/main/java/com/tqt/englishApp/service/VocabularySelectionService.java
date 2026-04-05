@@ -23,9 +23,11 @@ public class VocabularySelectionService {
         List<VocabularyMeaning> finalMeanings = new ArrayList<>();
 
         // Bucket 1: Due SRS (Max 8)
-        List<UserVocabularyProgress> dueProgress = progressRepository.findDueReviews(profile.getUserId(), LocalDateTime.now());
+        List<UserVocabularyProgress> dueProgress = progressRepository.findDueReviews(profile.getUserId(),
+                LocalDateTime.now());
         for (UserVocabularyProgress p : dueProgress) {
-            if (finalMeanings.size() >= 8) break;
+            if (finalMeanings.size() >= 8)
+                break;
             VocabularyMeaning meaning = p.getMeaning();
             if (!selectedWordIds.contains(meaning.getVocabulary().getId())) {
                 finalMeanings.add(meaning);
@@ -39,9 +41,10 @@ public class VocabularySelectionService {
                     .filter(p -> p.getEaseFactor() < 1.8 && !finalMeanings.contains(p.getMeaning()))
                     .limit(20) // Limit search
                     .collect(Collectors.toList());
-            
+
             for (UserVocabularyProgress p : weakProgress) {
-                if (finalMeanings.size() >= (8 + 4) || finalMeanings.size() >= targetMeanings) break;
+                if (finalMeanings.size() >= (8 + 4) || finalMeanings.size() >= targetMeanings)
+                    break;
                 VocabularyMeaning meaning = p.getMeaning();
                 if (!selectedWordIds.contains(meaning.getVocabulary().getId())) {
                     finalMeanings.add(meaning);
@@ -53,10 +56,12 @@ public class VocabularySelectionService {
         // Bucket 3: New Meanings
         if (finalMeanings.size() < targetMeanings) {
             List<Level> levels = getLevelsUpTo(profile.getLevel());
-            List<VocabularyMeaning> newMeanings = meaningRepository.findNewMeanings(profile.getUserId(), profile.getGoal(), levels);
-            
+            List<VocabularyMeaning> newMeanings = meaningRepository.findNewMeanings(profile.getUserId(),
+                    profile.getGoal(), levels);
+
             for (VocabularyMeaning meaning : newMeanings) {
-                if (finalMeanings.size() >= targetMeanings) break;
+                if (finalMeanings.size() >= targetMeanings)
+                    break;
                 if (!selectedWordIds.contains(meaning.getVocabulary().getId())) {
                     finalMeanings.add(meaning);
                     selectedWordIds.add(meaning.getVocabulary().getId());
@@ -68,8 +73,10 @@ public class VocabularySelectionService {
     }
 
     private int getTargetMeaningCount(int dailyTargetMinutes) {
-        if (dailyTargetMinutes <= 5) return 6;
-        if (dailyTargetMinutes <= 15) return 15;
+        if (dailyTargetMinutes <= 5)
+            return 6;
+        if (dailyTargetMinutes <= 15)
+            return 15;
         return 25;
     }
 
@@ -77,7 +84,8 @@ public class VocabularySelectionService {
         List<Level> levels = new ArrayList<>();
         for (Level l : Level.values()) {
             levels.add(l);
-            if (l == level) break;
+            if (l == level)
+                break;
         }
         return levels;
     }

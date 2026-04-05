@@ -38,7 +38,7 @@ public class VideoControllerTest {
     @Test
     void listVideos_WithoutParams_Success() throws Exception {
         Page<VideoResponse> page = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
-        when(videoService.getVideos(anyMap())).thenReturn(page);
+        when(videoService.getVideos(anyMap(), isNull())).thenReturn(page);
 
         mockMvc.perform(get("/admin/videos"))
                 .andExpect(status().isOk())
@@ -50,7 +50,7 @@ public class VideoControllerTest {
     @Test
     void listVideos_WithParams_Success() throws Exception {
         Page<VideoResponse> page = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
-        when(videoService.getVideos(anyMap())).thenReturn(page);
+        when(videoService.getVideos(anyMap(), isNull())).thenReturn(page);
 
         mockMvc.perform(get("/admin/videos")
                 .param("title", "English")
@@ -60,7 +60,7 @@ public class VideoControllerTest {
                 .andExpect(model().attribute("currentPage", 2));
 
         verify(videoService)
-                .getVideos(argThat(params -> "English".equals(params.get("title")) && "2".equals(params.get("page"))));
+                .getVideos(argThat(params -> "English".equals(params.get("title")) && "2".equals(params.get("page"))), isNull());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class VideoControllerTest {
 
     @Test
     void updateVideo_Success() throws Exception {
-        when(videoService.getVideoById(anyInt())).thenReturn(new VideoResponse());
+        when(videoService.getVideoById(anyInt(), isNull())).thenReturn(new VideoResponse());
 
         mockMvc.perform(get("/admin/videos/edit/{videoId}", 1))
                 .andExpect(status().isOk())

@@ -33,6 +33,7 @@ public class Video {
     Integer duration;
 
     @Column(name = "language", length = 10)
+    @Builder.Default
     String language = "en";
 
     @Column(nullable = false)

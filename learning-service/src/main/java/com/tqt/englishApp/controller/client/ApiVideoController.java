@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.security.Principal;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/secure")
 @CrossOrigin
 public class ApiVideoController {
     @Autowired
@@ -24,16 +25,18 @@ public class ApiVideoController {
     private SubtitlesService subtitlesService;
 
     @GetMapping("/videos")
-    public ApiResponse<Page<VideoResponse>> getVideos(@RequestParam Map<String, String> params) {
+    public ApiResponse<Page<VideoResponse>> getVideos(@RequestParam Map<String, String> params, Principal principal) {
         ApiResponse<Page<VideoResponse>> response = new ApiResponse<>();
-        response.setResult(videoService.getVideos(params));
+        String userId = principal != null ? principal.getName() : null;
+        response.setResult(videoService.getVideos(params, userId));
         return response;
     }
 
     @GetMapping("/videos/{videoId}")
-    public ApiResponse<VideoData> getVideo(@PathVariable("videoId") Integer videoId) {
+    public ApiResponse<VideoData> getVideo(@PathVariable("videoId") Integer videoId, Principal principal) {
         ApiResponse<VideoData> response = new ApiResponse<>();
-        VideoResponse video = videoService.getVideoById(videoId);
+        String userId = principal != null ? principal.getName() : null;
+        VideoResponse video = videoService.getVideoById(videoId, userId);
         List<SubtitlesResponse> subtitles = subtitlesService.getSubtitlesByVideoId(videoId);
 
         VideoData videoData = VideoData.builder()

@@ -29,15 +29,19 @@ public class UserVideoProgress {
     @JsonIgnore
     Video video;
 
+    @Builder.Default
     @Column(name = "watched_duration")
     Integer watchedDuration = 0;
 
+    @Builder.Default
     @Column(name = "progress_percentage")
     Double progressPercentage = 0.0;
 
+    @Builder.Default
     @Column(name = "last_position")
     Integer lastPosition = 0;
 
+    @Builder.Default
     @Column(name = "is_completed")
     Boolean isCompleted = false;
 
@@ -49,7 +53,11 @@ public class UserVideoProgress {
     public void updateProgress() {
         this.updatedAt = LocalDateTime.now();
 
-        if (this.progressPercentage >= 90.0) {
+        if (this.isCompleted == null) {
+            this.isCompleted = false;
+        }
+
+        if (this.progressPercentage != null && this.progressPercentage >= 90.0) {
             this.isCompleted = true;
         }
     }

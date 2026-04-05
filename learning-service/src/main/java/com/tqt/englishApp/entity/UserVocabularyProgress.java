@@ -1,6 +1,5 @@
 package com.tqt.englishApp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tqt.englishApp.enums.VocabularyStatus;
 import jakarta.persistence.*;
 import lombok.*;

@@ -24,4 +24,6 @@ public class VideoResponse {
     String status;
     Integer segmentsCount;
     LocalDateTime createdAt;
+    Double progressPercentage;
+    Boolean isCompleted;
 }

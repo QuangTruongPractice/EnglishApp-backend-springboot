@@ -104,7 +104,7 @@ class VideoServiceTest {
         when(videoRepository.findAll(any(Pageable.class))).thenReturn(videoPage);
         when(videoMapper.toVideoResponse(any(Video.class))).thenReturn(videoResponse);
 
-        Page<VideoResponse> result = videoService.getVideos(params);
+        Page<VideoResponse> result = videoService.getVideos(params, null);
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
@@ -120,7 +120,7 @@ class VideoServiceTest {
                 .thenReturn(videoPage);
         when(videoMapper.toVideoResponse(any(Video.class))).thenReturn(videoResponse);
 
-        Page<VideoResponse> result = videoService.getVideos(params);
+        Page<VideoResponse> result = videoService.getVideos(params, null);
 
         assertNotNull(result);
         verify(videoRepository).findByTitleContainingIgnoreCase(eq("Test"), any(Pageable.class));
@@ -131,7 +131,7 @@ class VideoServiceTest {
         when(videoRepository.findById(1)).thenReturn(Optional.of(video));
         when(videoMapper.toVideoResponse(video)).thenReturn(videoResponse);
 
-        VideoResponse result = videoService.getVideoById(1);
+        VideoResponse result = videoService.getVideoById(1, null);
 
         assertNotNull(result);
     }
@@ -140,7 +140,7 @@ class VideoServiceTest {
     void getVideoById_NotFound() {
         when(videoRepository.findById(1)).thenReturn(Optional.empty());
 
-        AppException exception = assertThrows(AppException.class, () -> videoService.getVideoById(1));
+        AppException exception = assertThrows(AppException.class, () -> videoService.getVideoById(1, null));
 
         assertEquals(ErrorCode.VIDEO_NOT_EXISTED, exception.getErrorCode());
     }

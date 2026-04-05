@@ -19,7 +19,6 @@ public class VocabulariesResponse {
     String word;
     Level level;
     String audioUrl;
-    Boolean isSave;
     List<SubTopicsSimpleResponse> subTopics;
     List<VocabularyMeaningResponse> meanings;
 }

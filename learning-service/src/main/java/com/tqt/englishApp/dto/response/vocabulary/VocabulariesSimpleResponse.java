@@ -20,5 +20,4 @@ public class VocabulariesSimpleResponse {
     String word;
     String phonetic;
     Level level;
-    Boolean isSave;
 }

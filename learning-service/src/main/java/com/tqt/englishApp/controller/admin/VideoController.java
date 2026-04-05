@@ -34,7 +34,7 @@ public class VideoController {
         }
         params.put("page", String.valueOf(page));
 
-        Page<?> videos = videoService.getVideos(params);
+        Page<?> videos = videoService.getVideos(params, null);
         model.addAttribute("videos", videos.getContent());
         model.addAttribute("totalPages", videos.getTotalPages());
         model.addAttribute("currentPage", page);
@@ -65,7 +65,7 @@ public class VideoController {
 
     @GetMapping("/edit/{videoId}")
     public String updateVideo(Model model, @PathVariable(value = "videoId") int id) {
-        model.addAttribute("videos", videoService.getVideoById(id));
+        model.addAttribute("videos", videoService.getVideoById(id, null));
         return "admin/videos_form";
     }
 

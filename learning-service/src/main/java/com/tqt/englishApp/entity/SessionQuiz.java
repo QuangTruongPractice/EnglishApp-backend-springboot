@@ -33,4 +33,15 @@ public class SessionQuiz {
 
     @Column(name = "xp_awarded")
     Integer xpAwarded;
+
+    @Column(name = "user_answer", columnDefinition = "TEXT")
+    String userAnswer;
+
+    @Column(name = "answered_at")
+    java.time.LocalDateTime answeredAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.answeredAt = java.time.LocalDateTime.now();
+    }
 }

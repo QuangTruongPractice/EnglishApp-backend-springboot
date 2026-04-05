@@ -50,9 +50,6 @@ public class UserLearningProfile {
     @Builder.Default
     Boolean onboardingCompleted = false;
 
-    @Column(name = "current_topic_id")
-    Integer currentTopicId;
-
     @Column(name = "created_at", updatable = false)
     LocalDate createdAt;
 

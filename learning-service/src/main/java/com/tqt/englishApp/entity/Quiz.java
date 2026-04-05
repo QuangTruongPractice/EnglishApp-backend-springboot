@@ -33,6 +33,9 @@ public class Quiz {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Answer> answers;
 
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<MatchItem> matchItems;
+
     @Column(name = "created_at", updatable = false)
     LocalDateTime createdAt;
 

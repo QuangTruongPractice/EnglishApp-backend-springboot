@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +19,7 @@ public class SubTopicsSimpleResponse {
     String name;
     LocalDate createdAt;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("user_progress")
     UserTopicProgressResponse userProgress;
 }

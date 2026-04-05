@@ -291,7 +291,6 @@ public class VocabularyService {
                 .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED));
         VocabulariesResponse response = vocabularyMapper.toVocabulariesResponse(vocabulary);
         if (userId != null) {
-            response.setIsSave(userSavedVocabularyRepository.existsByUserIdAndVocabularyId(userId, id));
             List<UserVocabularyProgress> progresses = userVocabularyProgressRepository.findByUserIdAndMeaning_Vocabulary_IdIn(userId, List.of(id));
             Map<Integer, UserVocabularyProgress> progressMap = progresses.stream()
                 .collect(Collectors.toMap(p -> p.getMeaning().getId(), p -> p));
@@ -340,7 +339,6 @@ public class VocabularyService {
 
         return result.map(saved -> {
             VocabulariesSimpleResponse res = vocabularyMapper.toVocabulariesSimpleResponse(saved.getVocabulary());
-            res.setIsSave(true);
             return res;
         });
     }

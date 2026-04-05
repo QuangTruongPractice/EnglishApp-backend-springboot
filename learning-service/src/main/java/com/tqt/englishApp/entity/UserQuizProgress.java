@@ -29,6 +29,8 @@ public class UserQuizProgress {
     @JsonIgnore
     Quiz quiz;
 
+    @Builder.Default
+    @Column(name = "count")
     Integer count = 0;
 
     @Column(name = "updated_at")

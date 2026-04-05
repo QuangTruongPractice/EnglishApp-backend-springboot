@@ -19,6 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.tqt.englishApp.repository.UserVideoProgressRepository;
+import com.tqt.englishApp.entity.UserVideoProgress;
 
 @Service
 public class VideoService {
@@ -33,6 +37,9 @@ public class VideoService {
 
     @Autowired
     private SubtitlesMapper subtitlesMapper;
+
+    @Autowired
+    private UserVideoProgressRepository userVideoProgressRepository;
 
     private static final int PAGE_SIZE = 10;
 
@@ -50,7 +57,7 @@ public class VideoService {
         }
     }
 
-    public Page<VideoResponse> getVideos(Map<String, String> params) {
+    public Page<VideoResponse> getVideos(Map<String, String> params, String userId) {
         String title = params.get("title");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));
@@ -66,11 +73,46 @@ public class VideoService {
             result = videoRepository.findByTitleContainingIgnoreCase(title.trim(), pageable);
         }
 
-        return result.map(videoMapper::toVideoResponse);
+        Page<VideoResponse> responsePage = result.map(videoMapper::toVideoResponse);
+
+        if (userId != null) {
+            List<Integer> videoIds = responsePage.getContent().stream().map(VideoResponse::getId).collect(Collectors.toList());
+            if (!videoIds.isEmpty()) {
+                List<UserVideoProgress> progresses = userVideoProgressRepository.findByUserIdAndVideoIdIn(userId, videoIds);
+                Map<Integer, UserVideoProgress> progressMap = progresses.stream()
+                        .collect(Collectors.toMap(p -> p.getVideo().getId(), p -> p));
+
+                responsePage.getContent().forEach(resp -> {
+                    UserVideoProgress p = progressMap.get(resp.getId());
+                    if (p != null) {
+                        resp.setProgressPercentage(p.getProgressPercentage());
+                        resp.setIsCompleted(p.getIsCompleted());
+                    } else {
+                        resp.setProgressPercentage(0.0);
+                        resp.setIsCompleted(false);
+                    }
+                });
+            }
+        }
+
+        return responsePage;
     }
 
-    public VideoResponse getVideoById(Integer id){
-        return videoMapper.toVideoResponse(videoRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.VIDEO_NOT_EXISTED)));
+    public VideoResponse getVideoById(Integer id, String userId) {
+        VideoResponse response = videoMapper.toVideoResponse(videoRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.VIDEO_NOT_EXISTED)));
+
+        if (userId != null) {
+            UserVideoProgress progress = userVideoProgressRepository.findByUserIdAndVideoId(userId, id).orElse(null);
+            if (progress != null) {
+                response.setProgressPercentage(progress.getProgressPercentage());
+                response.setIsCompleted(progress.getIsCompleted());
+            } else {
+                response.setProgressPercentage(0.0);
+                response.setIsCompleted(false);
+            }
+        }
+
+        return response;
     }
 
     public void deleteVideo(Integer id) {

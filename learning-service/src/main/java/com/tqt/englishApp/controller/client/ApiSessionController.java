@@ -1,45 +1,46 @@
 package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
+import com.tqt.englishApp.dto.response.AiAnalysisResponse;
 import com.tqt.englishApp.dto.response.SessionResponse;
-import com.tqt.englishApp.entity.Session;
-import com.tqt.englishApp.mapper.SessionMapper;
 import com.tqt.englishApp.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ApiSessionController {
+
     private final SessionService sessionService;
-    private final SessionMapper sessionMapper;
 
     @PostMapping("/secure/sessions/daily")
-    public ApiResponse<SessionResponse> getOrCreateDailySession(Principal principal) {
+    public ApiResponse<SessionResponse> createSession(Principal principal) {
         ApiResponse<SessionResponse> response = new ApiResponse<>();
-        Session session = sessionService.getOrCreateDailySession(principal.getName());
-        response.setResult(sessionMapper.toSessionResponse(session));
+        response.setResult(sessionService.getOrCreateSession(principal.getName()));
         return response;
     }
 
-    @PostMapping("/secure/sessions/{sessionId}/quiz/{quizId}/submit")
+    @PostMapping("/secure/sessions/{sessionId}/quiz/{sessionQuizId}/submit")
     public ApiResponse<Integer> submitQuiz(@PathVariable Integer sessionId,
-                                           @PathVariable Integer quizId,
+                                           @PathVariable Integer sessionQuizId,
                                            @RequestParam Boolean isCorrect,
                                            Principal principal) {
         ApiResponse<Integer> response = new ApiResponse<>();
-        response.setResult(sessionService.submitQuiz(sessionId, quizId, principal.getName(), isCorrect));
+        response.setResult(sessionService.submitQuiz(sessionId, sessionQuizId, principal.getName(), isCorrect));
         return response;
     }
 
-    @PostMapping("/secure/sessions/{sessionId}/writing/submit")
-    public ApiResponse<Integer> submitWriting(@PathVariable Integer sessionId,
-                                              Principal principal) {
-        ApiResponse<Integer> response = new ApiResponse<>();
-        response.setResult(sessionService.submitWriting(sessionId, principal.getName()));
+    @PostMapping("/secure/sessions/{sessionId}/writing/{promptId}/submit")
+    public ApiResponse<AiAnalysisResponse> submitWriting(@PathVariable Integer sessionId,
+                                                         @PathVariable Integer promptId,
+                                                         @RequestBody Map<String, String> body,
+                                                         Principal principal) {
+        ApiResponse<AiAnalysisResponse> response = new ApiResponse<>();
+        response.setResult(sessionService.submitWriting(sessionId, promptId, principal.getName(), body.get("text")));
         return response;
     }
 

@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/leaderboard")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ApiLeaderBoardController {
     private final UserLearningProfileRepository profileRepository;
 
-    @GetMapping("/weekly")
+    @GetMapping("/leaderboard/weekly")
     public ApiResponse<List<WeeklyLeaderboardResponse>> getWeeklyLeaderboard() {
         List<UserLearningProfile> topUsers = profileRepository.findTop10ByWeeklyXp();
         List<WeeklyLeaderboardResponse> responseList = new ArrayList<>();

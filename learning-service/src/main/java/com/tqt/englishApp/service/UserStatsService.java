@@ -30,6 +30,7 @@ public class UserStatsService {
 
         List<Session> sessions = sessionRepository.findByUserIdAndDateBetween(userId, start, end);
         List<LocalDate> studiedDates = sessions.stream()
+                .filter(s -> s.getTotalXP() != null && s.getTotalXP() > 0)
                 .map(Session::getDate)
                 .distinct()
                 .collect(Collectors.toList());
@@ -71,6 +72,7 @@ public class UserStatsService {
         if (sessions.isEmpty()) return 0;
 
         List<LocalDate> uniqueDates = sessions.stream()
+                .filter(s -> s.getTotalXP() != null && s.getTotalXP() > 0)
                 .map(Session::getDate)
                 .distinct()
                 .collect(Collectors.toList());
@@ -102,6 +104,7 @@ public class UserStatsService {
         if (sessions.isEmpty()) return 0;
 
         List<LocalDate> sortedDates = sessions.stream()
+                .filter(s -> s.getTotalXP() != null && s.getTotalXP() > 0)
                 .map(Session::getDate)
                 .distinct()
                 .sorted()

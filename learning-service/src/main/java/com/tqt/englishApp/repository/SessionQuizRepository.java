@@ -9,6 +9,11 @@ import java.util.Optional;
 
 @Repository
 public interface SessionQuizRepository extends JpaRepository<SessionQuiz, Integer> {
+    Optional<SessionQuiz> findByIdAndSessionId(Integer id, Integer sessionId);
+
     Optional<SessionQuiz> findBySessionIdAndQuizId(Integer sessionId, Integer quizId);
+
+    List<SessionQuiz> findAllBySessionIdAndQuizId(Integer sessionId, Integer quizId);
+
     List<SessionQuiz> findBySessionId(Integer sessionId);
 }

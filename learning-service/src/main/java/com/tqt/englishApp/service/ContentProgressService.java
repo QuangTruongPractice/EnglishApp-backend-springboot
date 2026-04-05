@@ -39,16 +39,21 @@ public class ContentProgressService {
                         .video(videoRepository.findById(request.getVideoId()).orElse(null))
                         .build());
 
-        if (request.getWatchedDuration() != null) {
-            progress.setWatchedDuration(request.getWatchedDuration());
-        }
-        if (request.getLastPosition() != null) {
-            progress.setLastPosition(request.getLastPosition());
+        if (!Boolean.TRUE.equals(progress.getIsCompleted())) {
+            if (request.getWatchedDuration() != null) {
+                if (progress.getWatchedDuration() == null || request.getWatchedDuration() > progress.getWatchedDuration()) {
+                    progress.setWatchedDuration(request.getWatchedDuration());
+                }
+            }
+
+            if (request.getVideoDuration() != null && request.getVideoDuration() > 0) {
+                double percentage = (double) progress.getWatchedDuration() / request.getVideoDuration() * 100;
+                progress.setProgressPercentage(Math.min(100.0, Math.round(percentage * 10.0) / 10.0));
+            }
         }
 
-        if (request.getVideoDuration() != null && request.getVideoDuration() > 0) {
-            double percentage = (double) progress.getWatchedDuration() / request.getVideoDuration() * 100;
-            progress.setProgressPercentage(Math.min(100.0, Math.round(percentage * 10.0) / 10.0));
+        if (request.getLastPosition() != null) {
+            progress.setLastPosition(request.getLastPosition());
         }
 
         return userVideoProgressRepository.save(progress);

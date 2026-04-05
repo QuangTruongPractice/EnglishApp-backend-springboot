@@ -1,10 +1,9 @@
 package com.tqt.englishApp.entity;
 
+import com.tqt.englishApp.enums.WritingPromptType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Entity
 @Table(name = "writing_prompt")
@@ -18,16 +17,26 @@ public class WritingPrompt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToMany
-    @JoinTable(
-        name = "writing_prompt_meaning",
-        joinColumns = @JoinColumn(name = "writing_prompt_id"),
-        inverseJoinColumns = @JoinColumn(name = "meaning_id")
-    )
-    List<VocabularyMeaning> meanings;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    WritingPromptType type;
+
+    @Column(name = "target_meaning_ids")
+    String targetMeaningIds; // Comma separated Meaning IDs
 
     @Column(name = "user_response", columnDefinition = "TEXT")
     String userResponse;
+
+    @Column(name = "score")
+    Integer score;
+
+    @Column(name = "improved_sentence", columnDefinition = "TEXT")
+    String improvedSentence;
+
+
+    @Column(name = "completed")
+    @Builder.Default
+    Boolean completed = false;
 
     @ManyToOne
     @JoinColumn(name = "session_id")

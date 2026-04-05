@@ -15,3 +15,4 @@ public interface SessionQuizMapper {
 
     List<SessionQuizResponse> toSessionQuizResponse(List<SessionQuiz> sessionQuizzes);
 }
+

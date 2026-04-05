@@ -4,16 +4,25 @@ import com.tqt.englishApp.entity.*;
 import com.tqt.englishApp.repository.SessionRepository;
 import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.SessionQuizRepository;
+import com.tqt.englishApp.repository.WritingPromptRepository;
+import com.tqt.englishApp.repository.VocabularyMeaningRepository; // Add this
+import com.tqt.englishApp.mapper.SessionMapper; // Add this
+import com.tqt.englishApp.dto.response.AiAnalysisResponse;
+import com.tqt.englishApp.dto.response.SessionResponse;
+import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
+import com.tqt.englishApp.enums.QuizType;
+import com.tqt.englishApp.enums.WritingPromptType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -21,54 +30,119 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final UserLearningProfileRepository profileRepository;
     private final SessionQuizRepository sessionQuizRepository;
+    private final WritingPromptRepository writingPromptRepository;
+    private final VocabularyMeaningRepository meaningRepository;
     private final VocabularySelectionService selectionService;
     private final QuizGenerateService quizService;
     private final LevelService levelService;
     private final VocabularyLearningService vocabularyLearningService;
+    private final SessionMapper sessionMapper;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
-    public int submitQuiz(Integer sessionId, Integer quizId, String userId, boolean isCorrect) {
+    public AiAnalysisResponse submitWriting(Integer sessionId, Integer promptId, String userId, String userText) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-        SessionQuiz sessionQuiz = sessionQuizRepository.findBySessionIdAndQuizId(sessionId, quizId)
+
+        WritingPrompt prompt = writingPromptRepository.findById(promptId)
+                .orElseThrow(() -> new RuntimeException("Writing prompt not found"));
+
+        if (!prompt.getSession().getId().equals(sessionId)) {
+            throw new RuntimeException("Writing prompt does not belong to this session");
+        }
+
+        // Call External AI API
+        String aiUrl = "https://satyr-dashing-officially.ngrok-free.app/analyze-usage";
+
+        List<Integer> ids = Arrays.stream(prompt.getTargetMeaningIds().split(","))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+
+        String[] keywords = ids.stream()
+                .map(id -> meaningRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .map(m -> m.getVocabulary().getWord())
+                .toArray(String[]::new);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("text", userText);
+        requestBody.put("words", keywords);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        AiAnalysisResponse aiResponse;
+        try {
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            aiResponse = restTemplate.postForObject(aiUrl, entity, AiAnalysisResponse.class);
+        } catch (Exception e) {
+            aiResponse = AiAnalysisResponse.builder()
+                    .score(0)
+                    .improved_sentence("AI analysis failed: " + e.getMessage())
+                    .build();
+        }
+
+        int xpAwarded = Math.max(aiResponse != null ? aiResponse.getScore() : 0, 2);
+
+        UserLearningProfile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
+        session.setTotalXP(session.getTotalXP() + xpAwarded);
+
+        prompt.setUserResponse(userText);
+        prompt.setScore(xpAwarded);
+        prompt.setImprovedSentence(aiResponse != null ? aiResponse.getImproved_sentence() : "");
+        prompt.setCompleted(true);
+
+        writingPromptRepository.save(prompt);
+        sessionRepository.save(session);
+
+        return aiResponse;
+    }
+
+    @Transactional
+    public int submitQuiz(Integer sessionId, Integer sessionQuizId, String userId, boolean isCorrect) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        SessionQuiz sessionQuiz = sessionQuizRepository.findByIdAndSessionId(sessionQuizId, sessionId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found in this session"));
 
         sessionQuiz.setIsCorrect(isCorrect);
         sessionQuizRepository.save(sessionQuiz);
 
-        VocabularyProgressRequest progressRequest = new VocabularyProgressRequest();
-        progressRequest.setUserId(userId);
-        progressRequest.setMeaningId(sessionQuiz.getMeaning().getId());
-        progressRequest.setIsCorrect(isCorrect);
-        vocabularyLearningService.updateVocabularyProgress(progressRequest);
+        if (sessionQuiz.getQuiz().getType() == QuizType.MATCH) {
+            Set<Integer> meaningIds = sessionQuiz.getQuiz().getMatchItems().stream()
+                    .map(item -> Integer.parseInt(item.getPairKey()))
+                    .collect(Collectors.toSet());
 
-        if (!isCorrect) return 0;
+            for (Integer mId : meaningIds) {
+                VocabularyProgressRequest progressRequest = new VocabularyProgressRequest();
+                progressRequest.setUserId(userId);
+                progressRequest.setMeaningId(mId);
+                progressRequest.setIsCorrect(isCorrect);
+                vocabularyLearningService.updateVocabularyProgress(progressRequest);
+            }
+        } else {
+            VocabularyProgressRequest progressRequest = new VocabularyProgressRequest();
+            progressRequest.setUserId(userId);
+            progressRequest.setMeaningId(sessionQuiz.getMeaning().getId());
+            progressRequest.setIsCorrect(isCorrect);
+            vocabularyLearningService.updateVocabularyProgress(progressRequest);
+        }
 
-        int xpAwarded = sessionQuiz.getXpAwarded();
-        UserLearningProfile profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
-        
-        levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
-        
-        session.setTotalXP(session.getTotalXP() + xpAwarded);
-        sessionRepository.save(session);
-        
-        return xpAwarded;
-    }
+        int xpAwarded = 0;
+        if (isCorrect) {
+            xpAwarded = sessionQuiz.getXpAwarded();
+            UserLearningProfile profile = profileRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Profile not found"));
 
-    @Transactional
-    public int submitWriting(Integer sessionId, String userId) {
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
-        UserLearningProfile profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+            levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
+            session.setTotalXP(session.getTotalXP() + xpAwarded);
+            sessionRepository.save(session);
+        }
 
-        int xpAwarded = 10; 
-        levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
-        
-        session.setTotalXP(session.getTotalXP() + xpAwarded);
-        sessionRepository.save(session);
         return xpAwarded;
     }
 
@@ -76,7 +150,7 @@ public class SessionService {
     public boolean checkLevelUp(Integer sessionId) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
-        
+
         boolean levelUp = session.getIsLevelUp();
         if (levelUp) {
             session.setIsLevelUp(false);
@@ -86,9 +160,10 @@ public class SessionService {
     }
 
     @Transactional
-    public Session getOrCreateDailySession(String userId) {
-        return sessionRepository.findByUserIdAndDate(userId, LocalDate.now())
+    public SessionResponse getOrCreateSession(String userId) {
+        Session session = sessionRepository.findByUserIdAndDate(userId, LocalDate.now())
                 .orElseGet(() -> createDailySession(userId));
+        return sessionMapper.toSessionResponse(session);
     }
 
     private Session createDailySession(String userId) {
@@ -107,34 +182,10 @@ public class SessionService {
 
         List<SessionQuiz> sessionQuizzes = quizService.generateSessionQuizzes(session, profile.getDailyTarget());
         session.setQuizzes(sessionQuizzes);
-        
-        // Save session first to get ID
-        Session savedSession = sessionRepository.save(session);
 
-        // Writing prompts
-        List<VocabularyMeaning> usedInQuizzes = sessionQuizzes.stream().map(SessionQuiz::getMeaning).distinct().collect(Collectors.toList());
-        List<VocabularyMeaning> remaining = selectedMeanings.stream()
-                .filter(m -> !usedInQuizzes.contains(m))
-                .collect(Collectors.toList());
+        List<WritingPrompt> prompts = quizService.generateWritingPrompts(session, profile.getDailyTarget());
+        session.setWritingPrompts(prompts);
 
-        List<WritingPrompt> prompts = new ArrayList<>();
-        int writingPromptCount = getWritingPromptCount(profile.getDailyTarget());
-        for (int i = 0; i < writingPromptCount && remaining.size() >= 2; i++) {
-            prompts.add(WritingPrompt.builder()
-                    .session(savedSession)
-                    .meanings(List.of(remaining.get(0), remaining.get(1)))
-                    .build());
-            remaining.remove(0);
-            remaining.remove(0);
-        }
-        savedSession.setWritingPrompts(prompts);
-
-        return sessionRepository.save(savedSession);
-    }
-
-    private int getWritingPromptCount(int dailyTarget) {
-        if (dailyTarget <= 5) return 0;
-        if (dailyTarget <= 15) return 1;
-        return 2;
+        return sessionRepository.save(session);
     }
 }
