@@ -16,6 +16,7 @@ import java.util.List;
 public class SubTopicsAdminResponse {
     Integer id;
     String name;
+    Integer topicOrder;
     Long vocabularyCount;
     MainTopicsSimpleResponse mainTopic;
     List<VocabulariesSimpleResponse> vocabularies;

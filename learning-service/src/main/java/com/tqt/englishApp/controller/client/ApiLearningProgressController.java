@@ -9,10 +9,11 @@ import com.tqt.englishApp.entity.*;
 import com.tqt.englishApp.service.ContentProgressService;
 import com.tqt.englishApp.service.VocabularyLearningService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -33,29 +34,33 @@ public class ApiLearningProgressController {
     }
 
     @GetMapping("/secure/learning-progress/vocabulary")
-    public ApiResponse<List<UserVocabularyResponse>> getUserVocabularyProgress(Principal principal) {
-        ApiResponse<List<UserVocabularyResponse>> response = new ApiResponse<>();
+    public ApiResponse<Page<UserVocabularyResponse>> getUserVocabularyProgress(
+            @RequestParam Map<String, String> params,
+            Principal principal) {
+        ApiResponse<Page<UserVocabularyResponse>> response = new ApiResponse<>();
         String userId = principal.getName();
-        List<UserVocabularyResponse> progress = vocabularyLearningService.getUserVocabularyProgress(userId);
+        Page<UserVocabularyResponse> progress = vocabularyLearningService.getUserVocabularyProgress(userId, params);
         response.setResult(progress);
         return response;
     }
 
     @GetMapping("/secure/learning-progress/video")
-    public ApiResponse<List<UserVideoResponse>> getUserVideoProgress(Principal principal) {
-        ApiResponse<List<UserVideoResponse>> response = new ApiResponse<>();
+    public ApiResponse<Page<UserVideoResponse>> getUserVideoProgress(
+            @RequestParam Map<String, String> params,
+            Principal principal) {
+        ApiResponse<Page<UserVideoResponse>> response = new ApiResponse<>();
         String userId = principal.getName();
-        List<UserVideoResponse> progress = contentProgressService.getUserVideoProgress(userId);
+        Page<UserVideoResponse> progress = contentProgressService.getUserVideoProgress(userId, params);
         response.setResult(progress);
         return response;
     }
 
     @PutMapping("/secure/vocabulary/meaning/{meaningId}/quiz-result")
-    public ApiResponse<UserVocabularyProgress> updateQuizResult(
+    public ApiResponse<UserVocabularyResponse> updateQuizResult(
             Principal principal,
             @PathVariable Integer meaningId,
             @RequestParam Boolean isCorrect) {
-        ApiResponse<UserVocabularyProgress> response = new ApiResponse<>();
+        ApiResponse<UserVocabularyResponse> response = new ApiResponse<>();
         String userId = principal.getName();
         VocabularyProgressRequest request = VocabularyProgressRequest.builder()
                 .userId(userId)
@@ -63,7 +68,7 @@ public class ApiLearningProgressController {
                 .isCorrect(isCorrect)
                 .build();
 
-        UserVocabularyProgress updated = vocabularyLearningService.updateVocabularyProgress(request);
+        UserVocabularyResponse updated = vocabularyLearningService.updateVocabularyProgress(request);
         response.setResult(updated);
         return response;
     }

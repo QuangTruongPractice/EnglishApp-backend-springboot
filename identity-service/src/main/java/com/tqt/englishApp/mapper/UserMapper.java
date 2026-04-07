@@ -7,7 +7,6 @@ import com.tqt.englishApp.dto.response.RoleResponse;
 import com.tqt.englishApp.entity.User;
 import com.tqt.englishApp.entity.Role;
 import org.mapstruct.*;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = { RoleMapper.class })

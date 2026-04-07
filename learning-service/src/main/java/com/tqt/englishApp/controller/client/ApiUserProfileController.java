@@ -2,7 +2,8 @@ package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.UserProfileRequest;
-import com.tqt.englishApp.entity.UserLearningProfile;
+import com.tqt.englishApp.dto.response.UserLearningProfileResponse;
+import com.tqt.englishApp.mapper.UserLearningProfileMapper;
 import com.tqt.englishApp.service.UserLearningProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,23 +17,31 @@ public class ApiUserProfileController {
     @Autowired
     private UserLearningProfileService userLearningProfileService;
 
-    @GetMapping("/secure/profile")
-    public ApiResponse<UserLearningProfile> getProfile(Principal principal) {
-        ApiResponse<UserLearningProfile> response = new ApiResponse<>();
-        response.setResult(userLearningProfileService.getProfile(principal.getName()));
+    @Autowired
+    private UserLearningProfileMapper userLearningProfileMapper;
+
+    @GetMapping("/secure/learning-profile")
+    public ApiResponse<UserLearningProfileResponse> getProfile(Principal principal) {
+        ApiResponse<UserLearningProfileResponse> response = new ApiResponse<>();
+        response.setResult(userLearningProfileMapper.toResponse(userLearningProfileService.getProfile(principal.getName())));
         return response;
     }
 
-    @PostMapping("/secure/profile")
-    public ApiResponse<UserLearningProfile> createProfile(
+    @PostMapping("/secure/learning-profile")
+    public ApiResponse<UserLearningProfileResponse> createProfile(
             Principal principal,
             @RequestBody UserProfileRequest request) {
-        ApiResponse<UserLearningProfile> response = new ApiResponse<>();
+        ApiResponse<UserLearningProfileResponse> response = new ApiResponse<>();
+        response.setResult(userLearningProfileMapper.toResponse(userLearningProfileService.createOrUpdateProfile(principal.getName(), request)));
+        return response;
+    }
 
-        String userId = principal.getName();
-        UserLearningProfile profile = userLearningProfileService.createOrUpdateProfile(userId, request);
-
-        response.setResult(profile);
+    @PutMapping("/secure/learning-profile")
+    public ApiResponse<UserLearningProfileResponse> updateProfile(
+            Principal principal,
+            @RequestBody UserProfileRequest request) {
+        ApiResponse<UserLearningProfileResponse> response = new ApiResponse<>();
+        response.setResult(userLearningProfileMapper.toResponse(userLearningProfileService.updateProfile(principal.getName(), request)));
         return response;
     }
 }

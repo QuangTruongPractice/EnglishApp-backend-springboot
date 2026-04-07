@@ -13,6 +13,7 @@ public interface UserVocabularyMapper {
     @Mapping(target = "phonetic", source = "meaning.vocabulary.phonetic")
     @Mapping(target = "level", source = "meaning.vocabulary.level")
     @Mapping(target = "id", source = "meaning.vocabulary.id")
+    @Mapping(target = "meaningId", source = "meaning.id")
     UserVocabularyResponse toUserVocabularyResponse(UserVocabularyProgress userVocabularyProgress);
 
     List<UserVocabularyResponse> toUserVocabularyResponse(List<UserVocabularyProgress> userVocabularyProgress);

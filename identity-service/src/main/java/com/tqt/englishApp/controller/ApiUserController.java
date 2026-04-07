@@ -5,12 +5,10 @@ import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api")
@@ -39,6 +37,15 @@ public class ApiUserController {
     public ApiResponse<UserResponse> changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
         ApiResponse<UserResponse> response = new ApiResponse<>();
         response.setResult(userService.changePassword(changePasswordRequest));
+        return response;
+    }
+
+    @PostMapping("/secure/change-password")
+    public ApiResponse<String> updatePassword(Principal principal, @RequestBody @Valid UpdatePasswordRequest request) {
+        String username = principal.getName();
+        userService.updatePassword(username, request);
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setMessage("Thay đổi mật khẩu thành công");
         return response;
     }
 

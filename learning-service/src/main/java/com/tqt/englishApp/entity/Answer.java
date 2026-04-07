@@ -26,6 +26,7 @@ public class Answer {
     String answer;
 
     @Column(name = "is_correct")
+    @Builder.Default
     Boolean isCorrect = false;
 
     @Column(name = "text")

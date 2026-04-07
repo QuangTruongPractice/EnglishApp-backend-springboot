@@ -7,7 +7,6 @@ import com.tqt.englishApp.dto.response.UserVideoResponse;
 import com.tqt.englishApp.dto.response.vocabulary.UserVocabularyResponse;
 import com.tqt.englishApp.entity.UserQuizProgress;
 import com.tqt.englishApp.entity.UserVideoProgress;
-import com.tqt.englishApp.entity.UserVocabularyProgress;
 import com.tqt.englishApp.service.ContentProgressService;
 import com.tqt.englishApp.service.VocabularyLearningService;
 import com.tqt.englishApp.service.VocabularySelectionService;
@@ -17,14 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.security.Principal;
-import java.util.Collections;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -74,12 +71,12 @@ public class ApiLearningProgressControllerTest {
                 Principal principal = mock(Principal.class);
                 when(principal.getName()).thenReturn("user1");
 
-                List<UserVocabularyResponse> list = Collections.emptyList();
-                when(vocabularyLearningService.getUserVocabularyProgress("user1")).thenReturn(list);
+                Page<UserVocabularyResponse> page = Page.empty();
+                when(vocabularyLearningService.getUserVocabularyProgress(eq("user1"), any())).thenReturn(page);
 
                 mockMvc.perform(get("/api/secure/learning-progress/vocabulary").principal(principal))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.result").isArray());
+                                .andExpect(jsonPath("$.result.content").isArray());
         }
 
         @Test
@@ -87,12 +84,12 @@ public class ApiLearningProgressControllerTest {
                 Principal principal = mock(Principal.class);
                 when(principal.getName()).thenReturn("user2");
 
-                List<UserVideoResponse> list = Collections.emptyList();
-                when(contentProgressService.getUserVideoProgress("user2")).thenReturn(list);
+                Page<UserVideoResponse> page = Page.empty();
+                when(contentProgressService.getUserVideoProgress(eq("user2"), any())).thenReturn(page);
 
                 mockMvc.perform(get("/api/secure/learning-progress/video").principal(principal))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.result").isArray());
+                                .andExpect(jsonPath("$.result.content").isArray());
         }
 
         @Test
@@ -100,9 +97,9 @@ public class ApiLearningProgressControllerTest {
                 Principal principal = mock(Principal.class);
                 when(principal.getName()).thenReturn("user1");
 
-                UserVocabularyProgress progress = new UserVocabularyProgress();
+                UserVocabularyResponse response = new UserVocabularyResponse();
                 when(vocabularyLearningService.updateVocabularyProgress(any(VocabularyProgressRequest.class)))
-                                .thenReturn(progress);
+                                .thenReturn(response);
 
                 mockMvc.perform(put("/api/secure/vocabulary/meaning/1/quiz-result")
                                 .principal(principal)

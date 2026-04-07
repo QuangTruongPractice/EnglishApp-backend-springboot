@@ -9,10 +9,13 @@ import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.UserVocabularyProgressRepository;
 import com.tqt.englishApp.repository.VocabularyMeaningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class VocabularyLearningService {
@@ -28,7 +31,7 @@ public class VocabularyLearningService {
     @Autowired
     private UserVocabularyMapper userVocabularyMapper;
 
-    public UserVocabularyProgress updateVocabularyProgress(VocabularyProgressRequest request) {
+    public UserVocabularyResponse updateVocabularyProgress(VocabularyProgressRequest request) {
         UserVocabularyProgress progress = userVocabularyProgressRepository
                 .findByUserIdAndMeaningId(request.getUserId(), request.getMeaningId())
                 .orElse(UserVocabularyProgress.builder()
@@ -37,13 +40,14 @@ public class VocabularyLearningService {
                         .build());
 
         LocalDateTime now = LocalDateTime.now();
+        boolean isDue = progress.getNextReviewAt() == null || now.isAfter(progress.getNextReviewAt());
 
         if (request.getIsCorrect() != null) {
-            updateSrsData(progress, request.getIsCorrect(), now);
+            updateSrsData(progress, request.getIsCorrect(), now, isDue);
             progress.setLastReviewedAt(now);
         }
 
-        updateVocabularyStatus(progress);
+        updateVocabularyStatus(progress, isDue);
 
         progress.setUpdatedAt(now);
         UserVocabularyProgress savedProgress = userVocabularyProgressRepository.save(progress);
@@ -52,26 +56,40 @@ public class VocabularyLearningService {
             checkAndUpgradeLevel(request.getUserId());
         }
 
-        return savedProgress;
+        return userVocabularyMapper.toUserVocabularyResponse(savedProgress);
     }
 
-    private void updateSrsData(UserVocabularyProgress progress, boolean isCorrect, LocalDateTime now) {
+    private void updateSrsData(UserVocabularyProgress progress, boolean isCorrect, LocalDateTime now, boolean isDue) {
+        // Always track total counts
+        if (isCorrect) {
+            progress.setCorrectCount(progress.getCorrectCount() + 1);
+        } else {
+            progress.setWrongCount(progress.getWrongCount() + 1);
+        }
+
+        // Only update SRS progression if it's due for review
+        if (!isDue) {
+            return;
+        }
+
         if (isCorrect) {
             progress.setRepetitionCount(progress.getRepetitionCount() + 1);
-            progress.setCorrectCount(progress.getCorrectCount() + 1);
 
             // interval = interval * easeFactor
             progress.setIntervalDay((int) (progress.getIntervalDay() * progress.getEaseFactor()));
             progress.setNextReviewAt(now.plusDays(progress.getIntervalDay()));
         } else {
             progress.setRepetitionCount(0);
-            progress.setWrongCount(progress.getWrongCount() + 1);
             progress.setIntervalDay(1);
             progress.setNextReviewAt(now);
         }
     }
 
-    private void updateVocabularyStatus(UserVocabularyProgress progress) {
+    private void updateVocabularyStatus(UserVocabularyProgress progress, boolean isDue) {
+        if (!isDue) {
+            return;
+        }
+
         if (progress.getRepetitionCount() > 0 && progress.getStatus() == VocabularyStatus.NOT_STARTED) {
             progress.setStatus(VocabularyStatus.LEARNING);
         }
@@ -95,8 +113,13 @@ public class VocabularyLearningService {
         }
     }
 
-    public List<UserVocabularyResponse> getUserVocabularyProgress(String userId) {
-        List<UserVocabularyProgress> progressList = userVocabularyProgressRepository.findByUserId(userId);
-        return userVocabularyMapper.toUserVocabularyResponse(progressList);
+    public Page<UserVocabularyResponse> getUserVocabularyProgress(String userId, Map<String, String> params) {
+        int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
+        int size = Integer.parseInt(params.getOrDefault("size", "10"));
+        page = Math.max(0, page);
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<UserVocabularyProgress> progressPage = userVocabularyProgressRepository.findByUserId(userId, pageable);
+        return progressPage.map(userVocabularyMapper::toUserVocabularyResponse);
     }
 }

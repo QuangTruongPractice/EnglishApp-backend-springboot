@@ -15,6 +15,7 @@ public class SubTopicRequest {
     Integer id;
     @NotBlank(message = "Tên topic không được để trống")
     String name;
+    Integer topicOrder;
     Integer mainTopic;
     LocalDate createdAt;
 }

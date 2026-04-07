@@ -104,7 +104,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 1030;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Cards & Components */
@@ -154,23 +154,28 @@ body {
     .sidebar {
         transform: translateX(-100%);
     }
+
     .sidebar.active {
         transform: translateX(0);
     }
+
     .main-wrapper {
         margin-left: 0;
         padding: 1rem;
     }
+
     .mobile-header {
         display: flex;
     }
+
     .sidebar-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 1035;
     }
+
     .sidebar-overlay.active {
         display: block;
     }

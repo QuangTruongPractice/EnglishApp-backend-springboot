@@ -23,7 +23,7 @@
                     <div class="text-danger small mt-1" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-semibold">Parent Main Topic</label>
                     <select th:field="*{mainTopic}" class="form-select" required>
                         <option value="">Select a main topic</option>
@@ -31,6 +31,13 @@
                     </select>
                     <div class="text-danger small mt-1" th:if="${#fields.hasErrors('mainTopic')}"
                         th:errors="*{mainTopic}"></div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Topic Order</label>
+                    <input type="number" th:field="*{topicOrder}" class="form-control" placeholder="1" min="1" />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('topicOrder')}"
+                        th:errors="*{topicOrder}"></div>
                 </div>
 
                 <div class="col-12 mt-5 border-top pt-4">

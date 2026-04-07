@@ -6,6 +6,7 @@ import com.tqt.englishApp.enums.Level;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,4 +22,5 @@ public class VocabulariesResponse {
     String audioUrl;
     List<SubTopicsSimpleResponse> subTopics;
     List<VocabularyMeaningResponse> meanings;
+    LocalDateTime createdAt;
 }

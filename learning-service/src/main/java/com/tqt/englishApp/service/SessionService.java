@@ -5,13 +5,12 @@ import com.tqt.englishApp.repository.SessionRepository;
 import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.SessionQuizRepository;
 import com.tqt.englishApp.repository.WritingPromptRepository;
-import com.tqt.englishApp.repository.VocabularyMeaningRepository; // Add this
-import com.tqt.englishApp.mapper.SessionMapper; // Add this
+import com.tqt.englishApp.repository.VocabularyMeaningRepository;
+import com.tqt.englishApp.mapper.SessionMapper; 
 import com.tqt.englishApp.dto.response.AiAnalysisResponse;
 import com.tqt.englishApp.dto.response.SessionResponse;
 import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
 import com.tqt.englishApp.enums.QuizType;
-import com.tqt.englishApp.enums.WritingPromptType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

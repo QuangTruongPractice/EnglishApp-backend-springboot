@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserVocabularyResponse extends VocabulariesSimpleResponse {
+    Integer meaningId;
     VocabularyStatus status;
     LocalDateTime nextReviewAt;
 }

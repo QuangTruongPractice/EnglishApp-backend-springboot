@@ -5,9 +5,11 @@ public enum Type {
     VERB,
     ADJECTIVE,
     ADVERB,
-    NOUN_PHRASE,
-    VERB_PHRASE,
+    PHRASAL_VERB,
     IDIOM,
     PROVERB,
     PHRASE,
+    PREPOSITION,
+    CONJUNCTION,
+    PRONOUN
 }

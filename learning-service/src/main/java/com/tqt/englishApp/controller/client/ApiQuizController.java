@@ -5,7 +5,7 @@ import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
 import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizGenerateResponse;
-import com.tqt.englishApp.entity.UserVocabularyProgress;
+import com.tqt.englishApp.dto.response.vocabulary.UserVocabularyResponse;
 import com.tqt.englishApp.service.QuizGenerateService;
 import com.tqt.englishApp.service.QuizService;
 import com.tqt.englishApp.service.VocabularyLearningService;
@@ -62,13 +62,13 @@ public class ApiQuizController {
     }
 
     @PostMapping("/secure/quiz/submit")
-    public ApiResponse<UserVocabularyProgress> submitQuizResult(
+    public ApiResponse<UserVocabularyResponse> submitQuizResult(
             Principal principal,
             @RequestBody VocabularyProgressRequest request) {
-        ApiResponse<UserVocabularyProgress> response = new ApiResponse<>();
+        ApiResponse<UserVocabularyResponse> response = new ApiResponse<>();
 
         request.setUserId(principal.getName());
-        UserVocabularyProgress updated = vocabularyLearningService.updateVocabularyProgress(request);
+        UserVocabularyResponse updated = vocabularyLearningService.updateVocabularyProgress(request);
 
         response.setResult(updated);
         return response;

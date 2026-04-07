@@ -8,5 +8,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserVideoMapper {
+    UserVideoResponse toUserVideoResponse(UserVideoProgress userVideoProgress);
+
     List<UserVideoResponse> toUserVideoResponse(List<UserVideoProgress> userVideoProgress);
 }

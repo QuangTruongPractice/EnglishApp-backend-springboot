@@ -67,7 +67,7 @@ class SubTopicServiceTest {
 
     @Test
     void createSubTopic_Success() {
-        SubTopicRequest req = new SubTopicRequest(1, "Sub Topic", 1, null);
+        SubTopicRequest req = SubTopicRequest.builder().id(1).name("Sub Topic").mainTopic(1).build();
         when(subTopicMapper.toSubTopic(any())).thenReturn(subTopic);
         when(mainTopicRepository.findById(1)).thenReturn(Optional.of(mainTopic));
         when(subTopicRepository.save(any())).thenReturn(subTopic);
@@ -82,7 +82,7 @@ class SubTopicServiceTest {
 
     @Test
     void createSubTopic_Fail_MainTopicNotFound() {
-        SubTopicRequest req = new SubTopicRequest(1, "Sub Topic", 99, null);
+        SubTopicRequest req = SubTopicRequest.builder().id(1).name("Sub Topic").mainTopic(99).build();
         when(subTopicMapper.toSubTopic(any())).thenReturn(subTopic);
         when(mainTopicRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -93,7 +93,7 @@ class SubTopicServiceTest {
 
     @Test
     void updateSubTopic_Success() {
-        SubTopicRequest req = new SubTopicRequest(1, "Updated Sub", 1, null);
+        SubTopicRequest req = SubTopicRequest.builder().id(1).name("Updated Sub").mainTopic(1).build();
         when(subTopicRepository.findById(1)).thenReturn(Optional.of(subTopic));
         when(mainTopicRepository.findById(1)).thenReturn(Optional.of(mainTopic));
         when(subTopicRepository.save(any())).thenReturn(subTopic);
@@ -108,7 +108,7 @@ class SubTopicServiceTest {
 
     @Test
     void updateSubTopic_Fail_SubTopicNotFound() {
-        SubTopicRequest req = new SubTopicRequest(1, "F", 1, null);
+        SubTopicRequest req = SubTopicRequest.builder().id(1).name("F").mainTopic(1).build();
         when(subTopicRepository.findById(99)).thenReturn(Optional.empty());
 
         AppException ex = assertThrows(AppException.class, () -> subTopicService.updateSubTopic(99, req));
@@ -118,7 +118,7 @@ class SubTopicServiceTest {
 
     @Test
     void updateSubTopic_Fail_MainTopicNotFound() {
-        SubTopicRequest req = new SubTopicRequest(1, "F", 99, null);
+        SubTopicRequest req = SubTopicRequest.builder().id(1).name("F").mainTopic(99).build();
         when(subTopicRepository.findById(1)).thenReturn(Optional.of(subTopic));
         when(mainTopicRepository.findById(99)).thenReturn(Optional.empty());
 

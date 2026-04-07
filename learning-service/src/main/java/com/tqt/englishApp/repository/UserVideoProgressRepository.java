@@ -1,6 +1,8 @@
 package com.tqt.englishApp.repository;
 
 import com.tqt.englishApp.entity.UserVideoProgress;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,7 +13,7 @@ public interface UserVideoProgressRepository extends JpaRepository<UserVideoProg
 
     List<UserVideoProgress> findByUserIdAndVideoIdIn(String userId, List<Integer> videoIds);
 
-    List<UserVideoProgress> findByUserId(String userId);
+    Page<UserVideoProgress> findByUserId(String userId, Pageable pageable);
 
     long countByUserId(String userId);
 }

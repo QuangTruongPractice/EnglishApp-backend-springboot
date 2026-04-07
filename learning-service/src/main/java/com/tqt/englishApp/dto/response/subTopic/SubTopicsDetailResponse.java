@@ -5,6 +5,7 @@ import com.tqt.englishApp.dto.response.mainTopic.UserTopicProgressResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,5 +23,6 @@ public class SubTopicsDetailResponse {
     LocalDate createdAt;
 
     @JsonProperty("user_progress")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     UserTopicProgressResponse userProgress;
 }

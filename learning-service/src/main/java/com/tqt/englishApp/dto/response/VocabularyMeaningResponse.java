@@ -4,6 +4,7 @@ import com.tqt.englishApp.enums.Type;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
@@ -28,5 +29,6 @@ public class VocabularyMeaningResponse {
     List<String> images;
 
     @JsonProperty("user_progress")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     UserMeaningProgressResponse userProgress;
 }

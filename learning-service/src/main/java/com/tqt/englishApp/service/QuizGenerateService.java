@@ -302,8 +302,8 @@ public class QuizGenerateService {
         return SessionQuiz.builder()
                 .session(session)
                 .quiz(quiz)
-                .meaning(batch.get(0)) // Identify the batch by the first meaning
-                .xpAwarded(8) // MATCH awards 8 XP as requested
+                .meaning(batch.get(0)) 
+                .xpAwarded(8) 
                 .build();
     }
 }

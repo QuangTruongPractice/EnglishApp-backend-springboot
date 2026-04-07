@@ -15,6 +15,10 @@ import java.util.List;
 public interface VocabularyRepository extends JpaRepository<Vocabulary, Integer> {
         Page<Vocabulary> findByWordContainingIgnoreCase(String word, Pageable pageable);
 
+        List<Vocabulary> findTop5ByOrderByIdDesc();
+
+        long countByLevel(Level level);
+
         List<Vocabulary> findTop5ByWordContainingIgnoreCase(String word);
 
         @Query("SELECT v FROM Vocabulary v WHERE v.subTopics IS EMPTY")

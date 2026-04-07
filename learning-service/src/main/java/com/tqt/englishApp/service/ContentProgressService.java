@@ -10,9 +10,12 @@ import com.tqt.englishApp.repository.UserQuizProgressRepository;
 import com.tqt.englishApp.repository.UserVideoProgressRepository;
 import com.tqt.englishApp.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class ContentProgressService {
@@ -59,8 +62,14 @@ public class ContentProgressService {
         return userVideoProgressRepository.save(progress);
     }
 
-    public List<UserVideoResponse> getUserVideoProgress(String userId) {
-        return userVideoMapper.toUserVideoResponse(userVideoProgressRepository.findByUserId(userId));
+    public Page<UserVideoResponse> getUserVideoProgress(String userId, Map<String, String> params) {
+        int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
+        int size = Integer.parseInt(params.getOrDefault("size", "10"));
+        page = Math.max(0, page);
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<UserVideoProgress> progressPage = userVideoProgressRepository.findByUserId(userId, pageable);
+        return progressPage.map(userVideoMapper::toUserVideoResponse);
     }
 
     public UserQuizProgress updateQuizProgress(String userId, Integer quizId) {

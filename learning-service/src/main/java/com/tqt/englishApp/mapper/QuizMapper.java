@@ -7,7 +7,6 @@ import com.tqt.englishApp.dto.response.quiz.MatchItemResponse;
 import com.tqt.englishApp.dto.response.quiz.MatchQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.entity.Quiz;
-import com.tqt.englishApp.entity.MatchItem;
 import com.tqt.englishApp.enums.MatchSide;
 import com.tqt.englishApp.enums.QuizType;
 import org.mapstruct.*;
@@ -38,6 +37,8 @@ public interface QuizMapper {
 
     DefaultQuizResponse toDefaultQuizResponse(Quiz quiz);
 
+    @Mapping(target = "left_items", ignore = true)
+    @Mapping(target = "right_items", ignore = true)
     QuizDetailResponse toQuizDetailResponse(Quiz quiz);
 
     @Mapping(target = "answers", ignore = true)
@@ -49,6 +50,32 @@ public interface QuizMapper {
     @AfterMapping
     default void populateMatchItems(@MappingTarget MatchQuizResponse response, Quiz quiz) {
         if (quiz.getMatchItems() != null && !quiz.getMatchItems().isEmpty()) {
+            List<MatchItemResponse> left = new ArrayList<>();
+            List<MatchItemResponse> right = new ArrayList<>();
+
+            quiz.getMatchItems().forEach(item -> {
+                if (item.getSide() == MatchSide.LEFT) {
+                    left.add(MatchItemResponse.builder()
+                            .id(item.getPairKey())
+                            .word(item.getContent())
+                            .build());
+                } else {
+                    right.add(MatchItemResponse.builder()
+                            .id(item.getPairKey())
+                            .text(item.getContent())
+                            .build());
+                }
+            });
+
+            Collections.shuffle(right);
+            response.setLeft_items(left);
+            response.setRight_items(right);
+        }
+    }
+
+    @AfterMapping
+    default void populateMatchItemsDetail(@MappingTarget QuizDetailResponse response, Quiz quiz) {
+        if (quiz.getType() == QuizType.MATCH && quiz.getMatchItems() != null && !quiz.getMatchItems().isEmpty()) {
             List<MatchItemResponse> left = new ArrayList<>();
             List<MatchItemResponse> right = new ArrayList<>();
 

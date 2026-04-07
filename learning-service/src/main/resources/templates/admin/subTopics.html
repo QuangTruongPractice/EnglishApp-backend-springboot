@@ -53,6 +53,7 @@
                         <tr>
                             <th>#</th>
                             <th>Sub Topic Name</th>
+                            <th>Order</th>
                             <th>Main Topic</th>
                             <th>Vocabularies</th>
                             <th>Created At</th>
@@ -64,6 +65,9 @@
                             <td><span class="text-muted" th:text="${iterStat.index + 1}"></span></td>
                             <td>
                                 <div class="fw-bold" th:text="${topic.name}"></div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${topic.topicOrder}"></span>
                             </td>
                             <td>
                                 <span class="badge bg-secondary-subtle text-secondary border border-secondary"

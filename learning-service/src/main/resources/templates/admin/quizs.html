@@ -67,18 +67,34 @@
                                 <span class="badge bg-primary-light text-primary" th:text="${quiz.type}"></span>
                             </td>
                             <td>
-                                <div th:text="${quiz.text}"></div>
+                                <div class="text-column" th:text="${quiz.text}"></div>
                             </td>
                             <td>
-                                <div class="fw-bold" th:text="${quiz.question}"></div>
+                                <div class="question-column fw-bold" th:text="${quiz.question}"></div>
                             </td>
                             <td>
-                                <div class="d-flex flex-wrap gap-1" style="max-width: 250px;">
+                                <div class="d-flex flex-wrap gap-1 badge-container">
+                                    <!-- Standard answers (MC, FILL) -->
                                     <span th:each="ans : ${quiz.answers}"
-                                        class="badge bg-light text-dark fw-normal border" th:text="${ans.answer}">
+                                        class="badge bg-light text-dark fw-normal border answer-badge" th:text="${ans.answer}">
                                     </span>
-                                    <span th:if="${#lists.isEmpty(quiz.answers)}" class="text-muted small italic">No
-                                        answers</span>
+                                    
+                                    <!-- Matching items (MATCH) -->
+                                    <th:block th:if="${quiz.type.name() == 'MATCH'}">
+                                        <div class="d-flex flex-column gap-1 w-100">
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <span th:each="item : ${quiz.left_items}" 
+                                                    class="badge bg-info-light text-info border answer-badge" th:text="${item.word}"></span>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <span th:each="item : ${quiz.right_items}" 
+                                                    class="badge bg-success-light text-success border answer-badge" th:text="${item.text}"></span>
+                                            </div>
+                                        </div>
+                                    </th:block>
+
+                                    <span th:if="${#lists.isEmpty(quiz.answers) and (quiz.left_items == null or #lists.isEmpty(quiz.left_items))}" 
+                                        class="text-muted small italic">No answers</span>
                                 </div>
                             </td>
                             <td th:text="${#temporals.format(quiz.createdAt, 'dd/MM/yyyy')}"></td>

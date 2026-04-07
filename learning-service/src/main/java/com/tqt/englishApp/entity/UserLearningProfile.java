@@ -53,6 +53,9 @@ public class UserLearningProfile {
     @Column(name = "created_at", updatable = false)
     LocalDate createdAt;
 
+    @Column(name = "profile_updated_at")
+    LocalDate profileUpdatedAt;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDate.now();

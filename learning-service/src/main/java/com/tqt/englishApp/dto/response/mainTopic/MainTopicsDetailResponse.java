@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Data
 @NoArgsConstructor
@@ -22,5 +23,6 @@ public class MainTopicsDetailResponse {
     LocalDate createdAt;
 
     @JsonProperty("user_progress")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     UserTopicProgressResponse userProgress;
 }

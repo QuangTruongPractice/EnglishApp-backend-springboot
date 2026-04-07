@@ -4,6 +4,7 @@ import com.tqt.englishApp.dto.request.QuizRequest;
 import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizDetailResponse;
 import com.tqt.englishApp.entity.Quiz;
+import com.tqt.englishApp.enums.QuizType;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.QuizMapper;
@@ -14,7 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizService {
@@ -25,6 +29,26 @@ public class QuizService {
     private QuizMapper quizMapper;
 
     private static final int PAGE_SIZE = 8;
+
+    public List<QuizDetailResponse> getRecentQuizzes() {
+        return quizRepository.findTop5ByOrderByIdDesc().stream()
+                .map(quizMapper::toQuizDetailResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Long> getTypeDistribution() {
+        Map<String, Long> distribution = new LinkedHashMap<>();
+        for (QuizType type : QuizType.values()) {
+            distribution.put(type.name(), quizRepository.countByType(type));
+        }
+        return distribution;
+    }
+
+    public List<BaseQuizResponse> getAllQuizzes() {
+        return quizRepository.findAll().stream()
+                .map(quizMapper::toQuizResponse)
+                .collect(Collectors.toList());
+    }
 
     public BaseQuizResponse createQuiz(QuizRequest quizRequest) {
         Quiz quiz = quizMapper.toQuiz(quizRequest);

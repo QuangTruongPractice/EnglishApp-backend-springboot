@@ -6,7 +6,6 @@ import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.entity.User;
 import com.tqt.englishApp.entity.Role;
-import com.tqt.englishApp.entity.Permission;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.UserMapper;
@@ -186,6 +185,18 @@ public class UserService implements UserDetailsService {
             u.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         return userMapper.toUserResponse(userRepository.save(u));
+    }
+
+    public void updatePassword(String username, UpdatePasswordRequest request) {
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.OLD_PASSWORD_INCORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     public User createGoogleUser(String email, String firstName, String lastName, String avatar) {

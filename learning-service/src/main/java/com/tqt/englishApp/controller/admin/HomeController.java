@@ -31,6 +31,15 @@ public class HomeController {
         model.addAttribute("vocabularyNum", vocabularyService.countVocabulary());
         model.addAttribute("videoNum", videoService.countVideo());
         model.addAttribute("quizNum", quizService.countQuiz());
+
+        // Recent Activity
+        model.addAttribute("recentVocabularies", vocabularyService.getRecentVocabularies());
+        model.addAttribute("recentQuizzes", quizService.getRecentQuizzes());
+
+        // Distribution Data for Charts
+        model.addAttribute("levelDistribution", vocabularyService.getLevelDistribution());
+        model.addAttribute("typeDistribution", quizService.getTypeDistribution());
+
         return "admin/home";
     }
 

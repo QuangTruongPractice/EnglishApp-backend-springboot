@@ -24,6 +24,7 @@ public enum ErrorCode {
     VIDEO_NOT_EXISTED(1013, "Không tìm thấy video"),
     QUIZ_NOT_EXISTED(1014, "Không tìm thấy quiz"),
     ANSWER_NOT_EXISTED(1015, "Không tìm thấy answer"),
+    OLD_PASSWORD_INCORRECT(1016, "Mật khẩu cũ không chính xác"),
     ;
 
     ErrorCode(int code, String message) {

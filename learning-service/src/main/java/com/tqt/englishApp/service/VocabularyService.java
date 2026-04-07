@@ -7,6 +7,7 @@ import com.tqt.englishApp.dto.request.VocabularyMeaningRequest;
 import com.tqt.englishApp.dto.response.vocabulary.VocabulariesResponse;
 import com.tqt.englishApp.dto.response.vocabulary.VocabulariesSimpleResponse;
 import com.tqt.englishApp.entity.*;
+import com.tqt.englishApp.enums.Level;
 import com.tqt.englishApp.exception.AppException;
 import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.VocabularyMapper;
@@ -44,6 +45,20 @@ public class VocabularyService {
     private UserVocabularyProgressRepository userVocabularyProgressRepository;
 
     private static final int PAGE_SIZE = 10;
+
+    public List<VocabulariesResponse> getRecentVocabularies() {
+        return vocabularyRepository.findTop5ByOrderByIdDesc().stream()
+                .map(vocabularyMapper::toVocabulariesResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Long> getLevelDistribution() {
+        Map<String, Long> distribution = new LinkedHashMap<>();
+        for (Level level : Level.values()) {
+            distribution.put(level.name(), vocabularyRepository.countByLevel(level));
+        }
+        return distribution;
+    }
 
     @Transactional
     public VocabulariesResponse createVocabulary(VocabularyRequest request) {

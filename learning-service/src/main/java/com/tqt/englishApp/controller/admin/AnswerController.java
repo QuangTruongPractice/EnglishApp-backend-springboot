@@ -44,7 +44,7 @@ public class AnswerController {
     @GetMapping("/add")
     public String answersForm(Model model) {
         model.addAttribute("answers", new AnswerRequest());
-        model.addAttribute("quizs", quizService.getQuiz(new HashMap<>()).getContent());
+        model.addAttribute("quizs", quizService.getAllQuizzes());
         return "admin/answers_form";
     }
 
@@ -52,7 +52,7 @@ public class AnswerController {
     public String addAnswers(@ModelAttribute(value = "answers") @Valid AnswerRequest request, BindingResult result,
             Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("quizs", quizService.getQuiz(new java.util.HashMap<>()).getContent());
+            model.addAttribute("quizs", quizService.getAllQuizzes());
             return "admin/answers_form";
         }
         try {
@@ -72,7 +72,7 @@ public class AnswerController {
     @GetMapping("/edit/{answerId}")
     public String updateAnswers(Model model, @PathVariable(value = "answerId") int id) {
         model.addAttribute("answers", answerService.getAnswerRequestById(id));
-        model.addAttribute("quizs", quizService.getQuiz(new HashMap<>()).getContent());
+        model.addAttribute("quizs", quizService.getAllQuizzes());
         return "admin/answers_form";
     }
 
