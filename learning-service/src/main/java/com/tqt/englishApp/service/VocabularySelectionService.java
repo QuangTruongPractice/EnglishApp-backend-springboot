@@ -56,15 +56,30 @@ public class VocabularySelectionService {
         // Bucket 3: New Meanings
         if (finalMeanings.size() < targetMeanings) {
             List<Level> levels = getLevelsUpTo(profile.getLevel());
-            List<VocabularyMeaning> newMeanings = meaningRepository.findNewMeanings(profile.getUserId(),
+            
+            // Step 3a: Search meanings matching user's LearningGoal
+            List<VocabularyMeaning> goalSpecificMeanings = meaningRepository.findNewMeanings(profile.getUserId(),
                     profile.getGoal(), levels);
 
-            for (VocabularyMeaning meaning : newMeanings) {
+            for (VocabularyMeaning meaning : goalSpecificMeanings) {
                 if (finalMeanings.size() >= targetMeanings)
                     break;
                 if (!selectedWordIds.contains(meaning.getVocabulary().getId())) {
                     finalMeanings.add(meaning);
                     selectedWordIds.add(meaning.getVocabulary().getId());
+                }
+            }
+
+            // Step 3b: Fallback if not enough goal-specific meanings found
+            if (finalMeanings.size() < targetMeanings) {
+                List<VocabularyMeaning> allNewMeanings = meaningRepository.findAllNewMeanings(profile.getUserId(), levels);
+                for (VocabularyMeaning meaning : allNewMeanings) {
+                    if (finalMeanings.size() >= targetMeanings)
+                        break;
+                    if (!selectedWordIds.contains(meaning.getVocabulary().getId())) {
+                        finalMeanings.add(meaning);
+                        selectedWordIds.add(meaning.getVocabulary().getId());
+                    }
                 }
             }
         }

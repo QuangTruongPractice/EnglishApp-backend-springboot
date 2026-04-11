@@ -218,7 +218,7 @@ public class QuizGenerateService {
                 .session(session)
                 .quiz(quiz)
                 .meaning(target)
-                .xpAwarded(3)
+                .xpAwarded(6)
                 .build();
     }
 
@@ -262,7 +262,7 @@ public class QuizGenerateService {
                 .session(session)
                 .quiz(quiz)
                 .meaning(target)
-                .xpAwarded(4)
+                .xpAwarded(8)
                 .build();
     }
 
@@ -303,7 +303,7 @@ public class QuizGenerateService {
                 .session(session)
                 .quiz(quiz)
                 .meaning(batch.get(0)) 
-                .xpAwarded(8) 
+                .xpAwarded(16) 
                 .build();
     }
 }

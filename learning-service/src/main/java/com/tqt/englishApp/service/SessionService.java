@@ -169,6 +169,8 @@ public class SessionService {
         UserLearningProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User learning profile not found"));
 
+        levelService.syncUserLevel(profile);
+
         List<VocabularyMeaning> selectedMeanings = selectionService.selectMeaningsForSession(profile);
 
         Session session = Session.builder()

@@ -13,9 +13,21 @@ public class LevelService {
     private final UserLearningProfileRepository profileRepository;
 
     public boolean addXpAndCheckLevelUp(UserLearningProfile profile, Session session, int xpToAdd) {
-        int currentXp = profile.getXp() + xpToAdd;
         profile.setWeeklyXp(profile.getWeeklyXp() + xpToAdd);
         profile.setTotalXp(profile.getTotalXp() + xpToAdd);
+        profile.setXp(profile.getXp() + xpToAdd);
+        
+        boolean leveledUp = syncUserLevel(profile);
+
+        if (leveledUp && session != null) {
+            session.setIsLevelUp(true);
+        }
+        
+        return leveledUp;
+    }
+
+    public boolean syncUserLevel(UserLearningProfile profile) {
+        int currentXp = profile.getXp();
         Level currentLevel = profile.getLevel();
         boolean leveledUp = false;
 
@@ -30,12 +42,10 @@ public class LevelService {
             }
         }
 
-        profile.setXp(currentXp);
-        profile.setLevel(currentLevel);
-        profileRepository.save(profile);
-
         if (leveledUp) {
-            session.setIsLevelUp(true);
+            profile.setXp(currentXp);
+            profile.setLevel(currentLevel);
+            profileRepository.save(profile);
         }
         
         return leveledUp;

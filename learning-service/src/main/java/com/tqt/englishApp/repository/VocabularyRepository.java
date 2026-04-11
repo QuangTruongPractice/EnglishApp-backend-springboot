@@ -42,4 +42,7 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, Integer>
                         @Param("level") Level level,
                         @Param("topicId") Integer topicId,
                         Pageable pageable);
+
+        @Query(value = "SELECT * FROM vocabulary WHERE level = :level ORDER BY RAND() LIMIT :limit", nativeQuery = true)
+        List<Vocabulary> findRandomByLevel(@Param("level") String level, @Param("limit") int limit);
 }
