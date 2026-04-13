@@ -3,6 +3,7 @@ package com.tqt.englishApp.controller.client;
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.response.AiAnalysisResponse;
 import com.tqt.englishApp.dto.response.SessionResponse;
+import com.tqt.englishApp.dto.response.SubmitQuizResponse;
 import com.tqt.englishApp.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +26,13 @@ public class ApiSessionController {
     }
 
     @PostMapping("/secure/sessions/{sessionId}/quiz/{sessionQuizId}/submit")
-    public ApiResponse<Integer> submitQuiz(@PathVariable Integer sessionId,
+    public ApiResponse<SubmitQuizResponse> submitQuiz(@PathVariable Integer sessionId,
                                            @PathVariable Integer sessionQuizId,
                                            @RequestParam Boolean isCorrect,
+                                           @RequestParam(required = false) Long responseTime,
                                            Principal principal) {
-        ApiResponse<Integer> response = new ApiResponse<>();
-        response.setResult(sessionService.submitQuiz(sessionId, sessionQuizId, principal.getName(), isCorrect));
+        ApiResponse<SubmitQuizResponse> response = new ApiResponse<>();
+        response.setResult(sessionService.submitQuiz(sessionId, sessionQuizId, principal.getName(), isCorrect, responseTime));
         return response;
     }
 

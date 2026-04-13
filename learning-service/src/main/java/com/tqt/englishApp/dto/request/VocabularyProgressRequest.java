@@ -12,4 +12,5 @@ public class VocabularyProgressRequest {
     String userId;
     Integer meaningId;
     Boolean isCorrect;
+    Long responseTime;
 }

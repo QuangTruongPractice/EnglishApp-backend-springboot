@@ -1,6 +1,6 @@
 package com.tqt.englishApp.dto.response;
 
-import com.tqt.englishApp.dto.response.quiz.BaseQuizResponse;
+import com.tqt.englishApp.dto.response.quiz.QuizGenerateResponse;
 import com.tqt.englishApp.enums.Level;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +22,7 @@ public class PlacementQuizResponse {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class PlacementQuestion {
-        BaseQuizResponse quiz;
+        QuizGenerateResponse quiz;
         Integer meaningId;
     }
 }

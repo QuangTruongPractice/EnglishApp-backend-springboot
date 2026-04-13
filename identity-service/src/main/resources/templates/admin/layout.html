@@ -94,6 +94,40 @@
         <div th:replace="${content}"></div>
     </main>
 
+    <!-- Hidden Message Fields for JS -->
+    <div id="successMessageField" th:if="${successMessage}" th:text="${successMessage}" class="d-none"></div>
+    <div id="errorMessageField" th:if="${errorMessage}" th:text="${errorMessage}" class="d-none"></div>
+
+    <!-- Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-body p-4 text-center">
+                    <div id="modalIconContainer" class="mb-3 mx-auto d-flex align-items-center justify-content-center"
+                        style="width: 64px; height: 64px; border-radius: 50%;">
+                        <!-- Success Icon -->
+                        <svg id="successIcon" class="d-none" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <!-- Error Icon -->
+                        <svg id="errorIcon" class="d-none" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y2="6" y1="18" x2="6"></line>
+                            <line x1="6" y2="6" y1="18" x2="18"></line>
+                        </svg>
+                    </div>
+                    <h4 id="modalTitle" class="fw-bold mb-2">Notification</h4>
+                    <p id="modalMessage" class="text-muted mb-4 px-3"></p>
+                    <button type="button" class="btn btn-primary w-100 py-2 fw-semibold" data-bs-dismiss="modal"
+                        style="border-radius: 10px;">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/admin.js}"></script>
 </body>

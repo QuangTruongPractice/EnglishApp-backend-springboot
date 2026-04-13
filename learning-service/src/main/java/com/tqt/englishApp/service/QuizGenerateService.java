@@ -27,7 +27,6 @@ public class QuizGenerateService {
 
         int promptCount = dailyTarget >= 30 ? 2 : 1;
 
-        // Group meanings by SubTopic IDs
         Map<Integer, List<VocabularyMeaning>> subTopicGroups = new HashMap<>();
         for (VocabularyMeaning vm : meanings) {
             vm.getVocabulary().getSubTopics().forEach(st -> {
@@ -35,7 +34,7 @@ public class QuizGenerateService {
             });
         }
 
-        // Available subtopics with at least 2 words
+        // Các chủ đề phụ có sẵn với ít nhất 2 từ
         List<Integer> viableSubTopicIds = subTopicGroups.entrySet().stream()
                 .filter(e -> e.getValue().size() >= 2)
                 .map(Map.Entry::getKey)
@@ -52,7 +51,7 @@ public class QuizGenerateService {
                 selected.add(group.get(0));
                 selected.add(group.get(1));
             } else {
-                // Fallback: Pick 2 random words from the pool
+                // Fallback: Lấy 2 từ ngẫu nhiên từ danh sách
                 List<VocabularyMeaning> pool = new ArrayList<>(meanings);
                 Collections.shuffle(pool);
                 if (pool.size() >= 2) {
@@ -85,20 +84,18 @@ public class QuizGenerateService {
         LocalDateTime now = LocalDateTime.now();
         List<AnswerSimpleResponse> answers = new ArrayList<>();
         
-        // Correct answer
         answers.add(AnswerSimpleResponse.builder()
                 .id(1)
-                .answer(target.getDefinition())
+                .answer(target.getVnWord())
                 .isCorrect(true)
                 .createdAt(now)
                 .build());
 
-        // Distractors
         List<VocabularyMeaning> distractors = meaningRepository.findRandomDistractors(meaningId, 3);
         for (int i = 0; i < distractors.size(); i++) {
             answers.add(AnswerSimpleResponse.builder()
                     .id(i + 2)
-                    .answer(distractors.get(i).getDefinition())
+                    .answer(distractors.get(i).getVnWord())
                     .isCorrect(false)
                     .createdAt(now)
                     .build());
@@ -107,9 +104,9 @@ public class QuizGenerateService {
         Collections.shuffle(answers);
 
         return QuizGenerateResponse.builder()
-                .id(-1) // Temporary ID for non-persistent quiz
+                .id(-1) 
                 .meanId(meaningId)
-                .question("Chọn định nghĩa đúng cho từ: " + target.getVocabulary().getWord())
+                .question("Chọn nghĩa đúng của từ: " + target.getVocabulary().getWord())
                 .text(target.getVocabulary().getWord())
                 .type(QuizType.MC)
                 .answers(answers)
@@ -124,7 +121,6 @@ public class QuizGenerateService {
         LocalDateTime now = LocalDateTime.now();
         List<AnswerSimpleResponse> answers = new ArrayList<>();
         
-        // Correct answer
         answers.add(AnswerSimpleResponse.builder()
                 .id(1)
                 .answer(target.getVocabulary().getWord())
@@ -132,7 +128,6 @@ public class QuizGenerateService {
                 .createdAt(now)
                 .build());
 
-        // Distractors
         List<VocabularyMeaning> distractors = meaningRepository.findRandomDistractors(meaningId, 3);
         for (int i = 0; i < distractors.size(); i++) {
             answers.add(AnswerSimpleResponse.builder()
@@ -146,7 +141,7 @@ public class QuizGenerateService {
         Collections.shuffle(answers);
 
         return QuizGenerateResponse.builder()
-                .id(-1) // Temporary ID for non-persistent quiz
+                .id(-1) 
                 .meanId(meaningId)
                 .question("Chọn từ đúng cho định nghĩa: " + target.getDefinition())
                 .text(target.getDefinition())
@@ -177,17 +172,14 @@ public class QuizGenerateService {
 
         int currentIdx = 0;
 
-        // Generate MC
         for (int i = 0; i < mcCount && currentIdx < meanings.size(); i++) {
             sessionQuizzes.add(createMC(meanings.get(currentIdx++), session));
         }
 
-        // Generate FILL
         for (int i = 0; i < fillCount && currentIdx < meanings.size(); i++) {
             sessionQuizzes.add(createFILL(meanings.get(currentIdx++), session));
         }
 
-        // Generate MATCH
         for (int i = 0; i < matchCount && (currentIdx + 3) < meanings.size(); i++) {
             List<VocabularyMeaning> batch = meanings.subList(currentIdx, currentIdx + 4);
             sessionQuizzes.add(createMATCH(batch, session, i));
@@ -205,11 +197,10 @@ public class QuizGenerateService {
                 .build();
 
         List<Answer> answers = new ArrayList<>();
-        answers.add(Answer.builder().answer(target.getDefinition()).isCorrect(true).quiz(quiz).build());
+        answers.add(Answer.builder().answer(target.getVnDefinition()).isCorrect(true).quiz(quiz).build());
 
-        // Distractors (Exactly 3 to make total 4)
         meaningRepository.findRandomDistractors(target.getId(), 3).forEach(
-                vm -> answers.add(Answer.builder().answer(vm.getDefinition()).isCorrect(false).quiz(quiz).build()));
+                vm -> answers.add(Answer.builder().answer(vm.getVnDefinition()).isCorrect(false).quiz(quiz).build()));
 
         Collections.shuffle(answers);
         quiz.setAnswers(answers);
@@ -230,7 +221,7 @@ public class QuizGenerateService {
         String correctAnswer = targetWord;
 
         if (example != null && !example.isEmpty()) {
-            // Regex to find the target word and potential suffixes (s, ed, ing, etc.)
+            // Biểu thức chính quy (Regex) để tìm từ mục tiêu và các hậu tố có thể có (s, ed, ing, v.v.)
             String regex = "(?i)\\b(" + Pattern.quote(targetWord) + "\\w*)\\b";
             Matcher matcher = Pattern.compile(regex).matcher(example);
 
@@ -251,7 +242,6 @@ public class QuizGenerateService {
         List<Answer> answers = new ArrayList<>();
         answers.add(Answer.builder().answer(correctAnswer).isCorrect(true).quiz(quiz).build());
 
-        // Word bank (Exactly 5 distractors to make total 6)
         meaningRepository.findRandomDistractors(target.getId(), 5).forEach(vm -> answers
                 .add(Answer.builder().answer(vm.getVocabulary().getWord()).isCorrect(false).quiz(quiz).build()));
 
@@ -278,7 +268,6 @@ public class QuizGenerateService {
             VocabularyMeaning vm = batch.get(i);
             String pairKey = String.valueOf(vm.getId());
 
-            // LEFT item (Word)
             items.add(MatchItem.builder()
                     .quiz(quiz)
                     .side(MatchSide.LEFT)
@@ -287,12 +276,11 @@ public class QuizGenerateService {
                     .orderIndex(i)
                     .build());
 
-            // RIGHT item (Definition)
             items.add(MatchItem.builder()
                     .quiz(quiz)
                     .side(MatchSide.RIGHT)
                     .pairKey(pairKey)
-                    .content(vm.getDefinition())
+                    .content(vm.getVnDefinition())
                     .orderIndex(i)
                     .build());
         }

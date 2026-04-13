@@ -250,4 +250,10 @@ public class UserService implements UserDetailsService {
     public Long countUser() {
         return userRepository.countActiveUsers();
     }
+
+    public List<UserResponse> getUsersByUsernames(List<String> usernames) {
+        return userRepository.findByUsernameIn(usernames).stream()
+                .map(userMapper::toUserResponse)
+                .toList();
+    }
 }

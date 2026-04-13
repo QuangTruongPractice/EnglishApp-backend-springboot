@@ -1,7 +1,7 @@
 package com.tqt.englishApp.configs;
 
 import com.tqt.englishApp.dto.response.AuthenticationResponse;
-import com.tqt.englishApp.service.IdentityAuthService;
+import com.tqt.englishApp.service.IdentityClient;
 import com.tqt.englishApp.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 class IdentityAuthenticationProviderTest {
 
     @Mock
-    private IdentityAuthService identityAuthService;
+    private IdentityClient identityClient;
 
     @InjectMocks
     private IdentityAuthenticationProvider provider;
@@ -36,7 +36,7 @@ class IdentityAuthenticationProviderTest {
     @Test
     void authenticate_Success() {
         AuthenticationResponse response = new AuthenticationResponse(true, validToken);
-        when(identityAuthService.authenticate("admin", "password")).thenReturn(response);
+        when(identityClient.authenticate("admin", "password")).thenReturn(response);
 
         Authentication authRequest = new UsernamePasswordAuthenticationToken("admin", "password");
         Authentication result = provider.authenticate(authRequest);
@@ -51,7 +51,7 @@ class IdentityAuthenticationProviderTest {
     @Test
     void authenticate_InvalidCredentials_ThrowsException() {
         AuthenticationResponse response = new AuthenticationResponse(false, null);
-        when(identityAuthService.authenticate("wrong", "pass")).thenReturn(response);
+        when(identityClient.authenticate("wrong", "pass")).thenReturn(response);
 
         Authentication authRequest = new UsernamePasswordAuthenticationToken("wrong", "pass");
 
@@ -61,7 +61,7 @@ class IdentityAuthenticationProviderTest {
     @Test
     void authenticate_InvalidToken_ThrowsException() {
         AuthenticationResponse response = new AuthenticationResponse(true, "invalid-token");
-        when(identityAuthService.authenticate("admin", "password")).thenReturn(response);
+        when(identityClient.authenticate("admin", "password")).thenReturn(response);
 
         Authentication authRequest = new UsernamePasswordAuthenticationToken("admin", "password");
 

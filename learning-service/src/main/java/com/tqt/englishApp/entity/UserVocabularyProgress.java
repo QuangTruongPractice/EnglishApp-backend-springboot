@@ -38,8 +38,12 @@ public class UserVocabularyProgress {
     Integer intervalDay = 1;
 
     @Builder.Default
-    @Column(name = "ease_factor")
-    Double easeFactor = 2.5;
+    @Column(name = "stability")
+    Double stability = 0.0;
+
+    @Builder.Default
+    @Column(name = "difficulty")
+    Double difficulty = 0.0;
 
     @Column(name = "next_review_at")
     LocalDateTime nextReviewAt;

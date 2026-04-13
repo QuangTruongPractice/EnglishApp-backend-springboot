@@ -1,6 +1,5 @@
 package com.tqt.englishApp.dto.response;
 
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LeaderBoardWrapperResponse {
-    List<LeaderBoardResponse> leaderBoard;
-    LeaderBoardResponse currentUser;
+public class WeeklyLeaderboardWrapperResponse {
+    List<WeeklyLeaderboardResponse> leaderBoard;
+    WeeklyLeaderboardResponse currentUser;
 }

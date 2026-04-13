@@ -1,4 +1,4 @@
-package com.tqt.englishApp.controller;
+package com.tqt.englishApp.controller.admin;
 
 import com.tqt.englishApp.repository.UserRepository;
 import com.tqt.englishApp.service.*;

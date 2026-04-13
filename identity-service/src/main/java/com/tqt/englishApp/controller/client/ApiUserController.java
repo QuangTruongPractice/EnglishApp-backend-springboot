@@ -1,4 +1,4 @@
-package com.tqt.englishApp.controller;
+package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.UserResponse;
@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -53,6 +54,13 @@ public class ApiUserController {
     public ApiResponse<UserResponse> createUser(@ModelAttribute @Valid UserCreationRequest user) {
         ApiResponse<UserResponse> response = new ApiResponse<>();
         response.setResult(userService.createUser(user));
+        return response;
+    }
+
+    @PostMapping("/list")
+    public ApiResponse<List<UserResponse>> getUsers(@RequestBody List<String> usernames) {
+        ApiResponse<List<UserResponse>> response = new ApiResponse<>();
+        response.setResult(userService.getUsersByUsernames(usernames));
         return response;
     }
 }

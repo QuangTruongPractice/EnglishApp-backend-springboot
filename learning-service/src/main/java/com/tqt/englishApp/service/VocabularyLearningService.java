@@ -31,6 +31,9 @@ public class VocabularyLearningService {
     @Autowired
     private UserVocabularyMapper userVocabularyMapper;
 
+    @Autowired
+    private FsrsService fsrsService;
+
     public UserVocabularyResponse updateVocabularyProgress(VocabularyProgressRequest request) {
         UserVocabularyProgress progress = userVocabularyProgressRepository
                 .findByUserIdAndMeaningId(request.getUserId(), request.getMeaningId())
@@ -43,7 +46,7 @@ public class VocabularyLearningService {
         boolean isDue = progress.getNextReviewAt() == null || now.isAfter(progress.getNextReviewAt());
 
         if (request.getIsCorrect() != null) {
-            updateSrsData(progress, request.getIsCorrect(), now, isDue);
+            updateSrsData(progress, request.getIsCorrect(), request.getResponseTime(), now, isDue);
             progress.setLastReviewedAt(now);
         }
 
@@ -59,30 +62,38 @@ public class VocabularyLearningService {
         return userVocabularyMapper.toUserVocabularyResponse(savedProgress);
     }
 
-    private void updateSrsData(UserVocabularyProgress progress, boolean isCorrect, LocalDateTime now, boolean isDue) {
-        // Always track total counts
+    private void updateSrsData(UserVocabularyProgress progress, boolean isCorrect, Long responseTime, LocalDateTime now, boolean isDue) {
+        // Luôn theo dõi tổng số lần đúng/sai
         if (isCorrect) {
             progress.setCorrectCount(progress.getCorrectCount() + 1);
         } else {
             progress.setWrongCount(progress.getWrongCount() + 1);
         }
 
-        // Only update SRS progression if it's due for review
-        if (!isDue) {
+        // Chỉ cập nhật tiến trình SRS nếu đã đến hạn ôn tập HOẶC là ôn tập trong ngày (heuristic)
+        double elapsedDays = 0;
+        if (progress.getLastReviewedAt() != null) {
+            elapsedDays = java.time.temporal.ChronoUnit.SECONDS.between(progress.getLastReviewedAt(), now) / 86400.0;
+        }
+
+        if (!isDue && elapsedDays >= 0.01) {
             return;
         }
 
-        if (isCorrect) {
-            progress.setRepetitionCount(progress.getRepetitionCount() + 1);
+        int rating = fsrsService.calculateRating(isCorrect, responseTime);
 
-            // interval = interval * easeFactor
-            progress.setIntervalDay((int) (progress.getIntervalDay() * progress.getEaseFactor()));
-            progress.setNextReviewAt(now.plusDays(progress.getIntervalDay()));
+        if (progress.getRepetitionCount() == 0) {
+            fsrsService.initProgress(progress, rating);
+            progress.setRepetitionCount(1);
         } else {
-            progress.setRepetitionCount(0);
-            progress.setIntervalDay(1);
-            progress.setNextReviewAt(now);
+            fsrsService.updateProgress(progress, rating, now);
+            progress.setRepetitionCount(progress.getRepetitionCount() + 1);
         }
+
+        // Stability trong FSRS v5 là khoảng thời gian cho 90% khả năng ghi nhớ
+        int interval = (int) Math.max(1, Math.round(progress.getStability()));
+        progress.setIntervalDay(interval);
+        progress.setNextReviewAt(now.plusDays(interval));
     }
 
     private void updateVocabularyStatus(UserVocabularyProgress progress, boolean isDue) {
@@ -94,8 +105,14 @@ public class VocabularyLearningService {
             progress.setStatus(VocabularyStatus.LEARNING);
         }
 
-        if (progress.getRepetitionCount() >= 5 && progress.getStatus() != VocabularyStatus.MASTERED) {
+        boolean hasLongTermMemory = progress.getStability() != null && progress.getStability() >= 30.0;
+        
+        if (hasLongTermMemory && progress.getStatus() != VocabularyStatus.MASTERED) {
             progress.setStatus(VocabularyStatus.MASTERED);
+        }
+        
+        if (!hasLongTermMemory && progress.getStatus() == VocabularyStatus.MASTERED) {
+            progress.setStatus(VocabularyStatus.LEARNING);
         }
     }
 

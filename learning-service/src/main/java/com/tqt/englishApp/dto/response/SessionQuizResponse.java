@@ -15,4 +15,5 @@ public class SessionQuizResponse {
     Integer meaningId;
     Boolean isCorrect;
     Integer xpAwarded;
+    Integer retryAttempt;
 }

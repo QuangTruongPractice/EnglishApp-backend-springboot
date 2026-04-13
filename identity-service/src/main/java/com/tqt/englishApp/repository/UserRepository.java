@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     boolean existsUserByUsername(String username);
@@ -23,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, String> {
        OR LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%'))
 """)
     Page<User> searchByEmailUsernameOrFullName(@Param("keyword") String keyword, Pageable pageable);
+
+    List<User> findByUsernameIn(List<String> usernames);
 }

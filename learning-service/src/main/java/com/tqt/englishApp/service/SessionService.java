@@ -6,9 +6,12 @@ import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.SessionQuizRepository;
 import com.tqt.englishApp.repository.WritingPromptRepository;
 import com.tqt.englishApp.repository.VocabularyMeaningRepository;
-import com.tqt.englishApp.mapper.SessionMapper; 
 import com.tqt.englishApp.dto.response.AiAnalysisResponse;
 import com.tqt.englishApp.dto.response.SessionResponse;
+import com.tqt.englishApp.dto.response.SessionQuizResponse;
+import com.tqt.englishApp.dto.response.SubmitQuizResponse;
+import com.tqt.englishApp.mapper.SessionMapper;
+import com.tqt.englishApp.mapper.SessionQuizMapper;
 import com.tqt.englishApp.dto.request.VocabularyProgressRequest;
 import com.tqt.englishApp.enums.QuizType;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class SessionService {
     private final LevelService levelService;
     private final VocabularyLearningService vocabularyLearningService;
     private final SessionMapper sessionMapper;
+    private final SessionQuizMapper sessionQuizMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
@@ -50,7 +54,6 @@ public class SessionService {
             throw new RuntimeException("Writing prompt does not belong to this session");
         }
 
-        // Call External AI API
         String aiUrl = "https://satyr-dashing-officially.ngrok-free.app/analyze-usage";
 
         List<Integer> ids = Arrays.stream(prompt.getTargetMeaningIds().split(","))
@@ -101,7 +104,7 @@ public class SessionService {
     }
 
     @Transactional
-    public int submitQuiz(Integer sessionId, Integer sessionQuizId, String userId, boolean isCorrect) {
+    public SubmitQuizResponse submitQuiz(Integer sessionId, Integer sessionQuizId, String userId, boolean isCorrect, Long responseTime) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
@@ -121,6 +124,7 @@ public class SessionService {
                 progressRequest.setUserId(userId);
                 progressRequest.setMeaningId(mId);
                 progressRequest.setIsCorrect(isCorrect);
+                progressRequest.setResponseTime(responseTime);
                 vocabularyLearningService.updateVocabularyProgress(progressRequest);
             }
         } else {
@@ -128,10 +132,13 @@ public class SessionService {
             progressRequest.setUserId(userId);
             progressRequest.setMeaningId(sessionQuiz.getMeaning().getId());
             progressRequest.setIsCorrect(isCorrect);
+            progressRequest.setResponseTime(responseTime);
             vocabularyLearningService.updateVocabularyProgress(progressRequest);
         }
 
         int xpAwarded = 0;
+        SessionQuizResponse retryQuizResponse = null;
+
         if (isCorrect) {
             xpAwarded = sessionQuiz.getXpAwarded();
             UserLearningProfile profile = profileRepository.findByUserId(userId)
@@ -140,9 +147,24 @@ public class SessionService {
             levelService.addXpAndCheckLevelUp(profile, session, xpAwarded);
             session.setTotalXP(session.getTotalXP() + xpAwarded);
             sessionRepository.save(session);
+        } else if (sessionQuiz.getRetryAttempt() < 2) {
+            // Xử lý thử lại: thêm một SessionQuiz mới vào cuối phiên
+            Integer currentXp = sessionQuiz.getXpAwarded() != null ? sessionQuiz.getXpAwarded() : 0;
+            SessionQuiz retryQuiz = SessionQuiz.builder()
+                    .session(session)
+                    .quiz(sessionQuiz.getQuiz())
+                    .meaning(sessionQuiz.getMeaning())
+                    .xpAwarded((int) Math.ceil(currentXp / 2.0))
+                    .retryAttempt((sessionQuiz.getRetryAttempt() != null ? sessionQuiz.getRetryAttempt() : 0) + 1)
+                    .build();
+            SessionQuiz savedRetry = sessionQuizRepository.save(retryQuiz);
+            retryQuizResponse = sessionQuizMapper.toSessionQuizResponse(savedRetry);
         }
 
-        return xpAwarded;
+        return SubmitQuizResponse.builder()
+                .xpAwarded(xpAwarded)
+                .retryQuiz(retryQuizResponse)
+                .build();
     }
 
     @Transactional

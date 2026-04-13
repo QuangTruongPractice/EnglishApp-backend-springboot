@@ -1,4 +1,4 @@
-package com.tqt.englishApp.controller;
+package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.request.AuthenticationRequest;

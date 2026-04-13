@@ -5,7 +5,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,6 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE main_topic SET is_deleted = true, deleted_at = NOW() WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class MainTopic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +44,13 @@ public class MainTopic {
 
     @Column(name = "created_at", updatable = false)
     LocalDate createdAt;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    Boolean isDeleted = false;
+
+    @Column(name = "deleted_at")
+    LocalDateTime deletedAt;
 
     @PrePersist
     public void prePersist() {

@@ -22,7 +22,7 @@ public class VocabularySelectionService {
         Set<Integer> selectedWordIds = new HashSet<>();
         List<VocabularyMeaning> finalMeanings = new ArrayList<>();
 
-        // Bucket 1: Due SRS (Max 8)
+        // Bucket 1: Đến hạn SRS (Max 8)
         List<UserVocabularyProgress> dueProgress = progressRepository.findDueReviews(profile.getUserId(),
                 LocalDateTime.now());
         for (UserVocabularyProgress p : dueProgress) {
@@ -35,11 +35,11 @@ public class VocabularySelectionService {
             }
         }
 
-        // Bucket 2: Weak meanings (Max 4)
+        // Bucket 2: Từ khó (Max 4)
         if (finalMeanings.size() < targetMeanings) {
             List<UserVocabularyProgress> weakProgress = progressRepository.findByUserId(profile.getUserId()).stream()
-                    .filter(p -> p.getEaseFactor() < 1.8 && !finalMeanings.contains(p.getMeaning()))
-                    .limit(20) // Limit search
+                    .filter(p -> p.getDifficulty() > 8.0 && !finalMeanings.contains(p.getMeaning()))
+                    .limit(20) // Giới hạn tìm kiếm
                     .collect(Collectors.toList());
 
             for (UserVocabularyProgress p : weakProgress) {
@@ -53,11 +53,11 @@ public class VocabularySelectionService {
             }
         }
 
-        // Bucket 3: New Meanings
+        // Bucket 3: Từ mới
         if (finalMeanings.size() < targetMeanings) {
             List<Level> levels = getLevelsUpTo(profile.getLevel());
             
-            // Step 3a: Search meanings matching user's LearningGoal
+            // Step 3a: Tìm từ mới theo mục tiêu học tập của người dùng
             List<VocabularyMeaning> goalSpecificMeanings = meaningRepository.findNewMeanings(profile.getUserId(),
                     profile.getGoal(), levels);
 
@@ -70,7 +70,7 @@ public class VocabularySelectionService {
                 }
             }
 
-            // Step 3b: Fallback if not enough goal-specific meanings found
+            // Step 3b: Tìm từ mới nếu không đủ từ theo mục tiêu học tập
             if (finalMeanings.size() < targetMeanings) {
                 List<VocabularyMeaning> allNewMeanings = meaningRepository.findAllNewMeanings(profile.getUserId(), levels);
                 for (VocabularyMeaning meaning : allNewMeanings) {

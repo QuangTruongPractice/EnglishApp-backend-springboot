@@ -1,7 +1,7 @@
 package com.tqt.englishApp.configs;
 
 import com.tqt.englishApp.dto.response.AuthenticationResponse;
-import com.tqt.englishApp.service.IdentityAuthService;
+import com.tqt.englishApp.service.IdentityClient;
 import com.tqt.englishApp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,14 +22,14 @@ import java.util.Arrays;
 public class IdentityAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    private IdentityAuthService identityAuthService;
+    private IdentityClient identityClient;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        AuthenticationResponse response = identityAuthService.authenticate(username, password);
+        AuthenticationResponse response = identityClient.authenticate(username, password);
 
         if (response != null && response.isAuthenticated()) {
             try {

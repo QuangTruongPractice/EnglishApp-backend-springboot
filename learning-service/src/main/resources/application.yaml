@@ -26,3 +26,7 @@ cloudinary:
 external:
   process-video-url: https://satyr-dashing-officially.ngrok-free.app/process-video
 
+services:
+  identity:
+    url: http://localhost:8080/identity
+

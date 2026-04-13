@@ -58,7 +58,7 @@ public class LevelService {
             case B1: return 2000;
             case B2: return 4000;
             case C1: return 10000;
-            default: return -1; // Max level
+            default: return -1;
         }
     }
 

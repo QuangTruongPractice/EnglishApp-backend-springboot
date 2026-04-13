@@ -1,7 +1,10 @@
 package com.tqt.englishApp.controller.client;
 
-import com.tqt.englishApp.dto.response.LeaderBoardWrapperResponse;
-import com.tqt.englishApp.service.RankingService;
+import com.tqt.englishApp.entity.UserLearningProfile;
+import com.tqt.englishApp.enums.Level;
+import com.tqt.englishApp.repository.UserLearningProfileRepository;
+import com.tqt.englishApp.service.IdentityClient;
+import com.tqt.englishApp.dto.response.UserIdentityResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,9 +13,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.security.Principal;
+import java.util.*;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ApiLeaderBoardController.class)
@@ -23,20 +28,29 @@ public class ApiLeaderBoardControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private RankingService rankingService;
+    private UserLearningProfileRepository profileRepository;
+
+    @MockitoBean
+    private IdentityClient identityClient;
 
     @Test
-    void getLeaderBoard_Success() throws Exception {
+    void getSecureWeeklyLeaderboard_Success() throws Exception {
         Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn("user-123");
+        when(principal.getName()).thenReturn("User1");
 
-        LeaderBoardWrapperResponse wrapper = new LeaderBoardWrapperResponse();
-        when(rankingService.getLeaderBoardWithCurrentUser("user-123")).thenReturn(wrapper);
+        UserLearningProfile profile = UserLearningProfile.builder()
+                .userId("User1").weeklyXp(100).level(Level.A1).build();
 
-        mockMvc.perform(get("/api/secure/leader-board").principal(principal))
+        when(profileRepository.findTop10ByWeeklyXp()).thenReturn(Collections.singletonList(profile));
+        when(profileRepository.findByUserId("User1")).thenReturn(Optional.of(profile));
+        when(profileRepository.getWeeklyRank("User1")).thenReturn(1);
+
+        when(identityClient.getUsersByUsernames(anyList())).thenReturn(
+                Collections.singletonList(new UserIdentityResponse("id-1", "User1", "John", "Doe")));
+
+        mockMvc.perform(get("/api/secure/leaderboard/weekly").principal(principal))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").exists());
-
-        verify(rankingService).getLeaderBoardWithCurrentUser("user-123");
+                .andExpect(jsonPath("$.result.leaderBoard").isArray())
+                .andExpect(jsonPath("$.result.currentUser").exists());
     }
 }

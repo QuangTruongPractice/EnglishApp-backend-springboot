@@ -5,8 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "vocabulary")
@@ -15,6 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE vocabulary SET is_deleted = true, deleted_at = NOW() WHERE id = ?")
+@Where(clause = "is_deleted = false")
 public class Vocabulary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,4 +47,11 @@ public class Vocabulary {
     @OneToMany(mappedBy = "vocabulary", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<VocabularyMeaning> meanings = new ArrayList<>();
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    Boolean isDeleted = false;
+
+    @Column(name = "deleted_at")
+    LocalDateTime deletedAt;
 }

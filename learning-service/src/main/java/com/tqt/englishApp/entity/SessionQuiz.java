@@ -40,6 +40,10 @@ public class SessionQuiz {
     @Column(name = "answered_at")
     java.time.LocalDateTime answeredAt;
 
+    @Column(name = "retry_attempt")
+    @Builder.Default
+    Integer retryAttempt = 0;
+
     @PrePersist
     public void prePersist() {
         this.answeredAt = java.time.LocalDateTime.now();

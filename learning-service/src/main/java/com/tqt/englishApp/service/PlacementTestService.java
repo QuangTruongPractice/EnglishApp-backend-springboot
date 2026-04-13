@@ -5,6 +5,7 @@ import com.tqt.englishApp.dto.response.PlacementQuizResponse;
 import com.tqt.englishApp.dto.response.quiz.QuizGenerateResponse;
 import com.tqt.englishApp.entity.Vocabulary;
 import com.tqt.englishApp.entity.VocabularyMeaning;
+import com.tqt.englishApp.entity.UserLearningProfile;
 import com.tqt.englishApp.enums.Level;
 import com.tqt.englishApp.repository.UserLearningProfileRepository;
 import com.tqt.englishApp.repository.VocabularyRepository;
@@ -28,10 +29,13 @@ public class PlacementTestService {
     UserLearningProfileRepository userLearningProfileRepository;
     Random random = new Random();
 
-    public PlacementQuizResponse generatePlacementQuiz(Level selectedLevel) {
+    public PlacementQuizResponse generatePlacementQuiz(String userId) {
+        UserLearningProfile profile = userLearningProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User learning profile not found"));
+        
+        Level selectedLevel = profile.getLevel();
         int easyCount, medCount, hardCount;
 
-        // Bảng tỉ lệ phân bổ: A1(1 khó), A2(2 khó), B1(3 khó), B2(4 khó)
         switch (selectedLevel) {
             case A1:
                 easyCount = 7; medCount = 2; hardCount = 1;
@@ -45,9 +49,6 @@ public class PlacementTestService {
             case B2:
                 easyCount = 2; medCount = 4; hardCount = 4;
                 break;
-            case C1:
-            case C2:
-                
             default:
                 easyCount = 5; medCount = 3; hardCount = 2;
                 break;
@@ -59,12 +60,13 @@ public class PlacementTestService {
         vocabList.addAll(fetchRandomVocabs(List.of(Level.C1, Level.C2), hardCount));
 
         List<PlacementQuizResponse.PlacementQuestion> questions = new ArrayList<>();
+        int quizIdCounter = 1;
         for (Vocabulary vocab : vocabList) {
             if (vocab.getMeanings().isEmpty()) continue;
             
-            // Lấy nghĩa đầu tiên để làm quiz
             VocabularyMeaning meaning = vocab.getMeanings().get(0);
             QuizGenerateResponse quizRes = quizGenerateService.generateQuizEngToVn(meaning.getId());
+            quizRes.setId(quizIdCounter++);
             
             questions.add(PlacementQuizResponse.PlacementQuestion.builder()
                     .quiz(quizRes)
@@ -89,7 +91,6 @@ public class PlacementTestService {
             result.addAll(vocabularyRepository.findRandomByLevel(lvl.name(), limit));
         }
         
-        // Nếu vẫn thiếu (do 1 level không đủ từ), lấy thêm từ level đầu tiên trong list
         if (result.size() < count) {
             result.addAll(vocabularyRepository.findRandomByLevel(levels.get(0).name(), count - result.size()));
         }
@@ -99,24 +100,53 @@ public class PlacementTestService {
 
     @Transactional
     public void processDiagnosticResults(DiagnosticQuizRequest request) {
-        // Tạm thời tính toán Level dựa trên số câu đúng
         long correctCount = request.getWordResults().stream()
                 .filter(DiagnosticQuizRequest.WordTestResult::getIsCorrect)
                 .count();
 
-        // Logic đề xuất Level mới (giữ đơn giản cho đến khi cài đặt FSRS)
-        Level recommendedLevel;
-        if (correctCount >= 9) recommendedLevel = Level.B2;
-        else if (correctCount >= 7) recommendedLevel = Level.B1;
-        else if (correctCount >= 5) recommendedLevel = Level.A2;
-        else recommendedLevel = Level.A1;
-
         userLearningProfileRepository.findByUserId(request.getUserId()).ifPresent(profile -> {
+            Level currentLevel = profile.getLevel();
+            if (currentLevel == null) currentLevel = Level.A1;
+            
+            Level recommendedLevel = currentLevel;
+
+            if (correctCount == 0) {
+                // Thất bại hoàn toàn: Xuống A1
+                recommendedLevel = Level.A1;
+            } else if (correctCount == 10) {
+                // Làm rất tốt: Tăng 1 bậc (Ví dụ: B2 chọn ban đầu sẽ lên C1)
+                recommendedLevel = currentLevel.getOffsetLevel(1);
+            } else {
+                // Logic tăng giảm dựa trên cấp độ hiện tại (Aggrressive Decrease)
+                if (currentLevel == Level.B2) {
+                    if (correctCount >= 6) {
+                        recommendedLevel = Level.B2; 
+                    } else if (correctCount >= 4) {
+                        recommendedLevel = Level.B1; 
+                    } else {
+                        recommendedLevel = Level.A2;
+                    }
+                } else if (currentLevel == Level.B1) {
+                    if (correctCount >= 6) {
+                        recommendedLevel = Level.B1;
+                    } else if (correctCount >= 4) {
+                        recommendedLevel = Level.A2; 
+                    } else {
+                        recommendedLevel = Level.A1;
+                    }
+                } else if (currentLevel == Level.A2) {
+                    if (correctCount >= 5) {
+                        recommendedLevel = Level.A2;
+                    } else {
+                        recommendedLevel = Level.A1; 
+                    }
+                } else if (currentLevel == Level.A1) {
+                    recommendedLevel = Level.A1;
+                }
+            }
+
             profile.setLevel(recommendedLevel);
             userLearningProfileRepository.save(profile);
         });
-
-        // TODO: Khởi tạo UserVocabularyProgress cho các từ đã test
-        // Sẽ được thực hiện chi tiết hơn khi tích hợp FSRS
     }
 }

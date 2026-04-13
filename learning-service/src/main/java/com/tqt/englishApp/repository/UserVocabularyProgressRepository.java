@@ -1,6 +1,5 @@
 package com.tqt.englishApp.repository;
 
-import com.tqt.englishApp.dto.response.LeaderBoardResponse;
 import com.tqt.englishApp.entity.UserVocabularyProgress;
 import com.tqt.englishApp.enums.VocabularyStatus;
 import org.springframework.data.domain.Page;
@@ -30,12 +29,4 @@ public interface UserVocabularyProgressRepository extends JpaRepository<UserVoca
                         "AND u.nextReviewAt <= :now " +
                         "AND u.status != 'MASTERED'")
         List<UserVocabularyProgress> findDueReviews(String userId, LocalDateTime now);
-
-        @Query("SELECT new com.tqt.englishApp.dto.response.LeaderBoardResponse(" +
-                        "u.userId, 'Unknown User', COUNT(u), MIN(u.updatedAt)) " +
-                        "FROM UserVocabularyProgress u " +
-                        "WHERE u.status = 'MASTERED' " +
-                        "GROUP BY u.userId " +
-                        "ORDER BY COUNT(u) DESC")
-        List<LeaderBoardResponse> getUserRanking();
 }

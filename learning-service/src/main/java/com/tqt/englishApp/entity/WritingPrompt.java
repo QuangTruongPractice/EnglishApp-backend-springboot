@@ -22,7 +22,7 @@ public class WritingPrompt {
     WritingPromptType type;
 
     @Column(name = "target_meaning_ids")
-    String targetMeaningIds; // Comma separated Meaning IDs
+    String targetMeaningIds;
 
     @Column(name = "user_response", columnDefinition = "TEXT")
     String userResponse;
