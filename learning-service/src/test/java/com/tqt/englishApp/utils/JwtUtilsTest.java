@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JwtUtilsTest {
 
     @Test
-    void generateToken_AndValidate_Success() {
+    void generateToken_AndValidate_Success() throws Exception {
         String username = "testuser";
         String role = "USER_ROLE";
         
@@ -21,13 +21,13 @@ class JwtUtilsTest {
     }
 
     @Test
-    void validateToken_InvalidToken_ReturnsNull() {
+    void validateToken_InvalidToken_ReturnsNull() throws Exception {
         assertNull(JwtUtils.validateTokenAndGetClaims("invalid-token-string"));
         assertNull(JwtUtils.validateTokenAndGetClaims(null));
     }
 
     @Test
-    void validateToken_ExpiredOrTamperedToken_ReturnsNull() {
+    void validateToken_ExpiredOrTamperedToken_ReturnsNull() throws Exception {
         // Tamper with a valid token
         String token = JwtUtils.generateToken("user", "ROLE");
         String tamperedToken = token.substring(0, token.length() - 5) + "abcde";
