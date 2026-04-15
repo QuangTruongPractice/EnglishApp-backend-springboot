@@ -29,9 +29,9 @@ public class FsrsService {
      */
     public int calculateRating(boolean isCorrect, Long responseTimeMs) {
         if (!isCorrect) return 1; // Again
-        if (responseTimeMs <= 3000) return 4; // Easy
-        if (responseTimeMs <= 7000) return 3; // Good
-        if (responseTimeMs > 7000) return 2; // Hard
+        if (responseTimeMs <= 5000) return 4; // Easy
+        if (responseTimeMs <= 10000) return 3; // Good
+        if (responseTimeMs > 10000) return 2; // Hard
         return 1;
     }
 
@@ -68,8 +68,11 @@ public class FsrsService {
         }
 
         // --- 2. Tính Retrievability (R) ---
-        // Formula: R = 0.9 ^ (t / S)
-        double r = Math.pow(0.9, elapsedDays / progress.getStability());
+        // Formula: R = (1 + (FACTOR) * t / S) ^ -DECAY
+        // FACTOR = 19/81, DECAY = 0.5
+        double FACTOR = 19.0 / 81.0;
+        double DECAY = 0.5;
+        double r = Math.pow(1 + FACTOR * elapsedDays / progress.getStability(), -DECAY);
 
         // --- 3. Cập nhật Difficulty (D) ---
         // Formula: deltaD = -w6 * (G - 3)
@@ -78,8 +81,9 @@ public class FsrsService {
         double deltaD = -W[6] * (rating - 3);
         double dPrime = d + deltaD * (10 - d) / 9.0;
         
-        // Mean Reversion Target: D0(4) = w4 - exp(w5 * 3) + 1
+        // Mean Reversion Target: D0(4) = w4 - exp(w5 * (4 - 1)) + 1
         double d0_4 = W[4] - Math.exp(W[5] * 3) + 1; 
+        //D'' = w7 * D0(4) + (1 - w7) * D'
         double dFinal = W[7] * d0_4 + (1 - W[7]) * dPrime;
         
         progress.setDifficulty(clamp(dFinal, 1, 10));
@@ -89,8 +93,12 @@ public class FsrsService {
         double s = progress.getStability();
         double sNext;
         if (rating > 1) { // RECALL (Nhớ)
-            // S_new = S * (1 + exp(w8) * (11 - D) * S^-w9 * (exp((1 - R) * w10) - 1))
-            sNext = s * (1 + Math.exp(W[8]) * (11 - dUpdated) * Math.pow(s, -W[9]) * (Math.exp((1 - r) * W[10]) - 1));
+            // S_new = S * (exp(w8) * (11 - D) * S^-w9 * (exp((1 - R) * w10) - 1) * multiplier + 1)
+            double sInc = Math.exp(W[8]) * (11 - dUpdated) * Math.pow(s, -W[9]) * (Math.exp((1 - r) * W[10]) - 1);
+            if (rating == 2) sInc *= W[15]; // Hard multiplier
+            else if (rating == 4) sInc *= W[16]; // Easy multiplier
+            
+            sNext = s * (sInc + 1);
         } else { // FORGET (Quên)
             // S_new = w11 * D^-w12 * ((S + 1)^w13 - 1) * exp((1 - R) * w14)
             sNext = W[11] * Math.pow(dUpdated, -W[12]) * (Math.pow(s + 1, W[13]) - 1) * Math.exp((1 - r) * W[14]);

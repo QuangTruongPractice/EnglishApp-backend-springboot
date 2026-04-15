@@ -47,10 +47,10 @@ class FsrsServiceTest {
         @ParameterizedTest(name = "responseTime={0}ms → rating={1}")
         @CsvSource({
                 "0,    4",
-                "3000, 4",
-                "3001, 3",
-                "7000, 3",
-                "7001, 2",
+                "5000, 4",
+                "5001, 3",
+                "10000, 3",
+                "10001, 2",
                 "15000,2"
         })
         void correctAnswer_RatingBasedOnTime(long responseTimeMs, int expectedRating) {
@@ -58,18 +58,18 @@ class FsrsServiceTest {
         }
 
         @Test
-        void correctAnswer_ExactBoundary3000_IsEasy() {
-            assertEquals(4, fsrsService.calculateRating(true, 3000L));
+        void correctAnswer_ExactBoundary5000_IsEasy() {
+            assertEquals(4, fsrsService.calculateRating(true, 5000L));
         }
 
         @Test
-        void correctAnswer_ExactBoundary7000_IsGood() {
-            assertEquals(3, fsrsService.calculateRating(true, 7000L));
+        void correctAnswer_ExactBoundary10000_IsGood() {
+            assertEquals(3, fsrsService.calculateRating(true, 10000L));
         }
 
         @Test
-        void correctAnswer_Above7000_IsHard() {
-            assertEquals(2, fsrsService.calculateRating(true, 7001L));
+        void correctAnswer_Above10000_IsHard() {
+            assertEquals(2, fsrsService.calculateRating(true, 10001L));
         }
     }
 
