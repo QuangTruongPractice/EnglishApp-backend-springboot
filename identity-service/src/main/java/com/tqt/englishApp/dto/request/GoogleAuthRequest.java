@@ -1,5 +1,7 @@
 package com.tqt.englishApp.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,6 +11,10 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GoogleAuthRequest {
+    @NotBlank(message = "ID Token is required")
     String idToken;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     String email;
 }

@@ -38,6 +38,9 @@ public class AuthenticateService {
     }
 
     public boolean googleAuth(GoogleAuthRequest googleAuthRequest) {
+        if (googleAuthRequest.getIdToken() == null) {
+            return false;
+        }
         try {
             GoogleIdTokenVerifier verifier = getVerifier();
             GoogleIdToken idToken = verifier.verify(googleAuthRequest.getIdToken());

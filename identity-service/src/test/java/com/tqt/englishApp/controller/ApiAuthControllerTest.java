@@ -173,6 +173,7 @@ public class ApiAuthControllerTest {
         @Test
         void googleSignIn_Success() throws Exception {
                 GoogleAuthRequest request = new GoogleAuthRequest();
+                request.setIdToken("mock-id-token");
                 request.setEmail("user@gmail.com");
 
                 UserResponse userResponse = UserResponse.builder()
@@ -196,6 +197,7 @@ public class ApiAuthControllerTest {
         @Test
         void googleSignIn_InactiveAccount_Failure() throws Exception {
                 GoogleAuthRequest request = new GoogleAuthRequest();
+                request.setIdToken("mock-id-token");
                 request.setEmail("user@gmail.com");
 
                 UserResponse userResponse = UserResponse.builder()
@@ -218,6 +220,7 @@ public class ApiAuthControllerTest {
         @Test
         void googleSignIn_FailedAuth_Failure() throws Exception {
                 GoogleAuthRequest request = new GoogleAuthRequest();
+                request.setIdToken("mock-id-token");
                 request.setEmail("user@gmail.com");
 
                 when(authenticateService.googleAuth(any())).thenReturn(false);
@@ -232,6 +235,7 @@ public class ApiAuthControllerTest {
         @Test
         void googleSignIn_JwtError_Failure() throws Exception {
                 GoogleAuthRequest request = new GoogleAuthRequest();
+                request.setIdToken("mock-id-token");
                 request.setEmail("user@gmail.com");
 
                 UserResponse userResponse = UserResponse.builder()
