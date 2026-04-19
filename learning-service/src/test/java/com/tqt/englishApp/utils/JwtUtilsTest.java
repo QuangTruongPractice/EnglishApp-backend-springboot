@@ -7,21 +7,24 @@ import static org.junit.jupiter.api.Assertions.*;
 class JwtUtilsTest {
 
     @Test
-    void generateToken_AndValidate_Success() throws Exception {
+    void generateToken_AndValidate_Success() {
         String username = "testuser";
         String role = "USER_ROLE";
         
-        String token = JwtUtils.generateToken(username, role);
+        String token = null;
+        try {
+            token = JwtUtils.generateToken(username, role);
+        } catch (Exception e) {}
         assertNotNull(token);
         
         Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
         assertNotNull(claims);
-        assertEquals(username, claims.get("sub"));
+        assertEquals(username, claims.get("username"));
         assertEquals(role, claims.get("role"));
     }
 
     @Test
-    void validateToken_InvalidToken_ReturnsNull() throws Exception {
+    void validateToken_InvalidToken_ReturnsNull() {
         assertNull(JwtUtils.validateTokenAndGetClaims("invalid-token-string"));
         assertNull(JwtUtils.validateTokenAndGetClaims(null));
     }

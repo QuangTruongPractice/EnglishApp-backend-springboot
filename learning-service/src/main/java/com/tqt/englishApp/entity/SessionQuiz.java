@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "session_quiz")
 @Data
@@ -38,7 +40,7 @@ public class SessionQuiz {
     String userAnswer;
 
     @Column(name = "answered_at")
-    java.time.LocalDateTime answeredAt;
+    LocalDateTime answeredAt;
 
     @Column(name = "retry_attempt")
     @Builder.Default

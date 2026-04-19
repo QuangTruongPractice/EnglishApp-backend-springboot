@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import com.tqt.englishApp.service.QuizGenerateService;
+import com.tqt.englishApp.service.VocabularyLearningService;
 
 import java.util.Collections;
 
@@ -28,6 +30,12 @@ public class ApiQuizControllerTest {
 
     @MockitoBean
     private QuizService quizService;
+
+    @MockitoBean
+    private QuizGenerateService quizGenerateService;
+
+    @MockitoBean
+    private VocabularyLearningService vocabularyLearningService;
 
     @Test
     void getQuizzes_Success() throws Exception {

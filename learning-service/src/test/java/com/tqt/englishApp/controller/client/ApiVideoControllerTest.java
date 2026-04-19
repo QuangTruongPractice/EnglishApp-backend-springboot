@@ -39,7 +39,7 @@ public class ApiVideoControllerTest {
         Page<VideoResponse> page = new PageImpl<>(Collections.emptyList());
         when(videoService.getVideos(anyMap(), isNull())).thenReturn(page);
 
-        mockMvc.perform(get("/api/videos"))
+        mockMvc.perform(get("/api/secure/videos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.content").isArray());
     }
@@ -50,7 +50,7 @@ public class ApiVideoControllerTest {
         when(videoService.getVideoById(anyInt(), isNull())).thenReturn(video);
         when(subtitlesService.getSubtitlesByVideoId(anyInt())).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/videos/1"))
+        mockMvc.perform(get("/api/secure/videos/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.video").exists())
                 .andExpect(jsonPath("$.result.subtitles").isArray());

@@ -14,6 +14,8 @@ import com.tqt.englishApp.exception.ErrorCode;
 import com.tqt.englishApp.mapper.VocabularyMapper;
 import com.tqt.englishApp.repository.SubTopicRepository;
 import com.tqt.englishApp.repository.VocabularyRepository;
+import com.tqt.englishApp.repository.UserSavedVocabularyRepository;
+import com.tqt.englishApp.repository.UserVocabularyProgressRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +52,10 @@ class VocabularyServiceTest {
     VocabularyMapper vocabularyMapper;
 
     @Mock
-    com.tqt.englishApp.repository.UserSavedVocabularyRepository userSavedVocabularyRepository;
+    UserSavedVocabularyRepository userSavedVocabularyRepository;
+
+    @Mock
+    UserVocabularyProgressRepository userVocabularyProgressRepository;
 
     @Mock
     Cloudinary cloudinary;

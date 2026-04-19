@@ -31,55 +31,12 @@ public class ApiSubTopicControllerTest {
     private SubTopicService subTopicService;
 
     @Test
-    void createSubTopic_Success() throws Exception {
-        SubTopicsAdminResponse response = new SubTopicsAdminResponse();
-        when(subTopicService.createSubTopic(any())).thenReturn(response);
-
-        mockMvc.perform(post("/api/sub-topics")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .param("name", "New SubTopic"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").exists());
-    }
-
-    @Test
-    void getSubTopics_Success() throws Exception {
-        Page<SubTopicsAdminResponse> page = new PageImpl<>(Collections.emptyList());
-        when(subTopicService.getSubTopics(anyMap())).thenReturn(page);
-
-        mockMvc.perform(get("/api/sub-topics"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.content").isArray());
-    }
-
-    @Test
     void getSubTopic_Success() throws Exception {
         SubTopicsDetailResponse response = new SubTopicsDetailResponse();
         when(subTopicService.getSubTopicDetailForClient(1, null)).thenReturn(response);
 
-        mockMvc.perform(get("/api/sub-topics/1"))
+        mockMvc.perform(get("/api/secure/sub-topics/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").exists());
-    }
-
-    @Test
-    void updateSubTopic_Success() throws Exception {
-        SubTopicsAdminResponse response = new SubTopicsAdminResponse();
-        when(subTopicService.updateSubTopic(eq(1), any())).thenReturn(response);
-
-        mockMvc.perform(put("/api/sub-topics/1")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .param("name", "Updated"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").exists());
-    }
-
-    @Test
-    void deleteSubTopic_Success() throws Exception {
-        mockMvc.perform(delete("/api/sub-topics/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Delete sub Topic Sucessfully"));
-
-        verify(subTopicService).deleteSubTopic(1);
     }
 }

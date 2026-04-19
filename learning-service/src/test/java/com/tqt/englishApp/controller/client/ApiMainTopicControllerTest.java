@@ -37,7 +37,8 @@ public class ApiMainTopicControllerTest {
 
         when(mainTopicService.getLearningPathForClient(anyString())).thenReturn(Collections.singletonList(response));
 
-        mockMvc.perform(get("/api/secure/learning-path"))
+        mockMvc.perform(get("/api/secure/learning-path")
+                .principal(() -> "testuser"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").isArray())
                 .andExpect(jsonPath("$.result[0].name").value("Topic 1"));
@@ -48,7 +49,7 @@ public class ApiMainTopicControllerTest {
         Page<MainTopicsResponse> page = new PageImpl<>(Collections.emptyList());
         when(mainTopicService.getMainTopicsForClient(anyMap(), nullable(String.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/main-topics"))
+        mockMvc.perform(get("/api/secure/main-topics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.content").isArray());
     }
@@ -60,7 +61,7 @@ public class ApiMainTopicControllerTest {
         response.setName("Detail Topic");
         when(mainTopicService.getMainTopicDetailForClient(eq(1), nullable(String.class))).thenReturn(response);
 
-        mockMvc.perform(get("/api/main-topics/1"))
+        mockMvc.perform(get("/api/secure/main-topics/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").exists())
                 .andExpect(jsonPath("$.result.name").value("Detail Topic"));

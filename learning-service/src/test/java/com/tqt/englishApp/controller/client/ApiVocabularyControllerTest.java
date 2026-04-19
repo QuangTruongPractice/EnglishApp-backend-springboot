@@ -34,7 +34,7 @@ public class ApiVocabularyControllerTest {
         VocabulariesResponse response = new VocabulariesResponse();
         when(vocabularyService.getVocabularyById(eq(1), any())).thenReturn(response);
 
-        mockMvc.perform(get("/api/vocabulary/1"))
+        mockMvc.perform(get("/api/secure/vocabulary/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").exists());
     }

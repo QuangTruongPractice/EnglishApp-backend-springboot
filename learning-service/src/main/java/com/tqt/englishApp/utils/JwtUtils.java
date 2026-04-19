@@ -35,19 +35,25 @@ public class JwtUtils {
         return signedJWT.serialize();
     }
 
-    public static Map<String, Object> validateTokenAndGetClaims(String token) throws Exception {
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        JWSVerifier verifier = new MACVerifier(SECRET);
+    public static Map<String, Object> validateTokenAndGetClaims(String token) {
+        try {
+            if (token == null)
+                return null;
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWSVerifier verifier = new MACVerifier(SECRET);
 
-        if (signedJWT.verify(verifier)) {
-            Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
-            if (expiration.after(new Date())) {
-                Map<String, Object> claims = new HashMap<>();
-                claims.put("userId", signedJWT.getJWTClaimsSet().getSubject());
-                claims.put("username", signedJWT.getJWTClaimsSet().getSubject());
-                claims.put("role", signedJWT.getJWTClaimsSet().getStringClaim("role"));
-                return claims;
+            if (signedJWT.verify(verifier)) {
+                Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
+                if (expiration.after(new Date())) {
+                    Map<String, Object> claims = new HashMap<>();
+                    claims.put("userId", signedJWT.getJWTClaimsSet().getSubject());
+                    claims.put("username", signedJWT.getJWTClaimsSet().getSubject());
+                    claims.put("role", signedJWT.getJWTClaimsSet().getStringClaim("role"));
+                    return claims;
+                }
             }
+        } catch (Exception e) {
+            return null;
         }
         return null;
     }
