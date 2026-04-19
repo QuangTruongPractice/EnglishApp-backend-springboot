@@ -58,6 +58,7 @@ public class SubTopicService {
         return subTopicMapper.toSubTopicsAdminResponse(subTopicRepository.save(subTopic));
     }
 
+    @Transactional
     public Page<SubTopicsAdminResponse> getSubTopics(Map<String, String> params) {
         String name = params.get("name");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
@@ -77,11 +78,13 @@ public class SubTopicService {
         return result.map(subTopicMapper::toSubTopicsAdminResponse);
     }
 
+    @Transactional
     public SubTopicsAdminResponse getSubTopicDetailForAdmin(Integer id) {
         return subTopicMapper.toSubTopicsAdminResponse(
                 subTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
     }
 
+    @Transactional
     public SubTopicsDetailResponse getSubTopicDetailForClient(Integer id, String userId) {
         SubTopicsDetailResponse response = subTopicMapper.toSubTopicsDetailResponse(
                 subTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
@@ -93,6 +96,7 @@ public class SubTopicService {
         return subTopicRepository.count();
     }
 
+    @Transactional
     public List<SubTopicsAdminResponse> findAll() {
         return subTopicMapper.toSubTopicsAdminResponse(subTopicRepository.findAll());
     }

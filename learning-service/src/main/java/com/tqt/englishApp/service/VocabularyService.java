@@ -276,6 +276,7 @@ public class VocabularyService {
         }
     }
 
+    @Transactional
     public Page<VocabulariesResponse> getVocabularies(Map<String, String> params) {
         String word = params.get("word");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
@@ -295,12 +296,14 @@ public class VocabularyService {
         return result.map(vocabularyMapper::toVocabulariesResponse);
     }
 
+    @Transactional
     public List<VocabulariesResponse> searchVocabularies(String word) {
         return vocabularyRepository.findTop5ByWordContainingIgnoreCase(word).stream()
                 .map(vocabularyMapper::toVocabulariesResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public VocabulariesResponse getVocabularyById(Integer id, String userId) {
         Vocabulary vocabulary = vocabularyRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.VOCABULARY_NOT_EXISTED));
@@ -343,6 +346,7 @@ public class VocabularyService {
         return vocabularyRepository.count();
     }
 
+    @Transactional
     public Page<VocabulariesSimpleResponse> getSaveVocabularies(String userId, Map<String, String> params) {
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
         int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(PAGE_SIZE)));

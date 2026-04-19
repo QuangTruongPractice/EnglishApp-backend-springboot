@@ -37,6 +37,8 @@ public interface VocabularyMeaningMapper {
         if (synonyms == null)
             return null;
         return synonyms.stream()
+                .filter(s -> s.getSynonymMeaning() != null && 
+                             s.getSynonymMeaning().getVocabulary() != null)
                 .map(s -> s.getSynonymMeaning().getVocabulary().getWord())
                 .collect(Collectors.toList());
     }

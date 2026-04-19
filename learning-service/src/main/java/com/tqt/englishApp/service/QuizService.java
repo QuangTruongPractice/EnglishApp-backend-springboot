@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +31,14 @@ public class QuizService {
 
     private static final int PAGE_SIZE = 8;
 
+    @Transactional
     public List<QuizDetailResponse> getRecentQuizzes() {
         return quizRepository.findTop5ByOrderByIdDesc().stream()
                 .map(quizMapper::toQuizDetailResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public Map<String, Long> getTypeDistribution() {
         Map<String, Long> distribution = new LinkedHashMap<>();
         for (QuizType type : QuizType.values()) {
@@ -44,6 +47,7 @@ public class QuizService {
         return distribution;
     }
 
+    @Transactional
     public List<BaseQuizResponse> getAllQuizzes() {
         return quizRepository.findAll().stream()
                 .map(quizMapper::toQuizResponse)
@@ -62,6 +66,7 @@ public class QuizService {
         return quizMapper.toQuizResponse(quizRepository.save(quiz));
     }
 
+    @Transactional
     public Page<BaseQuizResponse> getQuiz(Map<String, String> params) {
         String question = params.get("question");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
@@ -81,6 +86,7 @@ public class QuizService {
         return result.map(quizMapper::toQuizResponse);
     }
 
+    @Transactional
     public Page<QuizDetailResponse> getQuizzesAdmin(Map<String, String> params) {
         String question = params.get("question");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
@@ -100,6 +106,7 @@ public class QuizService {
         return result.map(quizMapper::toQuizDetailResponse);
     }
 
+    @Transactional
     public QuizDetailResponse getQuizById(Integer id) {
         return quizMapper.toQuizDetailResponse(
                 quizRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_EXISTED)));

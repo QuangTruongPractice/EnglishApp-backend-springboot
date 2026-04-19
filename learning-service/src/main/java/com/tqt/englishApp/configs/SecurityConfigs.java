@@ -32,7 +32,7 @@ public class SecurityConfigs {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**")
+                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/loaderio-*.txt")
                                                 .permitAll()
                                                 .requestMatchers("/api/**").permitAll()
                                                 .requestMatchers(HttpMethod.GET,
@@ -76,7 +76,7 @@ public class SecurityConfigs {
                                                 .usernameParameter("username")
                                                 .passwordParameter("password")
                                                 .loginProcessingUrl("/login")
-                                                .defaultSuccessUrl("/admin/", true)
+                                                .defaultSuccessUrl("/admin", true)
                                                 .failureUrl("/login?error=true")
                                                 .permitAll())
                                 .logout(logout -> logout

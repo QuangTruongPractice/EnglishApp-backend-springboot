@@ -1,6 +1,8 @@
 package com.tqt.englishApp.controller.admin;
 
 import com.tqt.englishApp.service.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +26,8 @@ public class HomeController {
     @Autowired
     private QuizService quizService;
 
-    @RequestMapping("/admin/")
+    @RequestMapping({"/admin", "/admin/"})
+    @Transactional(readOnly = true)
     public String home(Model model) {
         model.addAttribute("mainTopicNum", mainTopicService.countMainTopic());
         model.addAttribute("subTopicNum", subTopicService.countSubTopic());
@@ -45,7 +48,7 @@ public class HomeController {
 
     @RequestMapping("/")
     public String root() {
-        return "redirect:/admin/";
+        return "redirect:/admin";
     }
 
     @RequestMapping("/login")

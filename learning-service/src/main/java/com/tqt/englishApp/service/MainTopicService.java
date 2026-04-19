@@ -83,6 +83,7 @@ public class MainTopicService {
         return mainTopicMapper.toMainTopicsAdminResponse(mainTopicRepository.save(topic));
     }
 
+    @Transactional
     public Page<MainTopicsAdminResponse> getMainTopicsForAdmin(Map<String, String> params) {
         String name = params.get("name");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
@@ -102,6 +103,7 @@ public class MainTopicService {
         return result.map(mainTopicMapper::toMainTopicsAdminResponse);
     }
 
+    @Transactional
     public MainTopicsAdminResponse getMainTopicByIdForAdmin(int id) {
         return mainTopicMapper.toMainTopicsAdminResponse(
                 mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
@@ -111,6 +113,7 @@ public class MainTopicService {
         return mainTopicRepository.count();
     }
 
+    @Transactional
     public List<MainTopicsAdminResponse> findAll() {
         return mainTopicMapper.toMainTopicsAdminResponse(mainTopicRepository.findAll());
     }
@@ -122,6 +125,7 @@ public class MainTopicService {
         vocabularyService.deleteAllVocabulary();
     }
 
+    @Transactional
     public List<MainTopicsResponse> getLearningPathForClient(String userId) {
         UserLearningProfile profile = userLearningProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -140,6 +144,7 @@ public class MainTopicService {
         return responses;
     }
 
+    @Transactional
     public Page<MainTopicsResponse> getMainTopicsForClient(Map<String, String> params, String userId) {
         String name = params.get("name");
         int page = Integer.parseInt(params.getOrDefault("page", "1")) - 1;
@@ -161,6 +166,7 @@ public class MainTopicService {
         return responsePage;
     }
 
+    @Transactional
     public MainTopicsDetailResponse getMainTopicDetailForClient(int id, String userId) {
         MainTopicsDetailResponse response = mainTopicMapper.toMainTopicsDetailResponse(
                 mainTopicRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TOPIC_NOT_EXISTED)));
