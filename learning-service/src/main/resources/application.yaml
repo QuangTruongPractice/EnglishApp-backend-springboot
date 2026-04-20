@@ -29,5 +29,5 @@ external:
 
 services:
   identity:
-    url: https://englishapp-backend-springboot-1.onrender.com/identity
+    url: http://localhost:8080/identity
 

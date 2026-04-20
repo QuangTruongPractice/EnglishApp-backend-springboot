@@ -29,6 +29,7 @@ public class PlacementTestService {
     UserLearningProfileRepository userLearningProfileRepository;
     Random random = new Random();
 
+    @Transactional(readOnly = true)
     public PlacementQuizResponse generatePlacementQuiz(String userId) {
         UserLearningProfile profile = userLearningProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User learning profile not found"));

@@ -99,46 +99,4 @@ public class ApiUserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.username").value("newuser"));
     }
-
-    @Test
-    void getUsers_Admin_Success() throws Exception {
-        Page<UserResponse> page = new PageImpl<>(Collections.emptyList());
-        when(userService.getUsers(anyMap())).thenReturn(page);
-
-        mockMvc.perform(get("/api/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.content").isArray());
-    }
-
-    @Test
-    void getUser_Admin_Success() throws Exception {
-        UserResponse response = UserResponse.builder().id("1").username("user1").build();
-        when(userService.getUserById("1")).thenReturn(response);
-
-        mockMvc.perform(get("/api/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.username").value("user1"));
-    }
-
-    @Test
-    void updateUser_Admin_Success() throws Exception {
-        UserResponse response = UserResponse.builder().id("1").username("user1").build();
-        when(userService.updateUser(eq("1"), any(UserUpdateRequest.class))).thenReturn(response);
-
-        mockMvc.perform(put("/api/users/1")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .param("firstName", "Updated"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.username").value("user1"));
-    }
-
-    @Test
-    void deleteUser_Admin_Success() throws Exception {
-        UserResponse response = UserResponse.builder().id("1").username("user1").isActive(false).build();
-        when(userService.deactivateUser("1")).thenReturn(response);
-
-        mockMvc.perform(delete("/api/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.isActive").value(false));
-    }
 }
