@@ -105,7 +105,7 @@ public class VocabularyLearningService {
             progress.setStatus(VocabularyStatus.LEARNING);
         }
 
-        boolean hasLongTermMemory = progress.getStability() != null && progress.getStability() >= 30.0;
+        boolean hasLongTermMemory = progress.getStability() != null && progress.getStability() >= 90.0;
         
         if (hasLongTermMemory && progress.getStatus() != VocabularyStatus.MASTERED) {
             progress.setStatus(VocabularyStatus.MASTERED);
