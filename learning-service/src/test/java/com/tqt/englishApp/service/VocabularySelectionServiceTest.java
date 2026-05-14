@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +78,9 @@ class VocabularySelectionServiceTest {
             dueList.add(buildProgress(buildMeaning(i, i), 4.0));
         }
         when(progressRepository.findDueReviews(anyString(), any(LocalDateTime.class))).thenReturn(dueList);
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findAllNewMeanings(anyString(), anyList())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(new ArrayList<>());
+        when(meaningRepository.findAllNewMeanings(anyString(), anyList(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
@@ -91,30 +92,30 @@ class VocabularySelectionServiceTest {
     void selectMeanings_NoDueReviews_FillsWithWeakWords() {
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(new ArrayList<>());
 
-        List<UserVocabularyProgress> allProgress = new ArrayList<>();
+        List<UserVocabularyProgress> weakList = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            allProgress.add(buildProgress(buildMeaning(i, i), 9.5)); // difficulty > 8.0
+            weakList.add(buildProgress(buildMeaning(i, i), 9.5)); // difficulty > 8.0
         }
-        when(progressRepository.findByUserId(anyString())).thenReturn(allProgress);
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findAllNewMeanings(anyString(), anyList())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(weakList);
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(new ArrayList<>());
+        when(meaningRepository.findAllNewMeanings(anyString(), anyList(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
         assertTrue(result.size() <= 5);
-        verify(progressRepository).findByUserId("user-1");
+        verify(progressRepository).findWeakProgress(eq("user-1"), anyDouble(), any());
     }
 
     @Test
     void selectMeanings_FillsRemainingWithNewWords() {
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(new ArrayList<>());
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> newMeanings = new ArrayList<>();
         for (int i = 1; i <= 15; i++) {
             newMeanings.add(buildMeaning(i, i));
         }
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(newMeanings);
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(newMeanings);
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
@@ -124,19 +125,19 @@ class VocabularySelectionServiceTest {
     @Test
     void selectMeanings_FallbackToAllNewMeanings_WhenGoalSpecificNotEnough() {
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(new ArrayList<>());
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> allNew = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             allNew.add(buildMeaning(i, i));
         }
-        when(meaningRepository.findAllNewMeanings(anyString(), anyList())).thenReturn(allNew);
+        when(meaningRepository.findAllNewMeanings(anyString(), anyList(), any())).thenReturn(allNew);
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
         assertEquals(10, result.size());
-        verify(meaningRepository).findAllNewMeanings(anyString(), anyList());
+        verify(meaningRepository).findAllNewMeanings(anyString(), anyList(), any());
     }
 
     @Test
@@ -144,13 +145,13 @@ class VocabularySelectionServiceTest {
         profile.setDailyTarget(5); // → targetMeanings = 6
 
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(new ArrayList<>());
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> newMeanings = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             newMeanings.add(buildMeaning(i, i));
         }
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(newMeanings);
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(newMeanings);
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
@@ -162,13 +163,13 @@ class VocabularySelectionServiceTest {
         profile.setDailyTarget(30); // → targetMeanings = 25
 
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(new ArrayList<>());
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> newMeanings = new ArrayList<>();
         for (int i = 1; i <= 30; i++) {
             newMeanings.add(buildMeaning(i, i));
         }
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(newMeanings);
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(newMeanings);
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
@@ -186,9 +187,9 @@ class VocabularySelectionServiceTest {
                 buildProgress(m2, 4.0)
         );
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(dueList);
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findAllNewMeanings(anyString(), anyList())).thenReturn(new ArrayList<>());
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
+        when(meaningRepository.findNewMeanings(anyString(), any(), anyList(), any())).thenReturn(new ArrayList<>());
+        when(meaningRepository.findAllNewMeanings(anyString(), anyList(), any())).thenReturn(new ArrayList<>());
 
         List<VocabularyMeaning> result = service.selectMeaningsForSession(profile);
 
@@ -200,10 +201,7 @@ class VocabularySelectionServiceTest {
         profile.setLevel(Level.B1);
 
         when(progressRepository.findDueReviews(anyString(), any())).thenReturn(new ArrayList<>());
-        when(progressRepository.findByUserId(anyString())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findNewMeanings(anyString(), any(), anyList())).thenReturn(new ArrayList<>());
-        when(meaningRepository.findAllNewMeanings(anyString(), anyList())).thenReturn(new ArrayList<>());
-
+        when(progressRepository.findWeakProgress(anyString(), anyDouble(), any())).thenReturn(new ArrayList<>());
         service.selectMeaningsForSession(profile);
 
         // Xác nhận levels truyền vào bao gồm A1, A2, B1 (không có B2, C1, C2)
@@ -211,6 +209,6 @@ class VocabularySelectionServiceTest {
                 argThat(levels -> levels.contains(Level.A1)
                         && levels.contains(Level.A2)
                         && levels.contains(Level.B1)
-                        && !levels.contains(Level.B2)));
+                        && !levels.contains(Level.B2)), any());
     }
 }

@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -59,7 +60,7 @@ class QuizGenerateServiceTest {
         void success_ReturnsQuizWithCorrectAnswer() {
             VocabularyMeaning target = buildMeaning(1, "happy", "hạnh phúc", "feeling joy", "cảm giác vui", null);
             when(meaningRepository.findById(1)).thenReturn(java.util.Optional.of(target));
-            when(meaningRepository.findRandomDistractors(eq(1), eq(3))).thenReturn(List.of(
+            when(meaningRepository.findRandomDistractorsPool(anyInt())).thenReturn(List.of(
                     buildSimpleMeaning(2, "sad"),
                     buildSimpleMeaning(3, "angry"),
                     buildSimpleMeaning(4, "tired")
@@ -88,7 +89,7 @@ class QuizGenerateServiceTest {
         void answersAreShuffled_Contains4Answers() {
             VocabularyMeaning target = buildSimpleMeaning(1, "run");
             when(meaningRepository.findById(1)).thenReturn(java.util.Optional.of(target));
-            when(meaningRepository.findRandomDistractors(eq(1), eq(3))).thenReturn(List.of(
+            when(meaningRepository.findRandomDistractorsPool(anyInt())).thenReturn(List.of(
                     buildSimpleMeaning(2, "walk"),
                     buildSimpleMeaning(3, "jump"),
                     buildSimpleMeaning(4, "swim")
@@ -110,7 +111,7 @@ class QuizGenerateServiceTest {
         void success_CorrectAnswerIsTargetWord() {
             VocabularyMeaning target = buildMeaning(1, "happy", "hạnh phúc", "feeling joy", "cảm giác vui", null);
             when(meaningRepository.findById(1)).thenReturn(java.util.Optional.of(target));
-            when(meaningRepository.findRandomDistractors(eq(1), eq(3))).thenReturn(List.of(
+            when(meaningRepository.findRandomDistractorsPool(anyInt())).thenReturn(List.of(
                     buildSimpleMeaning(2, "sad"),
                     buildSimpleMeaning(3, "angry"),
                     buildSimpleMeaning(4, "tired")
@@ -152,7 +153,7 @@ class QuizGenerateServiceTest {
             }
             session.setMeanings(meanings);
             // Distractor mock toàn cục
-            when(meaningRepository.findRandomDistractors(anyInt(), anyInt())).thenReturn(List.of(
+            when(meaningRepository.findRandomDistractorsPool(anyInt())).thenReturn(List.of(
                     buildSimpleMeaning(100, "a"),
                     buildSimpleMeaning(101, "b"),
                     buildSimpleMeaning(102, "c"),
@@ -234,7 +235,7 @@ class QuizGenerateServiceTest {
             quizzes.stream()
                     .filter(q -> q.getQuiz().getType() == QuizType.MATCH)
                     .forEach(q -> assertEquals(8, q.getQuiz().getMatchItems().size(),
-                            "Each MATCH quiz batch of 4 words → 4 LEFT + 4 RIGHT = 8 items"));
+                            "Each MATCH quiz batch of 4 words -> 4 LEFT + 4 RIGHT = 8 items"));
         }
 
         @Test
@@ -243,7 +244,7 @@ class QuizGenerateServiceTest {
 
             List<SessionQuiz> quizzes = service.generateSessionQuizzes(session, 15);
 
-            // Chỉ có 1 meaning → chỉ tạo được 1 MC
+            // Chỉ có 1 meaning -> chỉ tạo được 1 MC
             assertTrue(quizzes.size() <= 2);
         }
     }
@@ -337,7 +338,7 @@ class QuizGenerateServiceTest {
         Session session = new Session();
         session.setMeanings(List.of(target));
 
-        when(meaningRepository.findRandomDistractors(anyInt(), anyInt())).thenReturn(List.of(
+        when(meaningRepository.findRandomDistractorsPool(anyInt())).thenReturn(List.of(
                 buildSimpleMeaning(2, "walk"),
                 buildSimpleMeaning(3, "jump")
         ));

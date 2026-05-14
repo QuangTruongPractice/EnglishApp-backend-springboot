@@ -54,6 +54,10 @@ public class SessionService {
             throw new RuntimeException("Writing prompt does not belong to this session");
         }
 
+        if (Boolean.TRUE.equals(prompt.getCompleted())) {
+            throw new RuntimeException("This writing prompt has already been completed");
+        }
+
         String aiUrl = "https://satyr-dashing-officially.ngrok-free.app/analyze-usage";
 
         List<Integer> ids = Arrays.stream(prompt.getTargetMeaningIds().split(","))
@@ -110,6 +114,12 @@ public class SessionService {
 
         SessionQuiz sessionQuiz = sessionQuizRepository.findByIdAndSessionId(sessionQuizId, sessionId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found in this session"));
+
+        if (sessionQuiz.getIsCorrect() != null) {
+            return SubmitQuizResponse.builder()
+                    .xpAwarded(0)
+                    .build();
+        }
 
         sessionQuiz.setIsCorrect(isCorrect);
         sessionQuizRepository.save(sessionQuiz);

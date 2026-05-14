@@ -1,9 +1,6 @@
 package com.tqt.englishApp.controller.client;
 
-import com.tqt.englishApp.dto.request.ApiResponse;
-import com.tqt.englishApp.dto.request.AuthenticationRequest;
-import com.tqt.englishApp.dto.request.GoogleAuthRequest;
-import com.tqt.englishApp.dto.request.UserUpdateRequest;
+import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.AuthenticationResponse;
 import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.service.AuthenticateService;
@@ -42,10 +39,14 @@ public class ApiAuthController {
                     String token = JwtUtils.generateToken(
                             user.getUsername(),
                             roles);
+                    String refreshToken = JwtUtils.generateRefreshToken(
+                            user.getUsername(),
+                            roles);
 
                     AuthenticationResponse authResponse = new AuthenticationResponse();
                     authResponse.setAuthenticated(result);
                     authResponse.setToken(token);
+                    authResponse.setRefreshToken(refreshToken);
                     response.setResult(authResponse);
                     response.setMessage("Đăng nhập thành công");
                     return response;
@@ -94,10 +95,14 @@ public class ApiAuthController {
                     String token = JwtUtils.generateToken(
                             user.getEmail(),
                             roles);
+                    String refreshToken = JwtUtils.generateRefreshToken(
+                            user.getEmail(),
+                            roles);
 
                     AuthenticationResponse authResponse = new AuthenticationResponse();
                     authResponse.setAuthenticated(result);
                     authResponse.setToken(token);
+                    authResponse.setRefreshToken(refreshToken);
                     response.setResult(authResponse);
                     response.setMessage("Đăng nhập thành công");
                     return response;
@@ -140,5 +145,36 @@ public class ApiAuthController {
         String username = principal.getName();
         UserResponse user = userService.findUserByUsername(username);
         return ResponseEntity.ok(userService.updateUser(user.getId(), request));
+    }
+
+    @PostMapping("/auth/refresh")
+    public ApiResponse<AuthenticationResponse> refresh(@RequestBody RefreshRequest request) {
+        ApiResponse<AuthenticationResponse> response = new ApiResponse<>();
+        try {
+            var claims = JwtUtils.validateTokenAndGetClaims(request.getToken());
+            if (claims != null) {
+                String username = (String) claims.get("username");
+                String roles = (String) claims.get("role");
+
+                String newToken = JwtUtils.generateToken(username, roles);
+                String newRefreshToken = JwtUtils.generateRefreshToken(username, roles);
+
+                AuthenticationResponse authResponse = new AuthenticationResponse();
+                authResponse.setAuthenticated(true);
+                authResponse.setToken(newToken);
+                authResponse.setRefreshToken(newRefreshToken);
+
+                response.setResult(authResponse);
+                response.setMessage("Làm mới token thành công");
+                return response;
+            }
+        } catch (Exception e) {
+            response.setMessage("Token không hợp lệ hoặc đã hết hạn: " + e.getMessage());
+            response.setCode(401);
+            return response;
+        }
+        response.setMessage("Làm mới token thất bại");
+        response.setCode(401);
+        return response;
     }
 }

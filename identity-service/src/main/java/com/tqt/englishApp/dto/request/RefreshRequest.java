@@ -1,4 +1,4 @@
-package com.tqt.englishApp.dto.response;
+package com.tqt.englishApp.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -7,8 +7,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponse {
-    boolean authenticated;
+public class RefreshRequest {
     String token;
-    String refreshToken;
 }

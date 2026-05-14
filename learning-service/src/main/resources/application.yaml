@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/learningdb?sslMode=REQUIRED
+    url: jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/learningdb?sslMode=REQUIRED&rewriteBatchedStatements=true
     username: 4LGbsrBLSmPw4K8.root
     password: yTj7fhI0tzERXGuC
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -14,6 +14,12 @@ spring:
       ddl-auto: none
     show-sql: true
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
   servlet:
     multipart:
       max-file-size: 5MB
@@ -29,5 +35,5 @@ external:
 
 services:
   identity:
-    url: http://localhost:8080/identity
+    url: https://englishapp-identity-truong-d7eeb7gmfffggzhz.southeastasia-01.azurewebsites.net/identity
 

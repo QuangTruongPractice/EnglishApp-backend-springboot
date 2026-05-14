@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>identity-service</name>
 	<description>Learning English App</description>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<url/>
 	<licenses>
 		<license/>

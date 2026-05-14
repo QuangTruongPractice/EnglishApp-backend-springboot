@@ -14,15 +14,24 @@ import java.util.Map;
 
 public class JwtUtils {
     private static final String SECRET = "12345678901234567890123456789012";
-    private static final long EXPIRATION_MS = 86400000;
+    private static final long EXPIRATION_MS = 1800000; // 30 minutes
+    private static final long REFRESH_EXPIRATION_MS = 604800000; // 7 days
 
     public static String generateToken(String username, String role) throws Exception {
+        return generateToken(username, role, EXPIRATION_MS);
+    }
+
+    public static String generateRefreshToken(String username, String role) throws Exception {
+        return generateToken(username, role, REFRESH_EXPIRATION_MS);
+    }
+
+    private static String generateToken(String username, String role, long expirationTime) throws Exception {
         JWSSigner signer = new MACSigner(SECRET);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .claim("role", role)
-                .expirationTime(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .expirationTime(new Date(System.currentTimeMillis() + expirationTime))
                 .issueTime(new Date())
                 .build();
 

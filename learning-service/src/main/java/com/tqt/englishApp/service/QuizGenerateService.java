@@ -91,7 +91,12 @@ public class QuizGenerateService {
                 .createdAt(now)
                 .build());
 
-        List<VocabularyMeaning> distractors = meaningRepository.findRandomDistractors(meaningId, 3);
+        List<VocabularyMeaning> pool = meaningRepository.findRandomDistractorsPool(10);
+        List<VocabularyMeaning> distractors = pool.stream()
+                .filter(m -> !m.getId().equals(meaningId))
+                .limit(3)
+                .collect(Collectors.toList());
+
         for (int i = 0; i < distractors.size(); i++) {
             answers.add(AnswerSimpleResponse.builder()
                     .id(i + 2)
@@ -128,7 +133,12 @@ public class QuizGenerateService {
                 .createdAt(now)
                 .build());
 
-        List<VocabularyMeaning> distractors = meaningRepository.findRandomDistractors(meaningId, 3);
+        List<VocabularyMeaning> pool = meaningRepository.findRandomDistractorsPool(10);
+        List<VocabularyMeaning> distractors = pool.stream()
+                .filter(m -> !m.getId().equals(meaningId))
+                .limit(3)
+                .collect(Collectors.toList());
+
         for (int i = 0; i < distractors.size(); i++) {
             answers.add(AnswerSimpleResponse.builder()
                     .id(i + 2)
@@ -171,13 +181,15 @@ public class QuizGenerateService {
         }
 
         int currentIdx = 0;
+        // Tối ưu hóa: Lấy một pool distractors ngẫu nhiên để dùng chung cho cả phiên
+        List<VocabularyMeaning> distractorPool = meaningRepository.findRandomDistractorsPool(50);
 
         for (int i = 0; i < mcCount && currentIdx < meanings.size(); i++) {
-            sessionQuizzes.add(createMC(meanings.get(currentIdx++), session));
+            sessionQuizzes.add(createMC(meanings.get(currentIdx++), session, distractorPool));
         }
 
         for (int i = 0; i < fillCount && currentIdx < meanings.size(); i++) {
-            sessionQuizzes.add(createFILL(meanings.get(currentIdx++), session));
+            sessionQuizzes.add(createFILL(meanings.get(currentIdx++), session, distractorPool));
         }
 
         for (int i = 0; i < matchCount && (currentIdx + 3) < meanings.size(); i++) {
@@ -189,7 +201,7 @@ public class QuizGenerateService {
         return sessionQuizzes;
     }
 
-    private SessionQuiz createMC(VocabularyMeaning target, Session session) {
+    private SessionQuiz createMC(VocabularyMeaning target, Session session, List<VocabularyMeaning> distractorPool) {
         Quiz quiz = Quiz.builder()
                 .type(QuizType.MC)
                 .question("Chọn định nghĩa đúng cho từ: " + target.getVocabulary().getWord())
@@ -199,8 +211,11 @@ public class QuizGenerateService {
         List<Answer> answers = new ArrayList<>();
         answers.add(Answer.builder().answer(target.getVnDefinition()).isCorrect(true).quiz(quiz).build());
 
-        meaningRepository.findRandomDistractors(target.getId(), 3).forEach(
-                vm -> answers.add(Answer.builder().answer(vm.getVnDefinition()).isCorrect(false).quiz(quiz).build()));
+        // Lấy distractors từ pool
+        distractorPool.stream()
+                .filter(vm -> !vm.getId().equals(target.getId()))
+                .limit(3)
+                .forEach(vm -> answers.add(Answer.builder().answer(vm.getVnDefinition()).isCorrect(false).quiz(quiz).build()));
 
         Collections.shuffle(answers);
         quiz.setAnswers(answers);
@@ -213,7 +228,7 @@ public class QuizGenerateService {
                 .build();
     }
 
-    private SessionQuiz createFILL(VocabularyMeaning target, Session session) {
+    private SessionQuiz createFILL(VocabularyMeaning target, Session session, List<VocabularyMeaning> distractorPool) {
         String targetWord = target.getVocabulary().getWord();
         String example = target.getExample();
         String question = "Điền từ đúng cho định nghĩa: " + target.getDefinition();
@@ -242,8 +257,11 @@ public class QuizGenerateService {
         List<Answer> answers = new ArrayList<>();
         answers.add(Answer.builder().answer(correctAnswer).isCorrect(true).quiz(quiz).build());
 
-        meaningRepository.findRandomDistractors(target.getId(), 5).forEach(vm -> answers
-                .add(Answer.builder().answer(vm.getVocabulary().getWord()).isCorrect(false).quiz(quiz).build()));
+        // Lấy distractors từ pool
+        distractorPool.stream()
+                .filter(vm -> !vm.getId().equals(target.getId()))
+                .limit(5)
+                .forEach(vm -> answers.add(Answer.builder().answer(vm.getVocabulary().getWord()).isCorrect(false).quiz(quiz).build()));
 
         Collections.shuffle(answers);
         quiz.setAnswers(answers);

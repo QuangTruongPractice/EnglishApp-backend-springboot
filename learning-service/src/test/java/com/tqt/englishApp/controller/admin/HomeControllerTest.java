@@ -58,7 +58,7 @@ public class HomeControllerTest {
     void root_RedirectsToAdmin() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/"));
+                .andExpect(redirectedUrl("/admin"));
     }
 
     @Test

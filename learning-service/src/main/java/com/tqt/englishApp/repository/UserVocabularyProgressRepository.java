@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -29,4 +30,13 @@ public interface UserVocabularyProgressRepository extends JpaRepository<UserVoca
                         "AND u.nextReviewAt <= :now " +
                         "AND u.status != 'MASTERED'")
         List<UserVocabularyProgress> findDueReviews(String userId, LocalDateTime now);
+
+        @Query("SELECT u FROM UserVocabularyProgress u " +
+                        "WHERE u.userId = :userId " +
+                        "AND u.difficulty > :minDifficulty " +
+                        "AND u.status != 'MASTERED' " +
+                        "ORDER BY u.difficulty DESC, u.nextReviewAt ASC")
+        List<UserVocabularyProgress> findWeakProgress(@Param("userId") String userId, 
+                                                       @Param("minDifficulty") Double minDifficulty, 
+                                                       Pageable pageable);
 }

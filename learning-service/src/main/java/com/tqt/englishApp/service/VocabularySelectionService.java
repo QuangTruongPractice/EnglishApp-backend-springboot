@@ -5,6 +5,7 @@ import com.tqt.englishApp.enums.Level;
 import com.tqt.englishApp.repository.UserVocabularyProgressRepository;
 import com.tqt.englishApp.repository.VocabularyMeaningRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,13 +38,13 @@ public class VocabularySelectionService {
 
         // Bucket 2: Từ khó (Max 4)
         if (finalMeanings.size() < targetMeanings) {
-            List<UserVocabularyProgress> weakProgress = progressRepository.findByUserId(profile.getUserId()).stream()
-                    .filter(p -> p.getDifficulty() > 8.0 && !finalMeanings.contains(p.getMeaning()))
-                    .limit(20) // Giới hạn tìm kiếm
-                    .collect(Collectors.toList());
+            List<UserVocabularyProgress> weakProgress = progressRepository.findWeakProgress(
+                    profile.getUserId(), 
+                    8.0, 
+                    PageRequest.of(0, 10)); // Lấy top 10 từ khó nhất
 
             for (UserVocabularyProgress p : weakProgress) {
-                if (finalMeanings.size() >= (8 + 4) || finalMeanings.size() >= targetMeanings)
+                if (finalMeanings.size() >= targetMeanings)
                     break;
                 VocabularyMeaning meaning = p.getMeaning();
                 if (!selectedWordIds.contains(meaning.getVocabulary().getId())) {
@@ -56,10 +57,14 @@ public class VocabularySelectionService {
         // Bucket 3: Từ mới
         if (finalMeanings.size() < targetMeanings) {
             List<Level> levels = getLevelsUpTo(profile.getLevel());
+            int remaining = targetMeanings - finalMeanings.size();
             
             // Step 3a: Tìm từ mới theo mục tiêu học tập của người dùng
-            List<VocabularyMeaning> goalSpecificMeanings = meaningRepository.findNewMeanings(profile.getUserId(),
-                    profile.getGoal(), levels);
+            List<VocabularyMeaning> goalSpecificMeanings = meaningRepository.findNewMeanings(
+                    profile.getUserId(),
+                    profile.getGoal(), 
+                    levels,
+                    PageRequest.of(0, remaining * 2)); // Lấy dư một chút để filter ID trùng
 
             for (VocabularyMeaning meaning : goalSpecificMeanings) {
                 if (finalMeanings.size() >= targetMeanings)
@@ -72,7 +77,11 @@ public class VocabularySelectionService {
 
             // Step 3b: Tìm từ mới nếu không đủ từ theo mục tiêu học tập
             if (finalMeanings.size() < targetMeanings) {
-                List<VocabularyMeaning> allNewMeanings = meaningRepository.findAllNewMeanings(profile.getUserId(), levels);
+                remaining = targetMeanings - finalMeanings.size();
+                List<VocabularyMeaning> allNewMeanings = meaningRepository.findAllNewMeanings(
+                        profile.getUserId(), 
+                        levels,
+                        PageRequest.of(0, remaining * 2));
                 for (VocabularyMeaning meaning : allNewMeanings) {
                     if (finalMeanings.size() >= targetMeanings)
                         break;
