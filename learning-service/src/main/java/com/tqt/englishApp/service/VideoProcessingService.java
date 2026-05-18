@@ -15,14 +15,14 @@ public class VideoProcessingService {
 
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${external.process-video-url}")
-    private String processingApiUrl;
+    @Value("${external.ai-service-url}")
+    private String aiServiceUrl;
 
     public void processAndSaveVideo(String youtubeUrl) {
         Map<String, String> requestBody = Map.of("url", youtubeUrl);
 
         VideoProcessingResponse processingResponse = restTemplate.postForObject(
-                processingApiUrl,
+                aiServiceUrl + "/process-video",
                 requestBody,
                 VideoProcessingResponse.class);
         System.out.println("processingResponse: " + processingResponse.getData());

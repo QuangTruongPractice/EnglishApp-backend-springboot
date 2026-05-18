@@ -31,9 +31,6 @@ public class Video {
     @Column(name = "title", nullable = false, length = 500)
     String title;
 
-    @Column(name = "youtube_url", nullable = false, columnDefinition = "TEXT")
-    String youtubeUrl;
-
     @Column(name = "duration")
     Integer duration;
 

@@ -8,6 +8,7 @@ import com.tqt.englishApp.enums.QuizType;
 import com.tqt.englishApp.mapper.SessionMapper;
 import com.tqt.englishApp.mapper.SessionQuizMapper;
 import com.tqt.englishApp.repository.*;
+import org.springframework.web.client.RestTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,7 @@ class SessionServiceTest {
     @Mock private VocabularyLearningService vocabularyLearningService;
     @Mock private SessionMapper sessionMapper;
     @Mock private SessionQuizMapper sessionQuizMapper;
+    @Mock private RestTemplate restTemplate;
 
     private Session session;
     private Quiz mcQuiz;

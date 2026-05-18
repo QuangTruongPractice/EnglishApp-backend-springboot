@@ -9,8 +9,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface AnswerMapper {
     @Mapping(target = "quiz", ignore = true)
-    @Mapping(target = "text", ignore = true)
-    @Mapping(target = "meaningId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Answer toAnswer(AnswerRequest answer);
 
@@ -22,8 +20,6 @@ public interface AnswerMapper {
     AnswerRequest toAnswerRequest(Answer answer);
 
     @Mapping(target = "quiz", ignore = true)
-    @Mapping(target = "text", ignore = true)
-    @Mapping(target = "meaningId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateAnswer(@MappingTarget Answer answer, AnswerRequest request);

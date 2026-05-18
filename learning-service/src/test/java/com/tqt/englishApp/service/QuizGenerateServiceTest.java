@@ -320,9 +320,9 @@ class QuizGenerateServiceTest {
         void promptTargetMeaningIds_ContainsTwoIds() {
             List<WritingPrompt> prompts = service.generateWritingPrompts(session, 15);
 
-            String ids = prompts.get(0).getTargetMeaningIds();
-            assertNotNull(ids);
-            assertEquals(2, ids.split(",").length);
+            List<VocabularyMeaning> targetMeanings = prompts.get(0).getTargetMeanings();
+            assertNotNull(targetMeanings);
+            assertEquals(2, targetMeanings.size());
         }
     }
 

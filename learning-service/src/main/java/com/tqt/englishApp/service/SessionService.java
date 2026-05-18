@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -40,7 +41,10 @@ public class SessionService {
     private final VocabularyLearningService vocabularyLearningService;
     private final SessionMapper sessionMapper;
     private final SessionQuizMapper sessionQuizMapper;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    @Value("${external.ai-service-url}")
+    private String aiServiceUrl;
 
     @Transactional
     public AiAnalysisResponse submitWriting(Integer sessionId, Integer promptId, String userId, String userText) {
@@ -58,14 +62,9 @@ public class SessionService {
             throw new RuntimeException("This writing prompt has already been completed");
         }
 
-        String aiUrl = "https://satyr-dashing-officially.ngrok-free.app/analyze-usage";
+        String aiUrl = aiServiceUrl + "/analyze-usage";
 
-        List<Integer> ids = Arrays.stream(prompt.getTargetMeaningIds().split(","))
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
-
-        String[] keywords = ids.stream()
-                .map(id -> meaningRepository.findById(id).orElse(null))
+        String[] keywords = prompt.getTargetMeanings().stream()
                 .filter(Objects::nonNull)
                 .map(m -> m.getVocabulary().getWord())
                 .toArray(String[]::new);

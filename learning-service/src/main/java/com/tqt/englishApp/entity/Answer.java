@@ -29,12 +29,6 @@ public class Answer {
     @Builder.Default
     Boolean isCorrect = false;
 
-    @Column(name = "text")
-    String text;
-
-    @Column(name = "meaning_id")
-    Integer meaningId;
-
     @Column(name = "created_at", updatable = false)
     LocalDateTime createdAt;
 

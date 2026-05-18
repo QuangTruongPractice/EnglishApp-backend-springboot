@@ -32,7 +32,7 @@ class VideoProcessingServiceTest {
 
     @BeforeEach
     void setup() {
-        ReflectionTestUtils.setField(videoProcessingService, "processingApiUrl", "http://test-url.com");
+        ReflectionTestUtils.setField(videoProcessingService, "aiServiceUrl", "http://test-url.com");
     }
 
     @Test
@@ -41,7 +41,7 @@ class VideoProcessingServiceTest {
         VideoData videoData = new VideoData();
         VideoProcessingResponse response = new VideoProcessingResponse(videoData, true);
 
-        when(restTemplate.postForObject(eq("http://test-url.com"), any(Map.class), eq(VideoProcessingResponse.class)))
+        when(restTemplate.postForObject(eq("http://test-url.com/process-video"), any(Map.class), eq(VideoProcessingResponse.class)))
                 .thenReturn(response);
 
         videoProcessingService.processAndSaveVideo(youtubeUrl);

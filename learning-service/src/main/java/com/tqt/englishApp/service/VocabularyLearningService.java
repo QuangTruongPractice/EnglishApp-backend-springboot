@@ -90,8 +90,8 @@ public class VocabularyLearningService {
             progress.setRepetitionCount(progress.getRepetitionCount() + 1);
         }
 
-        // Stability trong FSRS v5 là khoảng thời gian cho 90% khả năng ghi nhớ
-        int interval = (int) Math.max(1, Math.round(progress.getStability()));
+        // Tính khoảng thời gian lặp lại dựa trên Retention mong muốn (mặc định 0.9 = 90%)
+        int interval = fsrsService.nextInterval(0.9, progress.getStability());
         progress.setIntervalDay(interval);
         progress.setNextReviewAt(now.plusDays(interval));
     }

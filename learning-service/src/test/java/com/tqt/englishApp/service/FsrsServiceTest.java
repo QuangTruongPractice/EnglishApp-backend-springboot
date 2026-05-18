@@ -91,41 +91,41 @@ class FsrsServiceTest {
 
         @Test
         void rating1_Again_SetsCorrectInitialValues() {
-            // W[0] = 0.40255, D0 = W[4] - exp(W[5] * 0) + 1
+            // W[0] = 0.212, D0 = W[4] - exp(W[5] * 0) + 1
             fsrsService.initProgress(progress, 1);
 
-            assertEquals(0.40255, progress.getStability(), 1e-6);
-            double expectedD = clampRef(7.1949 - Math.exp(0.5345 * 0) + 1, 1, 10);
+            assertEquals(0.212, progress.getStability(), 1e-6);
+            double expectedD = clampRef(6.4133 - Math.exp(0.8334 * 0) + 1, 1, 10);
             assertEquals(expectedD, progress.getDifficulty(), 1e-6);
         }
 
         @Test
         void rating2_Hard_SetsCorrectInitialValues() {
-            // W[1] = 1.18385
+            // W[1] = 1.2931
             fsrsService.initProgress(progress, 2);
 
-            assertEquals(1.18385, progress.getStability(), 1e-6);
-            double expectedD = clampRef(7.1949 - Math.exp(0.5345 * 1) + 1, 1, 10);
+            assertEquals(1.2931, progress.getStability(), 1e-6);
+            double expectedD = clampRef(6.4133 - Math.exp(0.8334 * 1) + 1, 1, 10);
             assertEquals(expectedD, progress.getDifficulty(), 1e-6);
         }
 
         @Test
         void rating3_Good_SetsCorrectInitialValues() {
-            // W[2] = 3.173
+            // W[2] = 2.3065
             fsrsService.initProgress(progress, 3);
 
-            assertEquals(3.173, progress.getStability(), 1e-6);
-            double expectedD = clampRef(7.1949 - Math.exp(0.5345 * 2) + 1, 1, 10);
+            assertEquals(2.3065, progress.getStability(), 1e-6);
+            double expectedD = clampRef(6.4133 - Math.exp(0.8334 * 2) + 1, 1, 10);
             assertEquals(expectedD, progress.getDifficulty(), 1e-6);
         }
 
         @Test
         void rating4_Easy_SetsCorrectInitialValues() {
-            // W[3] = 15.69105
+            // W[3] = 8.2956
             fsrsService.initProgress(progress, 4);
 
-            assertEquals(15.69105, progress.getStability(), 1e-6);
-            double expectedD = clampRef(7.1949 - Math.exp(0.5345 * 3) + 1, 1, 10);
+            assertEquals(8.2956, progress.getStability(), 1e-6);
+            double expectedD = clampRef(6.4133 - Math.exp(0.8334 * 3) + 1, 1, 10);
             assertEquals(expectedD, progress.getDifficulty(), 1e-6);
         }
 
@@ -448,6 +448,49 @@ class FsrsServiceTest {
                 fsrsService.updateProgress(p, r, LocalDateTime.now());
                 assertTrue(p.getStability() > 0, "Stability must be > 0 for rating=" + r);
             }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // nextInterval
+    // -----------------------------------------------------------------------
+    @Nested
+    class NextInterval {
+
+        @Test
+        void nextInterval_WithRetention0_9_ReturnsStability() {
+            // Khi requestRetention = 0.9, theo lý thuyết khoảng thời gian lặp lại chính bằng Stability
+            // interval = (stability / FACTOR) * (Math.pow(0.9, 1.0 / -DECAY) - 1)
+            // Vì FACTOR = Math.pow(0.9, -1.0 / DECAY) - 1.0, nên interval == stability
+            double stability = 10.0;
+            int interval = fsrsService.nextInterval(0.9, stability);
+            assertEquals((int) Math.round(stability), interval, "Interval should equal stability when retention is 0.9");
+        }
+
+        @Test
+        void nextInterval_WithHigherRetention_ReturnsShorterInterval() {
+            // Nếu muốn nhớ 95%, thời gian lặp lại phải ngắn hơn
+            double stability = 10.0;
+            int interval90 = fsrsService.nextInterval(0.9, stability);
+            int interval95 = fsrsService.nextInterval(0.95, stability);
+
+            assertTrue(interval95 < interval90, "Higher requested retention should yield a shorter interval");
+        }
+
+        @Test
+        void nextInterval_WithLowerRetention_ReturnsLongerInterval() {
+            // Nếu chấp nhận chỉ nhớ 80%, thời gian lặp lại có thể kéo dài hơn
+            double stability = 10.0;
+            int interval90 = fsrsService.nextInterval(0.9, stability);
+            int interval80 = fsrsService.nextInterval(0.8, stability);
+
+            assertTrue(interval80 > interval90, "Lower requested retention should yield a longer interval");
+        }
+
+        @Test
+        void nextInterval_MinimumIs1Day() {
+            int interval = fsrsService.nextInterval(0.99, 0.1); // Yêu cầu retention cực cao + stability thấp
+            assertEquals(1, interval, "Interval should be clamped to a minimum of 1 day");
         }
     }
 

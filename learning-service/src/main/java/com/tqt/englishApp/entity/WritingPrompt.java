@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Entity
 @Table(name = "writing_prompt")
 @Data
@@ -21,8 +23,13 @@ public class WritingPrompt {
     @Column(name = "type")
     WritingPromptType type;
 
-    @Column(name = "target_meaning_ids")
-    String targetMeaningIds;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "writing_prompt_meanings",
+        joinColumns = @JoinColumn(name = "writing_prompt_id"),
+        inverseJoinColumns = @JoinColumn(name = "meaning_id")
+    )
+    List<VocabularyMeaning> targetMeanings;
 
     @Column(name = "user_response", columnDefinition = "TEXT")
     String userResponse;

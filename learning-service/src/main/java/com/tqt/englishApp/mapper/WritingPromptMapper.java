@@ -4,23 +4,16 @@ import com.tqt.englishApp.dto.response.SimpleMeaningResponse;
 import com.tqt.englishApp.dto.response.WritingPromptResponse;
 import com.tqt.englishApp.entity.WritingPrompt;
 import com.tqt.englishApp.enums.WritingPromptType;
-import com.tqt.englishApp.repository.VocabularyMeaningRepository;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class WritingPromptMapper {
-
-    @Autowired
-    protected VocabularyMeaningRepository meaningRepository;
 
     @Mapping(target = "meanings", ignore = true)
     @Mapping(target = "question", ignore = true)
@@ -30,15 +23,9 @@ public abstract class WritingPromptMapper {
 
     @AfterMapping
     protected void fillDetails(WritingPrompt prompt, @MappingTarget WritingPromptResponse response) {
-        if (prompt.getTargetMeaningIds() == null || prompt.getTargetMeaningIds().isEmpty()) return;
+        if (prompt.getTargetMeanings() == null || prompt.getTargetMeanings().isEmpty()) return;
 
-        List<Integer> ids = Arrays.stream(prompt.getTargetMeaningIds().split(","))
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
-
-        List<SimpleMeaningResponse> meanings = ids.stream()
-                .map(id -> meaningRepository.findById(id).orElse(null))
-                .filter(Objects::nonNull)
+        List<SimpleMeaningResponse> meanings = prompt.getTargetMeanings().stream()
                 .map(m -> SimpleMeaningResponse.builder()
                         .id(m.getId())
                         .word(m.getVocabulary().getWord())

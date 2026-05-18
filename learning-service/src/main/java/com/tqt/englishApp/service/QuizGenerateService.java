@@ -62,14 +62,10 @@ public class QuizGenerateService {
                 }
             }
 
-            String ids = selected.stream()
-                    .map(m -> String.valueOf(m.getId()))
-                    .collect(Collectors.joining(","));
-
             prompts.add(WritingPrompt.builder()
                     .session(session)
                     .type(i == 0 ? WritingPromptType.SENTENCE : WritingPromptType.MINI_STORY)
-                    .targetMeaningIds(ids)
+                    .targetMeanings(selected)
                     .completed(false)
                     .build());
         }
