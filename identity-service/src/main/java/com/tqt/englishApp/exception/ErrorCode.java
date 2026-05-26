@@ -25,6 +25,10 @@ public enum ErrorCode {
     QUIZ_NOT_EXISTED(1014, "Không tìm thấy quiz"),
     ANSWER_NOT_EXISTED(1015, "Không tìm thấy answer"),
     OLD_PASSWORD_INCORRECT(1016, "Mật khẩu cũ không chính xác"),
+    OTP_INVALID(1017, "OTP không tồn tại hoặc không đúng"),
+    OTP_EXPIRED(1018, "OTP đã hết hạn, vui lòng yêu cầu OTP mới"),
+    RESET_TOKEN_INVALID(1019, "Reset token không hợp lệ"),
+    RESET_TOKEN_EXPIRED(1020, "Reset token đã hết hạn, vui lòng yêu cầu lại"),
     ;
 
     ErrorCode(int code, String message) {

@@ -4,6 +4,7 @@ import com.tqt.englishApp.controller.client.ApiAuthController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tqt.englishApp.dto.request.AuthenticationRequest;
 import com.tqt.englishApp.dto.request.GoogleAuthRequest;
+import com.tqt.englishApp.dto.request.RefreshRequest;
 import com.tqt.englishApp.dto.request.UserUpdateRequest;
 import com.tqt.englishApp.dto.response.RoleResponse;
 import com.tqt.englishApp.dto.response.UserResponse;
@@ -255,4 +256,36 @@ public class ApiAuthControllerTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.code").value(500));
         }
+    @Test
+    void refresh_Success() throws Exception {
+        RefreshRequest request = new RefreshRequest();
+        request.setToken("old-token");
+        // Mock JwtUtils static methods
+        mockedJwtUtils.when(() -> JwtUtils.validateTokenAndGetClaims("old-token"))
+                .thenReturn(java.util.Map.of("username", "user", "role", "USER"));
+        mockedJwtUtils.when(() -> JwtUtils.generateToken("user", "USER"))
+                .thenReturn("new-token");
+
+        mockMvc.perform(post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.authenticated").value(true))
+                .andExpect(jsonPath("$.result.token").value("new-token"));
+    }
+
+    @Test
+    void refresh_InvalidToken_Failure() throws Exception {
+        RefreshRequest request = new RefreshRequest();
+        request.setToken("bad-token");
+        mockedJwtUtils.when(() -> JwtUtils.validateTokenAndGetClaims("bad-token"))
+                .thenThrow(new RuntimeException("Invalid token"));
+
+        mockMvc.perform(post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(401));
+    }
 }
+

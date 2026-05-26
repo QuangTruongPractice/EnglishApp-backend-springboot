@@ -232,14 +232,10 @@ public class QuizGenerateService {
         String correctAnswer = targetWord;
 
         if (example != null && !example.isEmpty()) {
-            // Biểu thức chính quy (Regex) để tìm từ mục tiêu và các hậu tố có thể có (s, ed, ing, v.v.)
-            String regex = "(?i)\\b(" + Pattern.quote(targetWord) + "\\w*)\\b";
-            Matcher matcher = Pattern.compile(regex).matcher(example);
-
-            if (matcher.find()) {
-                String foundWord = matcher.group(1);
+            String foundWord = findMatchingWord(targetWord, example);
+            if (foundWord != null) {
                 correctAnswer = foundWord;
-                text = example.replace(foundWord, "...");
+                text = example.replaceAll("(?i)\\b" + Pattern.quote(foundWord) + "\\b", "...");
                 question = "Điền từ còn thiếu vào câu dưới đây:";
             }
         }
@@ -268,6 +264,60 @@ public class QuizGenerateService {
                 .meaning(target)
                 .xpAwarded(8)
                 .build();
+    }
+
+    private String findMatchingWord(String targetWord, String example) {
+        if (example == null || example.isEmpty()) {
+            return null;
+        }
+
+        String[] words = example.split("[^a-zA-Z]+");
+        String targetLower = targetWord.toLowerCase();
+
+        // Bước 1: tìm từ chính xác (không phân biệt hoa thường)
+        for (String w : words) {
+            if (w.equalsIgnoreCase(targetWord)) {
+                return w;
+            }
+        }
+
+        // Sắp xếp theo độ dài giảm dần để kiểm tra từ dài trước
+        List<String> sortedWords = Arrays.stream(words)
+                .filter(w -> w.length() >= 3)
+                .sorted((w1, w2) -> Integer.compare(w2.length(), w1.length()))
+                .collect(Collectors.toList());
+
+        // Bước 2: Tìm từ bắt đầu bằng hoặc kết thúc bằng từ cần tìm
+        for (String w : sortedWords) {
+            String wLower = w.toLowerCase();
+            if (wLower.startsWith(targetLower)) {
+                return w;
+            }
+            if (targetLower.startsWith(wLower)) {
+                return w;
+            }
+        }
+
+        // Bước 3: Tìm từ có tiền tố hoặc hậu tố chung >= 4 ký tự
+        for (String w : sortedWords) {
+            String wLower = w.toLowerCase();
+            int commonPrefixLen = getCommonPrefixLength(targetLower, wLower);
+            if (commonPrefixLen >= 4) {
+                return w;
+            }
+        }
+
+        return null;
+    }
+
+    private int getCommonPrefixLength(String s1, String s2) {
+        int minLen = Math.min(s1.length(), s2.length());
+        for (int i = 0; i < minLen; i++) {
+            if (s1.charAt(i) != s2.charAt(i)) {
+                return i;
+            }
+        }
+        return minLen;
     }
 
     private SessionQuiz createMATCH(List<VocabularyMeaning> batch, Session session, int matchId) {

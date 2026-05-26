@@ -59,19 +59,20 @@ public class ApiUserControllerTest {
         request.setEmail("user@test.com");
         request.setOtp("123456");
 
-        when(userService.optVerifiedRequest(any())).thenReturn("OTP Verified");
+        when(userService.optVerifiedRequest(any())).thenReturn("fake-token-uuid");
 
         mockMvc.perform(post("/api/verified-otp")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("OTP Verified"));
+                .andExpect(jsonPath("$.message").value("Xác thực OTP thành công"))
+                .andExpect(jsonPath("$.result").value("fake-token-uuid"));
     }
 
     @Test
     void changePassword_Success() throws Exception {
         ChangePasswordRequest request = new ChangePasswordRequest();
-        request.setEmail("user@test.com");
+        request.setResetToken("fake-token-uuid");
         request.setPassword("newpass");
 
         UserResponse response = UserResponse.builder().username("user").build();

@@ -360,6 +360,7 @@ class UserServiceTest {
     @Test
     void resetPassword_Success() {
         ResetPasswordRequest req = new ResetPasswordRequest("test@gmail.com");
+        when(userRepository.findUserByEmail("test@gmail.com")).thenReturn(user);
         when(otpService.generateAndSaveOtp("test@gmail.com")).thenReturn("1234");
 
         userService.resetPassword(req);
@@ -371,16 +372,17 @@ class UserServiceTest {
     @Test
     void optVerifiedRequest_Success() {
         OtpVerifiedRequest req = new OtpVerifiedRequest("test@gmail.com", "1234");
-        when(otpService.verifyOtp("test@gmail.com", "1234")).thenReturn("Success");
+        when(otpService.verifyOtp("test@gmail.com", "1234")).thenReturn("fake-uuid");
 
         String result = userService.optVerifiedRequest(req);
 
-        assertEquals("Success", result);
+        assertEquals("fake-uuid", result);
     }
 
     @Test
     void changePassword_Success() {
-        ChangePasswordRequest req = new ChangePasswordRequest("test@gmail.com", "newPass");
+        ChangePasswordRequest req = new ChangePasswordRequest("fake-uuid", "newPass");
+        when(otpService.verifyResetToken("fake-uuid")).thenReturn("test@gmail.com");
         when(userRepository.findUserByEmail("test@gmail.com")).thenReturn(user);
         when(passwordEncoder.encode("newPass")).thenReturn("encodedNewPass");
         when(userRepository.save(any())).thenReturn(user);
@@ -394,7 +396,8 @@ class UserServiceTest {
 
     @Test
     void changePassword_Fail_NotFound() {
-        ChangePasswordRequest req = new ChangePasswordRequest("unknown@gmail.com", "newPass");
+        ChangePasswordRequest req = new ChangePasswordRequest("fake-uuid", "newPass");
+        when(otpService.verifyResetToken("fake-uuid")).thenReturn("unknown@gmail.com");
         when(userRepository.findUserByEmail("unknown@gmail.com")).thenReturn(null);
 
         AppException ex = assertThrows(AppException.class, () -> userService.changePassword(req));

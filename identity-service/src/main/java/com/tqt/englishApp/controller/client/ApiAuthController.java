@@ -2,6 +2,7 @@ package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.request.*;
 import com.tqt.englishApp.dto.response.AuthenticationResponse;
+import com.tqt.englishApp.dto.response.RefreshResponse;
 import com.tqt.englishApp.dto.response.UserResponse;
 import com.tqt.englishApp.service.AuthenticateService;
 import com.tqt.englishApp.service.UserService;
@@ -148,8 +149,8 @@ public class ApiAuthController {
     }
 
     @PostMapping("/auth/refresh")
-    public ApiResponse<AuthenticationResponse> refresh(@RequestBody RefreshRequest request) {
-        ApiResponse<AuthenticationResponse> response = new ApiResponse<>();
+    public ApiResponse<RefreshResponse> refresh(@RequestBody RefreshRequest request) {
+        ApiResponse<RefreshResponse> response = new ApiResponse<>();
         try {
             var claims = JwtUtils.validateTokenAndGetClaims(request.getToken());
             if (claims != null) {
@@ -157,14 +158,12 @@ public class ApiAuthController {
                 String roles = (String) claims.get("role");
 
                 String newToken = JwtUtils.generateToken(username, roles);
-                String newRefreshToken = JwtUtils.generateRefreshToken(username, roles);
 
-                AuthenticationResponse authResponse = new AuthenticationResponse();
-                authResponse.setAuthenticated(true);
-                authResponse.setToken(newToken);
-                authResponse.setRefreshToken(newRefreshToken);
+                RefreshResponse refreshResponse = new RefreshResponse();
+                refreshResponse.setAuthenticated(true);
+                refreshResponse.setToken(newToken);
 
-                response.setResult(authResponse);
+                response.setResult(refreshResponse);
                 response.setMessage("Làm mới token thành công");
                 return response;
             }

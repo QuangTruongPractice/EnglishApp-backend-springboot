@@ -29,8 +29,9 @@ public class ApiUserController {
     @PostMapping("/verified-otp")
     public ApiResponse<String> optVerified(@RequestBody @Valid OtpVerifiedRequest request) {
         ApiResponse<String> response = new ApiResponse<>();
-        String msg = userService.optVerifiedRequest(request);
-        response.setMessage(msg);
+        String resetToken = userService.optVerifiedRequest(request);
+        response.setResult(resetToken);
+        response.setMessage("Xác thực OTP thành công");
         return response;
     }
 

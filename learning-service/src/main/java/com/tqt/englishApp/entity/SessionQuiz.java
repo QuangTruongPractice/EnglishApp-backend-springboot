@@ -22,7 +22,7 @@ public class SessionQuiz {
     @JoinColumn(name = "session_id", nullable = false)
     Session session;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "quiz_id", nullable = false)
     Quiz quiz;
 

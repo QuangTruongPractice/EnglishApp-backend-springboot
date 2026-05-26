@@ -164,6 +164,12 @@ public class UserService implements UserDetailsService {
 
     public void resetPassword(ResetPasswordRequest request) {
         String email = request.getEmail();
+
+        User u = userRepository.findUserByEmail(email);
+        if (u == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        
         String randomNumber = otpService.generateAndSaveOtp(email);
 
         String subject = "Yêu cầu reset lại Password của bạn đã thành công!";
@@ -173,17 +179,19 @@ public class UserService implements UserDetailsService {
     }
 
     public String optVerifiedRequest(OtpVerifiedRequest request) {
+        // Trả về reset token (UUID) khi verify OTP thành công
         return otpService.verifyOtp(request.getEmail(), request.getOtp());
     }
 
     public UserResponse changePassword(ChangePasswordRequest request) {
-        User u = userRepository.findUserByEmail(request.getEmail());
+        // Verify reset token và lấy email từ token
+        String email = otpService.verifyResetToken(request.getResetToken());
+
+        User u = userRepository.findUserByEmail(email);
         if (u == null) {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
-        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
-            u.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
+        u.setPassword(passwordEncoder.encode(request.getPassword()));
         return userMapper.toUserResponse(userRepository.save(u));
     }
 

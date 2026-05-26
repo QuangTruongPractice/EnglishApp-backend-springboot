@@ -2,6 +2,9 @@ package com.tqt.englishApp.service;
 
 import com.tqt.englishApp.entity.OTP;
 import com.tqt.englishApp.repository.OtpRepository;
+import com.tqt.englishApp.repository.ResetTokenRepository;
+import com.tqt.englishApp.exception.AppException;
+import com.tqt.englishApp.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +26,9 @@ class OtpServiceTest {
 
     @Mock
     private OtpRepository otpRepository;
+    
+    @Mock
+    private ResetTokenRepository resetTokenRepository;
 
     private String email = "test@example.com";
     private String otpValue = "1234";
@@ -52,16 +58,17 @@ class OtpServiceTest {
 
         String result = otpService.verifyOtp(email, otpValue);
 
-        assertEquals("Xác thực OTP thành công, bạn có thể đổi mật khẩu", result);
+        assertNotNull(result);
+        verify(otpRepository).delete(otp);
+        verify(resetTokenRepository).save(any());
     }
 
     @Test
     void verifyOtp_NotFound() {
         when(otpRepository.findByEmailAndOtp(email, otpValue)).thenReturn(null);
 
-        String result = otpService.verifyOtp(email, otpValue);
-
-        assertEquals("OTP không tồn tại hoặc không đúng", result);
+        AppException ex = assertThrows(AppException.class, () -> otpService.verifyOtp(email, otpValue));
+        assertEquals(ErrorCode.OTP_INVALID, ex.getErrorCode());
     }
 
     @Test
@@ -69,9 +76,9 @@ class OtpServiceTest {
         otp.setExpiredAt(LocalDateTime.now().minusMinutes(1));
         when(otpRepository.findByEmailAndOtp(email, otpValue)).thenReturn(otp);
 
-        String result = otpService.verifyOtp(email, otpValue);
-
-        assertEquals("OTP đã hết hạn, vui lòng yêu cầu OTP mới", result);
+        AppException ex = assertThrows(AppException.class, () -> otpService.verifyOtp(email, otpValue));
+        assertEquals(ErrorCode.OTP_EXPIRED, ex.getErrorCode());
         verify(otpRepository).delete(otp);
     }
 }
+
