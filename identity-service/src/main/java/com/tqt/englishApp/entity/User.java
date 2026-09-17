@@ -29,6 +29,8 @@ public class User {
     String avatar;
     LocalDate createdAt;
     Boolean isActive;
+    Integer gems = 0;
+    String equippedFrameKey;
     @ManyToMany
     Set<Role> roles;
 

@@ -21,6 +21,8 @@ public class UserResponse {
     String avatar;
     LocalDate createdAt;
     Boolean isActive;
+    Integer gems;
+    String equippedFrameKey;
     Set<RoleResponse> roles;
     Set<String> permissions;
 }
