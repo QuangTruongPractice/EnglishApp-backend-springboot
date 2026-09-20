@@ -14,4 +14,7 @@ public class WeeklyLeaderboardResponse {
     Integer weeklyXp;
     Integer rank;
     String level;
+    String avatar;
+    String frameAvatar;
+    String equippedFrameKey;
 }

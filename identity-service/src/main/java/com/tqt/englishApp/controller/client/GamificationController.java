@@ -1,7 +1,7 @@
 package com.tqt.englishApp.controller.client;
 
 import com.tqt.englishApp.dto.response.AchievementResponse;
-import com.tqt.englishApp.dto.response.ApiResponse;
+import com.tqt.englishApp.dto.request.ApiResponse;
 import com.tqt.englishApp.dto.response.AvatarFrameResponse;
 import com.tqt.englishApp.service.GamificationService;
 import lombok.AccessLevel;
@@ -13,11 +13,30 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/gamification")
+@RequestMapping("/api/secure/gamification")
+@CrossOrigin
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GamificationController {
     GamificationService gamificationService;
+
+    @GetMapping("/gems")
+    public ApiResponse<Integer> getUserGems(Principal principal) {
+        String username = principal.getName();
+        return ApiResponse.<Integer>builder()
+                .result(gamificationService.getUserGems(username))
+                .message("Lấy số lượng Gem thành công")
+                .build();
+    }
+
+    @PostMapping("/gems/reward")
+    public ApiResponse<Integer> rewardUserGems(Principal principal, @RequestParam("amount") int amount) {
+        String username = principal.getName();
+        return ApiResponse.<Integer>builder()
+                .result(gamificationService.addGems(username, amount))
+                .message("Cộng thưởng Gem thành công")
+                .build();
+    }
 
     @GetMapping("/frames")
     public ApiResponse<List<AvatarFrameResponse>> getAvatarFrames(Principal principal) {
@@ -44,6 +63,16 @@ public class GamificationController {
         return ApiResponse.<String>builder()
                 .result(frameKey)
                 .message("Trang bị khung Avatar thành công")
+                .build();
+    }
+
+    @PostMapping("/frames/unequip")
+    public ApiResponse<String> unequipAvatarFrame(Principal principal) {
+        String username = principal.getName();
+        gamificationService.equipAvatarFrame(username, null);
+        return ApiResponse.<String>builder()
+                .result(null)
+                .message("Tháo khung Avatar thành công")
                 .build();
     }
 

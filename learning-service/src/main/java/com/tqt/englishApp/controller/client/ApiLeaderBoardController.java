@@ -40,15 +40,18 @@ public class ApiLeaderBoardController {
         }
 
         List<UserIdentityResponse> identities = identityClient.getUsersByUsernames(usernames);
-        Map<String, String> nameMap = identities.stream()
-                .collect(Collectors.toMap(UserIdentityResponse::getUsername, UserIdentityResponse::getFullName));
+        Map<String, UserIdentityResponse> userMap = identities.stream()
+                .collect(Collectors.toMap(UserIdentityResponse::getUsername, u -> u, (u1, u2) -> u1));
 
         List<WeeklyLeaderboardResponse> responseList = new ArrayList<>();
         int currentRank = 1;
         
         for (int i = 0; i < topUsers.size(); i++) {
             UserLearningProfile user = topUsers.get(i);
-            String fullName = nameMap.getOrDefault(user.getUserId(), "Unknown User");
+            UserIdentityResponse identity = userMap.get(user.getUserId());
+            String fullName = identity != null ? identity.getFullName() : "Unknown User";
+            String avatar = identity != null ? identity.getAvatar() : null;
+            String frameAvatar = identity != null ? identity.getEquippedFrameKey() : null;
             
             if (i > 0 && user.getWeeklyXp() < topUsers.get(i - 1).getWeeklyXp()) {
                 currentRank = i + 1;
@@ -60,13 +63,19 @@ public class ApiLeaderBoardController {
                     .weeklyXp(user.getWeeklyXp())
                     .rank(currentRank)
                     .level(user.getLevel().name())
+                    .avatar(avatar)
+                    .frameAvatar(frameAvatar)
+                    .equippedFrameKey(frameAvatar)
                     .build());
         }
 
         UserLearningProfile currentUserProfile = profileRepository.findByUserId(currentUserId).orElse(null);
         WeeklyLeaderboardResponse currentUserResponse = null;
         if (currentUserProfile != null) {
-            String fullName = nameMap.getOrDefault(currentUserId, "Unknown User");
+            UserIdentityResponse identity = userMap.get(currentUserId);
+            String fullName = identity != null ? identity.getFullName() : "Unknown User";
+            String avatar = identity != null ? identity.getAvatar() : null;
+            String frameAvatar = identity != null ? identity.getEquippedFrameKey() : null;
             int rank = profileRepository.getWeeklyRank(currentUserId);
             
             currentUserResponse = WeeklyLeaderboardResponse.builder()
@@ -75,6 +84,9 @@ public class ApiLeaderBoardController {
                     .weeklyXp(currentUserProfile.getWeeklyXp())
                     .rank(rank)
                     .level(currentUserProfile.getLevel().name())
+                    .avatar(avatar)
+                    .frameAvatar(frameAvatar)
+                    .equippedFrameKey(frameAvatar)
                     .build();
         }
 

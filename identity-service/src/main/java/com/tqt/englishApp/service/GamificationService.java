@@ -46,14 +46,19 @@ public class GamificationService {
                 AvatarFrame.builder().frameKey("common-wood-oak").name("Vòng Gỗ Sồi Rừng").rarity("Common").gemCost(120).description("Khung gỗ sồi nguyên khối khắc vân uốn và gờ lá rừng ở 2 bên.").iconSymbol("🪵").avatarBg("#FEF3C7").build(),
                 AvatarFrame.builder().frameKey("rare-silver-swords").name("Hiệp Sĩ Kiếm Bạc").rarity("Rare").gemCost(250).description("Cấu trúc viền bạc chạm trổ khiên Hiệp sĩ với 2 thanh kiếm chéo đính ở chân khung.").iconSymbol("⚔️").avatarBg("#F0F9FF").build(),
                 AvatarFrame.builder().frameKey("rare-frost-spikes").name("Chông Băng Bão Tuyết").rarity("Rare").gemCost(350).description("Các chông băng sắc nhọn đâm ra từ 4 phía kèm bông hoa tuyết lục giác trên đỉnh.").iconSymbol("❄️").avatarBg("#F0F9FF").build(),
-                AvatarFrame.builder().frameKey("rare-sakura-heart").name("Trái Tim Anh Đào").rarity("Rare").gemCost(480).description("Vòng dây hoa anh đào uốn hình trái tim mềm mại kèm 5 cánh hoa rơi 3D ở góc dưới.").iconSymbol("🌸").avatarBg("#FDF2F8").build(),
-                AvatarFrame.builder().frameKey("legendary-ruby-warlock").name("Pháp Sư Hồng Ngọc").rarity("Legendary").gemCost(1200).description("Vương miện 3 đỉnh ngọc đỏ rực kết hợp ma pháp tam giác ngược và 3 quả cầu năng lượng lơ lửng.").iconSymbol("🔮").avatarBg("#FFF1F2").build(),
-                AvatarFrame.builder().frameKey("legendary-cyber-wings").name("Cánh Giáp Cyberpunk").rarity("Legendary").gemCost(2000).description("Cụm cánh giáp Cyberpunk đa tầng nhọn hoắt 2 bên hông kèm mũ giáp sừng chéo.").iconSymbol("👾").avatarBg("#ECFEFF").build(),
-                AvatarFrame.builder().frameKey("mythic-god-king-dragon").name("Nhà Vô Địch Tuyệt Đối (Thần Vương)").rarity("Mythic").gemCost(4500).description("🏆 KHUNG HOÀNG GIA THẦN THOẠI DUY NHẤT: Đôi cánh Rồng Thần 3D uốn lượn toàn thân, Vương miện Thần Vương 5 đỉnh nạm ngọc Ruby/Diamond, Khiên Rồng phong ấn và các vì sao tự động xoay lấp lánh!").iconSymbol("👑").avatarBg("#FEF3C7").build()
+                AvatarFrame.builder().frameKey("rare-sakura-heart").name("Trái Tim Anh Đào").rarity("Rare").gemCost(480).description("Vòng dây hoa anh đào kết hình trái tim uốn lượn kèm 5 cánh hoa rơi 3D ở góc dưới.").iconSymbol("🌸").avatarBg("#FDF2F8").build(),
+                AvatarFrame.builder().frameKey("legendary-ruby-warlock").name("Pháp Sư Hồng Ngọc").rarity("Legendary").gemCost(2400).description("Vương miện 3 đỉnh ngọc đỏ rực kết hợp ma pháp tam giác ngược và 3 quả cầu năng lượng lơ lửng.").iconSymbol("🔮").avatarBg("#FFF1F2").build(),
+                AvatarFrame.builder().frameKey("legendary-cyber-wings").name("Cánh Giáp Cyberpunk").rarity("Legendary").gemCost(4000).description("Cụm cánh giáp Cyberpunk đa tầng nhọn hoắt 2 bên hông kèm mũ giáp sừng chéo đỉnh.").iconSymbol("👾").avatarBg("#ECFEFF").build(),
+                AvatarFrame.builder().frameKey("mythic-god-king-dragon").name("Nhà Vô Địch Tuyệt Đối (Thần Vương)").rarity("Mythic").gemCost(9000).description("🏆 KHUNG HOÀNG GIA THẦN THOẠI DUY NHẤT: Đôi cánh Rồng Thần 3D uốn lượn toàn thân, Vương miện Thần Vương 5 đỉnh nạm ngọc Ruby/Diamond, Khiên Rồng phong ấn và các vì sao tự động xoay lấp lánh!").iconSymbol("👑").avatarBg("#FEF3C7").build()
         );
 
         for (AvatarFrame frame : defaultFrames) {
-            if (!avatarFrameRepository.existsByFrameKey(frame.getFrameKey())) {
+            var existing = avatarFrameRepository.findByFrameKey(frame.getFrameKey());
+            if (existing.isPresent()) {
+                AvatarFrame f = existing.get();
+                f.setGemCost(frame.getGemCost());
+                avatarFrameRepository.save(f);
+            } else {
                 avatarFrameRepository.save(frame);
             }
         }
@@ -78,6 +83,27 @@ public class GamificationService {
         }
     }
 
+    public Integer getUserGems(String username) {
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return user.getGems() != null ? user.getGems() : 0;
+    }
+
+    @Transactional
+    public Integer addGems(String username, int amount) {
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        int current = user.getGems() != null ? user.getGems() : 0;
+        int updated = current + amount;
+        user.setGems(updated);
+        userRepository.save(user);
+        return updated;
+    }
+
     public List<AvatarFrameResponse> getAllAvatarFrames(String username) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
@@ -91,11 +117,11 @@ public class GamificationService {
                 .collect(Collectors.toSet());
 
         return allFrames.stream().map(frame -> {
-            String status = "LOCKED";
+            String status = "locked";
             if (frame.getFrameKey().equals(user.getEquippedFrameKey())) {
-                status = "EQUIPPED";
+                status = "equipped";
             } else if (unlockedKeys.contains(frame.getFrameKey())) {
-                status = "UNLOCKED";
+                status = "unlocked";
             }
 
             return AvatarFrameResponse.builder()
@@ -151,7 +177,7 @@ public class GamificationService {
                 .description(frame.getDescription())
                 .iconSymbol(frame.getIconSymbol())
                 .avatarBg(frame.getAvatarBg())
-                .status("UNLOCKED")
+                .status("unlocked")
                 .build();
     }
 
@@ -184,7 +210,7 @@ public class GamificationService {
         return allAchievements.stream().map(ach -> {
             UserAchievement uAch = userAchMap.get(ach.getCode());
             int progressCurrent = uAch != null ? uAch.getProgressCurrent() : 0;
-            String status = uAch != null ? uAch.getStatus() : "LOCKED";
+            String status = uAch != null ? (uAch.getStatus() != null ? uAch.getStatus().toLowerCase() : "locked") : "locked";
 
             return AchievementResponse.builder()
                     .id(ach.getId())
@@ -219,11 +245,11 @@ public class GamificationService {
         UserAchievement uAch = userAchievementRepository.findByUserIdAndAchievementCode(user.getId(), achievementCode)
                 .orElseThrow(() -> new RuntimeException("Thành tựu chưa sẵn sàng để nhận thưởng!"));
 
-        if (!"CLAIMABLE".equals(uAch.getStatus())) {
+        if (!"claimable".equalsIgnoreCase(uAch.getStatus())) {
             throw new RuntimeException("Phần thưởng thành tựu này đã nhận hoặc chưa đạt điều kiện!");
         }
 
-        uAch.setStatus("CLAIMED");
+        uAch.setStatus("claimed");
         uAch.setClaimedAt(LocalDateTime.now());
         userAchievementRepository.save(uAch);
 
@@ -246,7 +272,7 @@ public class GamificationService {
                 .badgeColor(ach.getBadgeColor())
                 .badgeBorderColor(ach.getBadgeBorderColor())
                 .badgeGlowColor(ach.getBadgeGlowColor())
-                .status("CLAIMED")
+                .status("claimed")
                 .build();
     }
 }

@@ -13,6 +13,15 @@ public class UserIdentityResponse {
     String username;
     String firstName;
     String lastName;
+    String avatar;
+    String equippedFrameKey;
+
+    public UserIdentityResponse(String id, String username, String firstName, String lastName) {
+        this.id = id;
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     public String getFullName() {
         return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");

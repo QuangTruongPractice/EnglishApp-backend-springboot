@@ -35,5 +35,5 @@ external:
 
 services:
   identity:
-    url: https://englishapp-identity-truong-d7eeb7gmfffggzhz.southeastasia-01.azurewebsites.net/identity
+    url: http://localhost:8080/identity
 
